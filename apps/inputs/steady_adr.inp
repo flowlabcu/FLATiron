@@ -1,0 +1,27 @@
+# Mesh file
+mesh file = ../demo/mesh/h5/rect.h5
+
+# Output directory prefix
+output prefix = adr_steady 
+output type = pvd
+
+# Set flow physics type
+transport physics type = steady adr
+
+# Physical properties
+diffusivity = 1
+flow velocity = (0, 0)
+reaction = 0.0
+
+# SUPG stabilization
+add supg = true
+
+# Boundary conditions
+gc_inlet = (1, 0)
+one = 1.0
+zero = 0.0
+BC1 = (1, gradient value, gc_inlet)
+BC2 = (3, fixed value, zero)
+
+# Linear solver
+solver type = direct

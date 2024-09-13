@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+source fenics_env
+
+
+# Build dijitso
+cd src/dijitso/
+python3 -m pip install --upgrade --ignore-installed --prefix=${PREFIX} --no-cache-dir .
+cd ../..
+
+# Build ffc
+cd src/ffc/
+python3 -m pip install --upgrade --ignore-installed --prefix=${PREFIX} --no-cache-dir .
+cd ../..
+
+# Install vtk
+python3 -m pip install --upgrade --ignore-installed --prefix=${PREFIX} --no-cache-dir vtk
+
+

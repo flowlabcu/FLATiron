@@ -1,0 +1,31 @@
+# Mesh file
+mesh file = ../demo/mesh/h5/rect.h5
+
+# Output directory prefix
+output prefix = adr_transient
+output type = pvd
+
+# Set flow physics type
+transport physics type = transient adr
+
+# Physical properties
+diffusivity = 1e-2
+flow velocity = (1, 0)
+reaction = 0.0
+
+# Time dependent variables
+time step size = 1e-2
+time span = 1
+save every = 1
+initial condition = (inputs/c0.h5, c)
+
+# SUPG stabilization
+add supg = true
+
+# Boundary conditions
+one = 1.0
+zero = 0.0
+BC1 = (1, fixed value, one)
+
+# Linear solver
+solver type = direct

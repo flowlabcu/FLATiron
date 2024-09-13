@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steady scalar transport &mdash; feFlow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Transient scalar transport" href="app_transient_adr.html" />
+    <link rel="prev" title="Applications" href="app_demo.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            feFlow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Creating mesh</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Install</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Demos</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="app_demo.html">Applications</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Steady scalar transport</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-demo">Running the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-descriptions">Input descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_transient_adr.html">Transient scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_stokes_ldc.html">Stokes flow lid driven cavity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_stokes_pressure_driven.html">Pressure driven stokes flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_navier_stokes.html">Lid driven cavity Navier-Stokes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_transient_navier_stokes.html">Vortex street demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib_demo.html">Library Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics.html">physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">feFlow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="app_demo.html">Applications</a></li>
+      <li class="breadcrumb-item active">Steady scalar transport</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/app_steady_adr.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="steady-scalar-transport">
+<h1>Steady scalar transport<a class="headerlink" href="#steady-scalar-transport" title="Permalink to this heading"></a></h1>
+<p>This is a demo of how to solve a steady scalar transport, the so called Advection-Diffusion-Reaction problem using an input file for the prebuilt input-defined solvers. These examples are intended to be used as a “plug and play” option for new users. Explanations of the inputs are described below.</p>
+<section id="running-the-demo">
+<h2>Running the demo<a class="headerlink" href="#running-the-demo" title="Permalink to this heading"></a></h2>
+<p>To run the demo, you must first create the mesh in the <code class="docutils literal notranslate"><span class="pre">*.h5</span></code> format. Please follow the instructions in <a class="reference internal" href="meshing.html"><span class="doc">meshing</span></a> on how to create the mesh. In this case you must create the <code class="docutils literal notranslate"><span class="pre">rect.h5</span></code> mesh.</p>
+<p>Once the mesh is created, navigate to the directory <code class="docutils literal notranslate"><span class="pre">apps/</span></code> and run the <code class="docutils literal notranslate"><span class="pre">scalar_transport.py</span></code> and supplying the input file</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 scalar_transport.py inputs/steady_adr.inp
+</pre></div>
+</div>
+</section>
+<section id="input-descriptions">
+<h2>Input descriptions<a class="headerlink" href="#input-descriptions" title="Permalink to this heading"></a></h2>
+<p>The mesh file is the path to the <code class="docutils literal notranslate"><span class="pre">h5</span></code> format file containg the mesh</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span> <span class="n">file</span> <span class="o">=</span> <span class="o">/</span><span class="n">path_mesh_file</span><span class="o">/</span><span class="n">mesh</span><span class="o">.</span><span class="n">h5</span>
+</pre></div>
+</div>
+<p>The directory containing the output files is defined in the <code class="docutils literal notranslate"><span class="pre">output</span> <span class="pre">prefix</span></code> variable. Additionally, the user must provide an output file type, either <code class="docutils literal notranslate"><span class="pre">h5</span></code> or <code class="docutils literal notranslate"><span class="pre">pvd</span></code> files. <code class="docutils literal notranslate"><span class="pre">pvd</span></code> will output a series of VTK files for each time step and MPI partition. These are readily readable from paraview. The <code class="docutils literal notranslate"><span class="pre">h5</span></code> format will contain all of the output data within a single file. These <code class="docutils literal notranslate"><span class="pre">h5</span></code> output format are ideal for large parallel jobs. To convert the <code class="docutils literal notranslate"><span class="pre">h5</span></code> format to paraview readable files, see the <code class="docutils literal notranslate"><span class="pre">h5_to_pvd</span></code> function in <a class="reference internal" href="h5_mod.html"><span class="doc">h5_mod</span></a></p>
+<p>In this example, we will name our output “adr_steady” as a VTK file (.pvd).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="n">prefix</span> <span class="o">=</span> <span class="n">adr_steady</span>
+<span class="n">output</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">pvd</span>
+</pre></div>
+</div>
+<p>We now define the flow physics type. For steady simulations use “steady adr” and “transient adr” for unsteady.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">transport</span> <span class="n">physics</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">steady</span> <span class="n">adr</span>
+</pre></div>
+</div>
+<p>Next, we define the physical properties of the simulation. For ADR problems, supply a diffusivity, velocity, and reaction. In steady ADR, constant scalar values diffusivity and reaction variables are supported. The advection velocity is a list input. The number of entries must match the problem dimension. In this problem, we describ a advection-diffusion problem with no reaction</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">diffusivity</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">flow</span> <span class="n">velocity</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">reaction</span> <span class="o">=</span> <span class="mf">0.0</span>
+</pre></div>
+</div>
+<p>Next, we can add stabilization. Currently, only streamline upwind Petrov-Galerkin stabilization (SUPG) is supported. Set the stabilization variable to true or false</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">add</span> <span class="n">supg</span> <span class="o">=</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>Now we must define boundary conditions. All boundary condition variables must start with “BC” to be recognized by the interpreter. <strong>Note that each active BC must have a unique name otherwise feFlow will overwrite the duplicating BCs</strong>.</p>
+<p>The format of the BC goes as follows: <code class="docutils literal notranslate"><span class="pre">(Boundary</span> <span class="pre">ID,</span> <span class="pre">BC_type,</span> <span class="pre">value</span> <span class="pre">variable)</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">Boundary</span> <span class="pre">ID</span></code> refer to the id of the boundary this BC is being applied to.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BC_type</span></code> refers to the type of BC. It can be either <code class="docutils literal notranslate"><span class="pre">gradient</span> <span class="pre">value</span></code> or <code class="docutils literal notranslate"><span class="pre">fixed</span> <span class="pre">value</span></code> corresponding to the Neuman and Dirichlet boundary condition respectively. For more information, please see <a class="reference internal" href="scalar_transport_problem.html"><span class="doc">here</span></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">variable</span></code> refers to the name of the variable defined within the input file. In this case, we defined <code class="docutils literal notranslate"><span class="pre">gc_inlet</span> <span class="pre">=</span> <span class="pre">(1,</span> <span class="pre">0)</span></code>, and BC1 has <code class="docutils literal notranslate"><span class="pre">gc_inlet</span></code> as its variable name. The same pattern is repeated for BC2 and variable name <code class="docutils literal notranslate"><span class="pre">zero</span></code></p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gc_inlet</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">zero</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">BC1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">gradient</span> <span class="n">value</span><span class="p">,</span> <span class="n">gc_inlet</span><span class="p">)</span>
+<span class="n">BC2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">fixed</span> <span class="n">value</span><span class="p">,</span> <span class="n">zero</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally we set the linear algebra solver to the direct solver.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solver</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">direct</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="app_demo.html" class="btn btn-neutral float-left" title="Applications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="app_transient_adr.html" class="btn btn-neutral float-right" title="Transient scalar transport" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

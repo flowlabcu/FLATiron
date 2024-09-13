@@ -1,0 +1,37 @@
+# Mesh file
+mesh file = ../demo/mesh/h5/foc.h5
+
+# Output directory prefix
+output prefix = nse_foc
+output type = pvd
+
+# Steady navier stokes
+flow physics type = navier stokes
+
+# Set element type
+element type = linear
+
+# Physical properties
+dynamic viscosity = 1e-3
+density = 1
+
+# Time dependent variables
+time step size = 0.00625
+time span = 0.5
+save every = 10
+
+# Boundary conditions
+zero = 0.0
+flow direction = wall
+zero = 0.0
+U = 1.5
+xc = (0, 0.205)
+r = 0.205
+BC1 = (1, inlet, parabolic, flow direction, U, xc, r)
+BC2 = (2, wall, no slip)
+BC3 = (3, pressure, face dirichlet, zero)
+BC4 = (4, wall, no slip)
+BC5 = (5, wall, no slip)
+
+# Linear solver
+solver type = direct

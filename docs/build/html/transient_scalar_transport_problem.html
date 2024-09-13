@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transient scalar transport &mdash; feFlow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Stokes flow" href="stokes_flow.html" />
+    <link rel="prev" title="Scalar transport" href="scalar_transport_problem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            feFlow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Creating mesh</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Install</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Demos</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_demo.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lib_demo.html">Library Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="physics.html">physics</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="physics_problem.html">Physics problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiphysics_problem.html">Multi-Physics problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scalar_transport_problem.html">Scalar transport</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Transient scalar transport</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#strong-formulation">Strong formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initial-and-boundary-conditions">Initial and Boundary conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#time-discretization">Time discretization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stabilization-parameters">Stabilization parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#feFlow.physics.TransientScalarTransport"><code class="docutils literal notranslate"><span class="pre">TransientScalarTransport</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stokes_flow.html">Stokes flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="navier_stokes.html">Navier Stokes Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_navier_stokes.html">Transient Navier Stokes Flow</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">feFlow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="physics.html">physics</a></li>
+      <li class="breadcrumb-item active">Transient scalar transport</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/transient_scalar_transport_problem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="transient-scalar-transport">
+<h1>Transient scalar transport<a class="headerlink" href="#transient-scalar-transport" title="Permalink to this heading"></a></h1>
+<p>This class defines the transient version of the scalar transport problem</p>
+<section id="strong-formulation">
+<h2>Strong formulation<a class="headerlink" href="#strong-formulation" title="Permalink to this heading"></a></h2>
+<p>The strong form of this now the time-dependent version of the <code class="docutils literal notranslate"><span class="pre">ScalarTransport</span></code> problem</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{\partial c}{\partial t} + \vec{u}\cdot\nabla c = D\nabla^2c + R \\\end{split}\]</div>
+</section>
+<section id="initial-and-boundary-conditions">
+<h2>Initial and Boundary conditions<a class="headerlink" href="#initial-and-boundary-conditions" title="Permalink to this heading"></a></h2>
+<p>The boundary conditions are the same as the ones defined in the <code class="docutils literal notranslate"><span class="pre">ScalarTransport</span></code> class.</p>
+<p>Here, the initial condition can be set through the <code class="docutils literal notranslate"><span class="pre">set_initial_condition</span></code> method.</p>
+</section>
+<section id="time-discretization">
+<h2>Time discretization<a class="headerlink" href="#time-discretization" title="Permalink to this heading"></a></h2>
+<p>In this module, the default time discretization is the midpoint <span class="math notranslate nohighlight">\(\theta\)</span> method defined as follows:</p>
+<p>Let subscript <span class="math notranslate nohighlight">\(()_0\)</span> denote the variable in the previous time step and <span class="math notranslate nohighlight">\(()_n\)</span> define the variable at the current time step</p>
+<p>Find <span class="math notranslate nohighlight">\(c_n \in C\)</span> and <span class="math notranslate nohighlight">\(w \in W\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[0 = \left(w, \frac{c_n - c_0}{\Delta t} \right) + (1-\theta)\mathcal{L}(c_0; \vec{u}_0, D_0, R_0) + \theta\mathcal{L}(c_n; \vec{u}_n, D_n, R_n) + \sum_{\Omega_e} \int_{\Omega_e} \tau \mathcal{R} \left(\vec{u} \cdot \nabla w \right) d\Omega\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{L}(c; \vec{u}, D, R) := \left(w, \vec{u}\cdot\nabla c\right)_\Omega + \left( \nabla w, D\nabla c \right)_\Omega - \left(w, R\right)_\Omega - \left(w, \vec{h}\cdot \hat{n}\right)_{\Gamma_n}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{S}\)</span> is the stabilization term for advection dominated problem <strong>CITE</strong>. There are three types of <span class="math notranslate nohighlight">\(\tau\)</span> that the code provides. These are the <cite>shakib</cite>, <cite>su</cite>, <cite>codina</cite> type. For given a cell diameter <span class="math notranslate nohighlight">\(h\)</span>, a cell Peclet number <span class="math notranslate nohighlight">\(Pe_h=\frac{\lvert \vec{u} \rvert h}{2D}\)</span> <strong>CITE Donea</strong>.</p>
+</section>
+<section id="stabilization-parameters">
+<h2>Stabilization parameters<a class="headerlink" href="#stabilization-parameters" title="Permalink to this heading"></a></h2>
+<p>Here, we only provide one stabilization constant for the SUPG stabilization based on the <code class="docutils literal notranslate"><span class="pre">cordina</span></code> stabilization parameter</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau_{shakib} = \left( \left( \frac{1}{\theta \Delta t} \right)^2 + \left( \frac{2\lvert \vec{u} \rvert^2}{h}\right)^2 + 9\left(\frac{4D}{h}\right)^2 + R^2 \right)^{-0.5} \\\end{split}\]</div>
+</section>
+<section id="class-definition">
+<h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">feFlow.physics.</span></span><span class="sig-name descname"><span class="pre">TransientScalarTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.add_stab" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.build_function_space" title="Permalink to this definition"></a></dt>
+<dd><p>Build the function space and set member Test/Trial/Solution functions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.get_residue">
+<span class="sig-name descname"><span class="pre">get_residue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.get_residue" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the residue of the problem.</p>
+<p>To be implemented in derived classes.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The residue as a Fenics form.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_advection_velocity">
+<span class="sig-name descname"><span class="pre">set_advection_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">un</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_advection_velocity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_diffusivity">
+<span class="sig-name descname"><span class="pre">set_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_diffusivity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_initial_condition">
+<span class="sig-name descname"><span class="pre">set_initial_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_initial_condition" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_reaction">
+<span class="sig-name descname"><span class="pre">set_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_reaction" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_weak_form" title="Permalink to this definition"></a></dt>
+<dd><p>Set weak formulation as:
+dc/dt + mid(advection) - mid(diffusion) - mid(reaction) == 0</p>
+<p>for a mid point type method
+where mid(f) = theta*f1 + (1-theta)*f0</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.stab_constant">
+<span class="sig-name descname"><span class="pre">stab_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.stab_constant" title="Permalink to this definition"></a></dt>
+<dd><p>tau from Donea’s book Remark 5.8</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.update_previous_solution">
+<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.update_previous_solution" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="scalar_transport_problem.html" class="btn btn-neutral float-left" title="Scalar transport" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stokes_flow.html" class="btn btn-neutral float-right" title="Stokes flow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

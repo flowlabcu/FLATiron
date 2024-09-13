@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+source fenics_env
+
+# Download valgrind 3.17.0
+cd src
+wget https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2
+tar -xvjf valgrind-3.17.0.tar.bz2
+cd ../
+
+
+# Build valgrind
+cd src/valgrind-3.17.0/
+./configure --prefix=${PREFIX}
+make
+make install
+cd ../..
+echo "export VALGRIND_DIR=\${PREFIX}" >> fenics_env
+export VALGRIND_DIR=${PREFIX}
+

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transient scalar transport &mdash; feFlow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Stokes flow lid driven cavity" href="app_stokes_ldc.html" />
+    <link rel="prev" title="Steady scalar transport" href="app_steady_adr.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            feFlow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Creating mesh</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Install</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Demos</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="app_demo.html">Applications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="app_steady_adr.html">Steady scalar transport</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Transient scalar transport</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-demo">Running the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-descriptions">Input Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_stokes_ldc.html">Stokes flow lid driven cavity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_stokes_pressure_driven.html">Pressure driven stokes flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_navier_stokes.html">Lid driven cavity Navier-Stokes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_transient_navier_stokes.html">Vortex street demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib_demo.html">Library Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics.html">physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">feFlow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="app_demo.html">Applications</a></li>
+      <li class="breadcrumb-item active">Transient scalar transport</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/app_transient_adr.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="transient-scalar-transport">
+<h1>Transient scalar transport<a class="headerlink" href="#transient-scalar-transport" title="Permalink to this heading"></a></h1>
+<p>This is a demo of how to solve a transient advection-diffusion-reaction problem using an input file for the prebuild input-defined solvers. These examples are intended to be used as a “plug and play” option for new users. Explanations of the inputs are described below.</p>
+<p>The input file is largely identical to the <a class="reference internal" href="app_steady_adr.html"><span class="doc">Steady scalar transport</span></a> input file. This doc will hilight the additional inputs that are required for the transient version of the simulation. The example input file can be found in <code class="docutils literal notranslate"><span class="pre">app/inputs/transient_adr.inp</span></code></p>
+<section id="running-the-demo">
+<h2>Running the demo<a class="headerlink" href="#running-the-demo" title="Permalink to this heading"></a></h2>
+<p>To run the transient transport problem, you can use the same <code class="docutils literal notranslate"><span class="pre">scalar_transport.py</span></code> code that was used in <a class="reference internal" href="app_steady_adr.html"><span class="doc">Steady scalar transport</span></a> with the new input file</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 scalar_transport.py inputs/transient_adr.inp
+</pre></div>
+</div>
+</section>
+<section id="input-descriptions">
+<h2>Input Descriptions<a class="headerlink" href="#input-descriptions" title="Permalink to this heading"></a></h2>
+<p>Setup for importing a mesh, i/o, flow physics type, flow phyisics properties, stabilization, boundary conditions, and solver type share the same inputs as in the steady-ADR setup. Please reference <a class="reference internal" href="app_steady_adr.html"><span class="doc">Steady scalar transport</span></a> for details.</p>
+<p>We only need to change the output prefix to <code class="docutils literal notranslate"><span class="pre">adr_transient</span></code>, and the flow physics type to <code class="docutils literal notranslate"><span class="pre">transient</span> <span class="pre">adr</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Output directory prefix</span>
+<span class="n">output</span> <span class="n">prefix</span> <span class="o">=</span> <span class="n">adr_transient</span>
+<span class="n">output</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">pvd</span>
+
+<span class="c1"># Set flow physics type</span>
+<span class="n">transport</span> <span class="n">physics</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">transient</span> <span class="n">adr</span>
+</pre></div>
+</div>
+<p>When solving a transient problem, we need to define the time-dependent parameters. <code class="docutils literal notranslate"><span class="pre">time</span> <span class="pre">step</span> <span class="pre">size</span></code> is describes the discrete time interval for solving tranient problems.  Here we set a time step of 0.01. This input should be a constant scalar quantity. <code class="docutils literal notranslate"><span class="pre">time</span> <span class="pre">span</span></code> is the total simulation time. Here we simulate an ADR problem on the time interval [0,1]. This input should be a constant scalar quantity. <code class="docutils literal notranslate"><span class="pre">save</span> <span class="pre">every</span></code> descirbes which time steps will be saved for visualization. Here we set the problem so each time step is saved. This input should be a constant scalar quantity.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Time dependent variables</span>
+<span class="n">time</span> <span class="n">step</span> <span class="n">size</span> <span class="o">=</span> <span class="mf">1e-2</span>
+<span class="n">time</span> <span class="n">span</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">save</span> <span class="n">every</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>We set the initial condition using the <code class="docutils literal notranslate"><span class="pre">initial</span> <span class="pre">condition</span></code> input. <code class="docutils literal notranslate"><span class="pre">initial</span> <span class="pre">condition</span></code> has three inputs and should take the form: (ic_file, ic_group, ic_time_id). <code class="docutils literal notranslate"><span class="pre">ic_file</span></code> is a <code class="docutils literal notranslate"><span class="pre">*.h5</span></code> file type describing the initial value of <code class="docutils literal notranslate"><span class="pre">ic_group</span></code>. <code class="docutils literal notranslate"><span class="pre">ic_group</span></code> is the variable of the weak form we are applying the initial condition to.</p>
+<p>In the case where the initial condition file is from a transient simulation, the user can provide <code class="docutils literal notranslate"><span class="pre">ic_time_id</span></code> which indicate the timestep the user would like to use as the initial condition.</p>
+<p>If no initial condition is provided, the initial condition is assumed to be zero everywhere.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="app_steady_adr.html" class="btn btn-neutral float-left" title="Steady scalar transport" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="app_stokes_ldc.html" class="btn btn-neutral float-right" title="Stokes flow lid driven cavity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

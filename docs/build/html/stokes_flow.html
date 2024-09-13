@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stokes flow &mdash; feFlow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Navier Stokes Flow" href="navier_stokes.html" />
+    <link rel="prev" title="Transient scalar transport" href="transient_scalar_transport_problem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            feFlow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Creating mesh</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Install</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Demos</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_demo.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lib_demo.html">Library Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="physics.html">physics</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="physics_problem.html">Physics problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiphysics_problem.html">Multi-Physics problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scalar_transport_problem.html">Scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_scalar_transport_problem.html">Transient scalar transport</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Stokes flow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#strong-formulation">Strong formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boundary-conditions">Boundary conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#weak-formulation">Weak formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stabilization-parameters">Stabilization parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#feFlow.physics.StokesFlow"><code class="docutils literal notranslate"><span class="pre">StokesFlow</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="navier_stokes.html">Navier Stokes Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_navier_stokes.html">Transient Navier Stokes Flow</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">feFlow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="physics.html">physics</a></li>
+      <li class="breadcrumb-item active">Stokes flow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/stokes_flow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="stokes-flow">
+<h1>Stokes flow<a class="headerlink" href="#stokes-flow" title="Permalink to this heading"></a></h1>
+<p>This class solves the Stokes flow problem which is the linearized form of the Navier-Stokes equation</p>
+<section id="strong-formulation">
+<h2>Strong formulation<a class="headerlink" href="#strong-formulation" title="Permalink to this heading"></a></h2>
+<p>Momentum equation</p>
+<div class="math notranslate nohighlight">
+\[\nabla p = \nu \nabla^2 \vec{u} + \vec{b}\]</div>
+<p>Continuity</p>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot \vec{u} = 0\]</div>
+<p>where <span class="math notranslate nohighlight">\(\vec{u}\)</span> and <cite>p</cite> are the velocity and pressure field respectively with the constants <span class="math notranslate nohighlight">\(\nu\)</span> is the kinematic viscosity. Note that pressure here is the scaled pressure. True pressure <span class="math notranslate nohighlight">\(p_{true} = p/\rho\)</span> where <span class="math notranslate nohighlight">\(\rho\)</span> is the density. <span class="math notranslate nohighlight">\(\vec{b}\)</span> is the external body force</p>
+</section>
+<section id="boundary-conditions">
+<h2>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this heading"></a></h2>
+<p>Fixed value boundary condition</p>
+<div class="math notranslate nohighlight">
+\[\vec{u} = \vec{u}_D \;\forall \vec{x} \in \Gamma_D\]</div>
+<p>(pseudo) Traction boundary condition</p>
+<div class="math notranslate nohighlight">
+\[-p\textbf{n} + \nu(\textbf{n} \cdot \nabla)\vec{u} = \vec{t} \;\;\forall \vec{x} \in \Gamma_N\]</div>
+</section>
+<section id="weak-formulation">
+<h2>Weak formulation<a class="headerlink" href="#weak-formulation" title="Permalink to this heading"></a></h2>
+<p>The weak formulation is stated as follows:</p>
+<p>For the velocity trial function</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{U} := \{\vec{U} \in H^1(\Omega) | \vec{u} = \vec{u}_D \;\text{on}\; \Gamma_D\}\]</div>
+<p>and the corresponding test function</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{W} := \{\vec{w} \in H^1(\Omega) | \vec{w} = 0 \;\text{on}\; \Gamma_D\}\]</div>
+<p>And the pressure space</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{Q} := \mathcal{L}_2(\Omega)\]</div>
+<p>for external body force <span class="math notranslate nohighlight">\(\vec{b}\)</span> and surface traction <span class="math notranslate nohighlight">\(\vec{t}\)</span>, find <span class="math notranslate nohighlight">\(\vec{u} \in \mathcal{U}\)</span> and <span class="math notranslate nohighlight">\(p \in \mathcal{Q}\)</span> with the corresponding test functions <span class="math notranslate nohighlight">\(\vec{w} \in \mathcal{W}\)</span> and <span class="math notranslate nohighlight">\(q \in \mathcal{Q}\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[0 = \left(\nabla\vec{w}, \nu\nabla\vec{u}\right)_\Omega - \left( \nabla \cdot \vec{w}, p \right)_\Omega - \left(\vec{w}, \vec{b}\right)_\Omega - \left(q, \nabla \cdot \vec{u}\right)_\Omega + (\vec{w}, \vec{t})_{\Gamma_N} + \sum_{\Omega_e} \int_{\Omega_e}  \tau \nabla q \cdot \nabla p d\Omega\]</div>
+</section>
+<section id="stabilization-parameters">
+<h2>Stabilization parameters<a class="headerlink" href="#stabilization-parameters" title="Permalink to this heading"></a></h2>
+<p>For linear element, the stabilization is defined according to <a class="reference internal" href="references.html"><span class="doc">[1]</span></a> as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau = \frac{1}{3} \frac{h^2}{4\nu} \\\end{split}\]</div>
+</section>
+<section id="class-definition">
+<h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">feFlow.physics.</span></span><span class="sig-name descname"><span class="pre">StokesFlow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.add_stab" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.build_function_space" title="Permalink to this definition"></a></dt>
+<dd><p>Build the function space and set member Test/Trial/Solution functions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.flux">
+<span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.flux" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.get_stab_constant">
+<span class="sig-name descname"><span class="pre">get_stab_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.get_stab_constant" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.set_bcs">
+<span class="sig-name descname"><span class="pre">set_bcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiphysics_bcs_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.set_bcs" title="Permalink to this definition"></a></dt>
+<dd><p>Here I am overloading the set_bcs from the MultiPhysics because
+the pressure boundary conditions has to be handled separately</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.set_body_force">
+<span class="sig-name descname"><span class="pre">set_body_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.set_body_force" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.set_element">
+<span class="sig-name descname"><span class="pre">set_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_degree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.set_element" title="Permalink to this definition"></a></dt>
+<dd><p>Build FEniCS MixedElement from the list of sub elements</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.set_kinematic_viscosity">
+<span class="sig-name descname"><span class="pre">set_kinematic_viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.set_kinematic_viscosity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.StokesFlow.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.StokesFlow.set_weak_form" title="Permalink to this definition"></a></dt>
+<dd><p>The weak form here is the sum of all of the weak forms from every physics</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transient_scalar_transport_problem.html" class="btn btn-neutral float-left" title="Transient scalar transport" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="navier_stokes.html" class="btn btn-neutral float-right" title="Navier Stokes Flow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

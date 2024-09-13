@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physics problem &mdash; feFlow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Multi-Physics problem" href="multiphysics_problem.html" />
+    <link rel="prev" title="physics" href="physics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            feFlow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Creating mesh</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Install</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Demos</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_demo.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lib_demo.html">Library Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="physics.html">physics</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Physics problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#defining-custom-physics">Defining custom physics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-member-functions">Defining member functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#feFlow.physics.PhysicsProblem"><code class="docutils literal notranslate"><span class="pre">PhysicsProblem</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multiphysics_problem.html">Multi-Physics problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scalar_transport_problem.html">Scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_scalar_transport_problem.html">Transient scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stokes_flow.html">Stokes flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="navier_stokes.html">Navier Stokes Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_navier_stokes.html">Transient Navier Stokes Flow</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">feFlow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="physics.html">physics</a></li>
+      <li class="breadcrumb-item active">Physics problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/physics_problem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="physics-problem">
+<h1>Physics problem<a class="headerlink" href="#physics-problem" title="Permalink to this heading"></a></h1>
+<p>PhysicsProblem is a base class for other physics to inherit and define their own physics. This class provides routine functions that are needed by every physics such as function space definition, solution io, etc. This class contains as members, the feFlow.Mesh object the physics is defined on, a <code class="docutils literal notranslate"><span class="pre">tag</span></code> which is a name of the physics</p>
+<section id="defining-custom-physics">
+<h2>Defining custom physics<a class="headerlink" href="#defining-custom-physics" title="Permalink to this heading"></a></h2>
+<p>Any physics problem will inherit this class. The developer will need to overload the <code class="docutils literal notranslate"><span class="pre">set_weak_form</span></code>, <code class="docutils literal notranslate"><span class="pre">flux</span></code>, and <code class="docutils literal notranslate"><span class="pre">get_residue</span></code> methods and properly define the physics of the particular problem. For example, see the <cite>ScalarTransport</cite> physics.</p>
+</section>
+<section id="defining-member-functions">
+<h2>Defining member functions<a class="headerlink" href="#defining-member-functions" title="Permalink to this heading"></a></h2>
+<p>To streamline the physics parameters, we provide a dictionary mapping a string to a function called <code class="docutils literal notranslate"><span class="pre">external_function_dict</span></code> as a member function. This dictionary will contain any external functions and variables that will be used to define the physics. For example, if we have a diffusion problem, then the diffusivity of the problem will be encoded in <code class="docutils literal notranslate"><span class="pre">external_function_dict</span></code>. By doing it this way, we have a centralized location that stores all of the physics definition. Any physics inheriting this class will use the <code class="docutils literal notranslate"><span class="pre">set_external_function</span></code> method to assign a function value into this dictionary.</p>
+</section>
+<section id="class-definition">
+<h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">feFlow.physics.</span></span><span class="sig-name descname"><span class="pre">PhysicsProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem" title="Permalink to this definition"></a></dt>
+<dd><p>This is an abstract class that defines a physics problem that we are solving.
+Any specific physics problem, e.g., transport, flow, etc. will inherit this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<em>feFlow.Mesh</em>) – The mesh domain that the physics problem is solved on</p></li>
+<li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – A tag for the physics problem name. Default is ‘Var’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.add_to_weakform">
+<span class="sig-name descname"><span class="pre">add_to_weakform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.add_to_weakform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.build_function_space" title="Permalink to this definition"></a></dt>
+<dd><p>Build the function space and set member Test/Trial/Solution functions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.external_function">
+<span class="sig-name descname"><span class="pre">external_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.external_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.flux">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.flux" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.function_space">
+<span class="sig-name descname"><span class="pre">function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.function_space" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.get_residue">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_residue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.get_residue" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the residue of the problem.</p>
+<p>To be implemented in derived classes.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The residue as a Fenics form.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.get_weak_form">
+<span class="sig-name descname"><span class="pre">get_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.get_weak_form" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.get_zero_constant">
+<span class="sig-name descname"><span class="pre">get_zero_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.get_zero_constant" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.read_function_from_h5">
+<span class="sig-name descname"><span class="pre">read_function_from_h5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.read_function_from_h5" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_bcs">
+<span class="sig-name descname"><span class="pre">set_bcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bcs_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_bcs" title="Permalink to this definition"></a></dt>
+<dd><p>Create a list of fe.DirichletBC objects based on the values supplied in bcs_dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bcs_dict</strong> (<em>dict</em>) – <p>A nested dictionary specifying boundary conditions.
+The dictionary should have the following structure:</p>
+<p>bcs_dict = {boundary_id: {<code class="docutils literal notranslate"><span class="pre">'type'</span></code>: <code class="docutils literal notranslate"><span class="pre">'dirichlet'</span></code> or <code class="docutils literal notranslate"><span class="pre">'neumann'</span></code>, <code class="docutils literal notranslate"><span class="pre">'value'</span></code>: <code class="docutils literal notranslate"><span class="pre">value</span></code>}, …}</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_element">
+<span class="sig-name descname"><span class="pre">set_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_degree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_element" title="Permalink to this definition"></a></dt>
+<dd><p>Set the finite element for this physics problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element_family</strong> (<em>str</em>) – A string describing the finite element type.</p></li>
+<li><p><strong>element_degree</strong> (<em>int</em>) – An integer describing the element degree.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_external_function">
+<span class="sig-name descname"><span class="pre">set_external_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_external_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_function_space">
+<span class="sig-name descname"><span class="pre">set_function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_function_space" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_quadrature_degree">
+<span class="sig-name descname"><span class="pre">set_quadrature_degree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quad_deg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_quadrature_degree" title="Permalink to this definition"></a></dt>
+<dd><p>Set the quadrature degree for integration. Note that currently, we use the same quadrature degree for both
+the volume and surface integrals</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_solution_function">
+<span class="sig-name descname"><span class="pre">set_solution_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_solution_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_tag">
+<span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_tag" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_test_function">
+<span class="sig-name descname"><span class="pre">set_test_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_test_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_trial_function">
+<span class="sig-name descname"><span class="pre">set_trial_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_trial_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_weak_form">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_weak_form" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the weak formulation for the problem.</p>
+<p>To be implemented in derived classes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_writer">
+<span class="sig-name descname"><span class="pre">set_writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_writer" title="Permalink to this definition"></a></dt>
+<dd><p>Set the output file and field name for writing results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_file</strong> (<em>str</em>) – The name of the output file. The output file must ends in h5 or pvd. This will determine the format of the output</p></li>
+<li><p><strong>field_name</strong> (<em>str</em>) – The name of the field to be written.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.solution_function">
+<span class="sig-name descname"><span class="pre">solution_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.solution_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.test_function">
+<span class="sig-name descname"><span class="pre">test_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.test_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.trial_function">
+<span class="sig-name descname"><span class="pre">trial_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.trial_function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_to_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.write" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="physics.html" class="btn btn-neutral float-left" title="physics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multiphysics_problem.html" class="btn btn-neutral float-right" title="Multi-Physics problem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

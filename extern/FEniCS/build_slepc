@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+source fenics_env
+
+# Load slepc
+cd src/
+git clone https://gitlab.com/slepc/slepc
+cd slepc/
+git checkout v3.17.0
+cd ../../
+
+# Build slepc
+cd src/slepc/
+./configure --with-slepc4py=1 --prefix=${PREFIX} --with-clean
+export SLEPC_DIR=$(readlink -f .)
+make SLEPC_DIR=${SLEPC_DIR} PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH}
+make SLEPC_DIR=${SLEPC_DIR} PETSC_DIR=${PETSC_DIR} install
+cd ../../
+echo "export SLEPC_DIR=${SLEPC_DIR}" >> fenics_env
+

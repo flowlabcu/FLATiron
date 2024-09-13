@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lid driven cavity Navier-Stokes &mdash; feFlow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Vortex street demo" href="app_transient_navier_stokes.html" />
+    <link rel="prev" title="Pressure driven stokes flow" href="app_stokes_pressure_driven.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            feFlow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Creating mesh</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Install</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Demos</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="app_demo.html">Applications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="app_steady_adr.html">Steady scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_transient_adr.html">Transient scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_stokes_ldc.html">Stokes flow lid driven cavity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_stokes_pressure_driven.html">Pressure driven stokes flow</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lid driven cavity Navier-Stokes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-demo">Running the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-descriptions">Input descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_transient_navier_stokes.html">Vortex street demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib_demo.html">Library Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics.html">physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">feFlow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="app_demo.html">Applications</a></li>
+      <li class="breadcrumb-item active">Lid driven cavity Navier-Stokes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/app_navier_stokes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="lid-driven-cavity-navier-stokes">
+<h1>Lid driven cavity Navier-Stokes<a class="headerlink" href="#lid-driven-cavity-navier-stokes" title="Permalink to this heading"></a></h1>
+<p>In this demo, we show how to run the steady-state non-linear lid-driven-cavity problem through the incompressible flow solver. Most of the input will be similar to <a class="reference internal" href="app_stokes_ldc.html"><span class="doc">Stokes flow lid driven cavity</span></a>. Here we will hilight the main difference for the non-linear regime. For details on the underlying mathematics, see <a class="reference internal" href="navier_stokes.html"><span class="doc">Navier Stokes Flow</span></a>.</p>
+<section id="running-the-demo">
+<h2>Running the demo<a class="headerlink" href="#running-the-demo" title="Permalink to this heading"></a></h2>
+<p>The non-linear Navier Stokes still fall under the <code class="docutils literal notranslate"><span class="pre">incompressible_flow.py</span></code> code. Simply call the python script and supply the input file <code class="docutils literal notranslate"><span class="pre">app/inputs/navier_stokes_ldc.inp</span></code></p>
+</section>
+<section id="input-descriptions">
+<h2>Input descriptions<a class="headerlink" href="#input-descriptions" title="Permalink to this heading"></a></h2>
+<p>Here we choose the dynamic viscosity to be 0.001 which correspond to Reynold number = 1000.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Physical properties</span>
+<span class="n">dynamic</span> <span class="n">viscosity</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">density</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>The boundary conditions are identical to the stokes flow lid driven cavity case</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Boundary conditions</span>
+<span class="n">lid_velocity</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">zero</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">xhat</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">p_point</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">BC1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">no</span> <span class="n">slip</span><span class="p">)</span>
+<span class="n">BC2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">no</span> <span class="n">slip</span><span class="p">)</span>
+<span class="n">BC3</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">no</span> <span class="n">slip</span><span class="p">)</span>
+<span class="n">BC4</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">inlet</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">xhat</span><span class="p">,</span> <span class="n">lid_velocity</span><span class="p">)</span>
+<span class="n">BC5</span> <span class="o">=</span> <span class="p">(</span><span class="n">point0</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">p_point</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+
+<span class="c1"># Linear algebra solver</span>
+<span class="n">solver</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">direct</span>
+</pre></div>
+</div>
+<p>Here, we use the Newton iteration to solve the non-linear problem arising from Navier Stokes equations. For a strongly non-linear problem, sometime Newton iteration will struggle to converge if the initial guess is far from the trus solution. Here we provide the so-called sub-viscosity step option where will solve the same problem with higher viscosity, and use the solution as an initial guess for our Newton iteration. In this demo, we turn on <code class="docutils literal notranslate"><span class="pre">enable</span> <span class="pre">sub</span> <span class="pre">viscosity</span></code> option, and supply intermediate sub viscosities. The user can supply successive viscosity steps one wish to use as intermediate steps. In this case, the solver will solve the problem with viscosity equals to 1, and use that solution as the initial guess for the problem with viscosity equals to 1e-1, and so on until viscosity equals to 2e-3. Then the solver will use the final solution as the initial guess for the problem with viscosity supplied by the <code class="docutils literal notranslate"><span class="pre">dynamic</span> <span class="pre">viscosity</span></code> input.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Steady navier stokes sub-viscosity solver option</span>
+<span class="n">enable</span> <span class="n">sub</span> <span class="n">viscosity</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">intermediate</span> <span class="n">sub</span> <span class="n">viscosity</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">,</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="mf">5e-3</span><span class="p">,</span> <span class="mf">2e-3</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="app_stokes_pressure_driven.html" class="btn btn-neutral float-left" title="Pressure driven stokes flow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="app_transient_navier_stokes.html" class="btn btn-neutral float-right" title="Vortex street demo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

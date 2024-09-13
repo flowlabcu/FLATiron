@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+source fenics_env
+
+cd src
+git clone https://github.com/HDFGroup/hdf5.git
+cd hdf5
+git checkout hdf5-1_12_3
+cd ../..
+
+
+# Build hdf5
+cd src/hdf5/
+CC=${MPI_DIR}/bin/mpicc ./configure --enable-parallel --enable-shared --prefix=${PREFIX}
+make
+make install
+cd ../../
+export HDF5_LIBDIR=${PREFIX}/lib
+export HDF5_INCLUDEDIR=${PREFIX}/include
+echo "export HDF5_LIBDIR=\${PREFIX}/lib" >> fenics_env
+echo "export HDF5_INCLUDEDIR=\${PREFIX}/include" >> fenics_env
+
+
+# Build h5py
+cd src/
+git clone https://github.com/h5py/h5py.git
+cd h5py/
+git checkout 3.10.0
+cd ../..
+
+# Install h5py
+export CC=mpicc
+export HDF5_MPI="ON"
+cd src/h5py/
+python3 -m pip install --ignore-installed --no-binary=h5py --prefix=${PREFIX} .
+cd ../..
+
+

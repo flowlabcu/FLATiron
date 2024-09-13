@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transient Navier Stokes Flow &mdash; feFlow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="References" href="references.html" />
+    <link rel="prev" title="Navier Stokes Flow" href="navier_stokes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            feFlow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Meshing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Creating mesh</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Install</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Demos</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_demo.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lib_demo.html">Library Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="physics.html">physics</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="physics_problem.html">Physics problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiphysics_problem.html">Multi-Physics problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scalar_transport_problem.html">Scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_scalar_transport_problem.html">Transient scalar transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stokes_flow.html">Stokes flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="navier_stokes.html">Navier Stokes Flow</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Transient Navier Stokes Flow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#strong-formulation">Strong formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boundary-conditions">Boundary conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#weak-formulation">Weak formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stabilization-parameters">Stabilization parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#feFlow.physics.IncompressibleNavierStokes"><code class="docutils literal notranslate"><span class="pre">IncompressibleNavierStokes</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">feFlow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="physics.html">physics</a></li>
+      <li class="breadcrumb-item active">Transient Navier Stokes Flow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/transient_navier_stokes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="transient-navier-stokes-flow">
+<h1>Transient Navier Stokes Flow<a class="headerlink" href="#transient-navier-stokes-flow" title="Permalink to this heading"></a></h1>
+<p>This class solves the transient Navier Stokes problem.</p>
+<section id="strong-formulation">
+<h2>Strong formulation<a class="headerlink" href="#strong-formulation" title="Permalink to this heading"></a></h2>
+<p>Momentum equation</p>
+<div class="math notranslate nohighlight">
+\[\rho \frac{\partial \vec{u}}{\partial t} + \rho \vec{u} \cdot \nabla \vec{u} = \nabla \cdot \boldsymbol{\sigma} + \vec{b}\]</div>
+<p>Continuity</p>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot \vec{u} = 0\]</div>
+<p>where <span class="math notranslate nohighlight">\(\vec{u}\)</span> and <cite>p</cite> are the velocity and pressure field respectively with the constants <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> are the fluid density and dynamic viscosity respectively.</p>
+</section>
+<section id="boundary-conditions">
+<h2>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this heading"></a></h2>
+<p>Fixed value boundary condition</p>
+<div class="math notranslate nohighlight">
+\[\vec{u} = \vec{u}_D \;\forall \vec{x} \in \Gamma_D\]</div>
+<p>Traction boundary condition</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\sigma} \cdot \hat{\textbf{n}} = \vec{t} \;\;\forall \vec{x} \in \Gamma_N\]</div>
+</section>
+<section id="weak-formulation">
+<h2>Weak formulation<a class="headerlink" href="#weak-formulation" title="Permalink to this heading"></a></h2>
+<p>In this implementation, we the mid-point method for time integration. Let <span class="math notranslate nohighlight">\(\mathcal{L}(u, p)\)</span> be the weak formulation obtained in the <a class="reference internal" href="navier_stokes.html"><span class="doc">steady state Navier Stokes</span></a>, the weak formulation for the transient problem is</p>
+<div class="math notranslate nohighlight">
+\[0 = \left( \vec{w}, \frac{\vec{u}^n - \vec{u}^{n-1}}{\Delta t} \right) + \theta\mathcal{L}(\vec{u}^n, p^n) + (1-\theta)\mathcal{L}(\vec{u}^0, p^n)\]</div>
+</section>
+<section id="stabilization-parameters">
+<h2>Stabilization parameters<a class="headerlink" href="#stabilization-parameters" title="Permalink to this heading"></a></h2>
+<p>Stabilization parameter now has time dependence and is defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau = \left( \left( \frac{1}{\Delta t} \right)^2 + \left(\frac{2|\vec{u}|}{h}\right)^2 + 9\left(\frac{4\nu}{h^2}\right)^2 \right)^{-0.5} \\\end{split}\]</div>
+<p>In this case, we use the same stabilization parameter for both SUPG and PSPG</p>
+</section>
+<section id="class-definition">
+<h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">feFlow.physics.</span></span><span class="sig-name descname"><span class="pre">IncompressibleNavierStokes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes.add_stab" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes.build_function_space" title="Permalink to this definition"></a></dt>
+<dd><p>Build the function space and set member Test/Trial/Solution functions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes.set_initial_conditions">
+<span class="sig-name descname"><span class="pre">set_initial_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes.set_initial_conditions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes.set_mid_point_theta">
+<span class="sig-name descname"><span class="pre">set_mid_point_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes.set_mid_point_theta" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes.set_time_step_size">
+<span class="sig-name descname"><span class="pre">set_time_step_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes.set_time_step_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes.set_weak_form" title="Permalink to this definition"></a></dt>
+<dd><p>The weak form here is the sum of all of the weak forms from every physics</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="feFlow.physics.IncompressibleNavierStokes.update_previous_solution">
+<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.IncompressibleNavierStokes.update_previous_solution" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="navier_stokes.html" class="btn btn-neutral float-left" title="Navier Stokes Flow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="references.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+source fenics_env
+
+# Build dolfin
+cd src/dolfin
+mkdir -p build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX} -DDOLFIN_ENABLE_VTK=true -DDOLFIN_ENABLE_HDF5:BOOL=ON -DHDF5_C_COMPILER_EXECUTABLE:FILEPATH=${PREFIX}/bin/h5pcc 
+make install
+cd ../
+cd ../..
+echo "source \${PREFIX}/share/dolfin/dolfin.conf" >> fenics_env
+source ${PREFIX}/share/dolfin/dolfin.conf >> fenics_env
+
+# Build fenics
+cd src/dolfin/python/
+python3 -m pip install --prefix=${PREFIX} .
+cd ../../..
+
+

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+source fenics_env
+
+cd src/
+git clone https://gitlab.com/libeigen/eigen.git
+cd eigen/
+git checkout 3.3.9
+cd ../..
+
+# Build eigen
+cd src/eigen/
+mkdir -p build
+cd build
+cmake ../ -DCMAKE_INSTALL_PREFIX=${PREFIX}
+make install
+cd ../../../
+

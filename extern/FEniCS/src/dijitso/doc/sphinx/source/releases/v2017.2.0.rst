@@ -1,0 +1,8 @@
+===========================
+Changes in version 2017.2.0
+===========================
+
+dijitso 2017.1.0 was released on 2017-12-05.
+
+- Add support for linking external libraries
+- Add support for creating a loadable module with __import__ with "lib_loader" parameter (ctypes, module)

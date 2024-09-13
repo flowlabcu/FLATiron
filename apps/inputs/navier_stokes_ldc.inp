@@ -1,0 +1,35 @@
+# Mesh file
+mesh file = ../demo/mesh/h5/unit_square.h5
+
+# Output directory prefix
+output prefix = nse_ldc
+output type = pvd
+
+# Steady navier stokes
+flow physics type = steady navier stokes
+
+# Set element type
+element type = linear
+
+# Physical properties
+dynamic viscosity = 1e-3
+density = 1
+
+# Boundary conditions
+lid_velocity = 1.0
+zero = 0.0
+xhat = (1, 0)
+p_point = 0.0
+x0 = (0,0)
+BC1 = (1, wall, no slip)
+BC2 = (2, wall, no slip)
+BC3 = (3, wall, no slip)
+BC4 = (4, inlet, plug, xhat, lid_velocity)
+BC5 = (point0, pressure, point, p_point, x0)
+
+# Linear solver
+solver type = direct
+
+# Steady navier stokes sub-viscosity solver option
+enable sub viscosity = true
+intermediate sub viscosity = (1, 1e-1, 1e-2, 5e-3, 2e-3)
