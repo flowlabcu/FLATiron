@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!python
 '''
 Convert an xml mesh file into a hdf5 mesh file used in dolfin/fenics
 The program will detect the facet_region and physical_region files and incoorperate them 

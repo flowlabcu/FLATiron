@@ -1,4 +1,4 @@
-#!/bin/python3
+#!python
 
 '''
 Usage:
@@ -9,7 +9,7 @@ e.g., 2-1 element
     ./extract_velocity_pressure data_file.h5 2 1
 '''
 
-from feFlow.io import *
+from flatirons.io import *
 import sys
 
 # Grab h5 file

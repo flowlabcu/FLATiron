@@ -1,4 +1,4 @@
-#!/bin/python3
+#!python
 import numpy as np
 import sys
 import copy
