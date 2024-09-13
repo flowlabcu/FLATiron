@@ -80,7 +80,7 @@ Stabilization parameters :math:`\tau` are predefined values adapted from :doc:`[
 ===================
 Class definition
 ===================
-.. autoclass:: feFlow.physics.ScalarTransport
+.. autoclass:: flatiron_tk.physics.ScalarTransport
     :members:
     :undoc-members:
 

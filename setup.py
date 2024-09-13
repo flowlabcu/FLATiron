@@ -2,23 +2,20 @@ from setuptools import setup
 import os
 from pathlib import Path
 
-scripts_dir = 'feFlow/scripts'
-
-scripts = [str(f) for f in Path(scripts_dir).glob('*') if f.is_file()]
-
-bin_dir = os.path.expanduser('~/.local/bin')
-
+# Path to your Bash scripts
+scripts_dir = Path('src/flatiron_tk/scripts')
+scripts = [str(f) for f in scripts_dir.glob("*")]
 
 setup(
-    name='feFlow',
-    version='1.0',
+    name='flatiron_tk',
+    version='1.0.0',
     author='Chayut Teeraratkul',
     author_email='chayut.teeraratkul@colorado.edu',
-    packages=['feFlow'],
+    packages=['flatiron_tk'],
+    package_dir={'': 'src/'},
     url='',
     license='See LICENSE.txt',
-    description='FEniCS for flow physics problems',
+    description='FLow And Transport Finite element',
     long_description=open('README.md').read(),
     scripts=scripts,
-    data_files=[(bin_dir, scripts)],
 )

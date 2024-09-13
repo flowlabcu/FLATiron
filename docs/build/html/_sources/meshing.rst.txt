@@ -9,7 +9,7 @@ Mesh files are saved in the ``*.h5`` format. One can generate a mesh from a gmsh
 
     geo2h5 -d 2/3 -m mesh_file.geo -o output_name
 
-where the ``-d`` flag indicate the dimension of the mesh. The ``-m`` flag supplies the gmsh script, and the ``-o`` flag indicate the output file. This script will output a file call ``output_name.h5`` which can be loaded into the feFlow workflow.
+where the ``-d`` flag indicate the dimension of the mesh. The ``-m`` flag supplies the gmsh script, and the ``-o`` flag indicate the output file. This script will output a file call ``output_name.h5`` which can be loaded into the FLATiron workflow.
 
 
 

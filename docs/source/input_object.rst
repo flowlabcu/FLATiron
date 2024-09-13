@@ -18,7 +18,7 @@ Example input file
     # Any line starting with the # is considered comment, and is ignored
 
     # Variable name is anything to the left of the `=`, so we can have space in the name.
-    package name = feFlow
+    package name = flatiron_tk
 
     # These values are automatically parsed into the appopriate data type
     i = 1
@@ -41,10 +41,10 @@ Example class initialization
 
 .. code-block:: python
 
-    from feFlow.io import InputObject
+    from flatiron_tk.io import InputObject
     input_object = InputObject('example_input_file.inp') # where the ``example_input_file.inp`` is the file above
 
-    package_name = input_object("package name") # return string "feFlow"
+    package_name = input_object("package name") # return string "flatiron_tk"
     i = input_object("i") # return int 1
     f = input_object("f") # return float 1.5
     e = input_object("e") # return float 100.0
@@ -60,7 +60,7 @@ Example class initialization
 Class definition
 ===================
 
-.. autoclass:: feFlow.io.InputObject
+.. autoclass:: flatiron_tk.io.InputObject
     :members:
     :private-members:
 

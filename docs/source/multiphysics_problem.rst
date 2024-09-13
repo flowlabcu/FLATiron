@@ -12,7 +12,7 @@ MultiPhysics take in the different PhysicsProblem classes in the constructor, an
 ===================
 Class definition
 ===================
-.. autoclass:: feFlow.physics.MultiPhysicsProblem
+.. autoclass:: flatiron_tk.physics.MultiPhysicsProblem
     :members:
     :undoc-members:
 

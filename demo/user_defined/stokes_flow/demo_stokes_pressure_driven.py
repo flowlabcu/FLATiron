@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------- #
 
 import fenics as fe
-from feFlow.physics import StokesFlow
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
+from flatiron_tk.physics import StokesFlow
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
 import sys
 
 # Define mesh

@@ -7,14 +7,14 @@ import os
 
 # ------------------------------------------------------- #
 
-from feFlow.io import InputObject
-from feFlow.info import info, warning, error
-from feFlow.physics import ScalarTransport
-from feFlow.physics import TransientScalarTransport
-from feFlow.io import h5_mod
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
-from feFlow.functions.profiles import parabolic_2d, parabolic_3d, plug
+from flatiron_tk.io import InputObject
+from flatiron_tk.info import info, warning, error
+from flatiron_tk.physics import ScalarTransport
+from flatiron_tk.physics import TransientScalarTransport
+from flatiron_tk.io import h5_mod
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
+from flatiron_tk.functions.profiles import parabolic_2d, parabolic_3d, plug
 import fenics as fe
 from mpi4py import MPI
 from common import build_la_solver, custom_err_msg, to_fe_constant

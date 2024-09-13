@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Physics problem &mdash; feFlow 1.0.0 documentation</title>
+  <title>Physics problem &mdash; flatiron_tk 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
@@ -35,7 +35,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            feFlow
+            flatiron_tk
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -67,7 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#defining-custom-physics">Defining custom physics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#defining-member-functions">Defining member functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#feFlow.physics.PhysicsProblem"><code class="docutils literal notranslate"><span class="pre">PhysicsProblem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.PhysicsProblem"><code class="docutils literal notranslate"><span class="pre">PhysicsProblem</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -92,7 +92,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">feFlow</a>
+          <a href="index.html">flatiron_tk</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -113,7 +113,7 @@
              
   <section id="physics-problem">
 <h1>Physics problem<a class="headerlink" href="#physics-problem" title="Permalink to this heading"></a></h1>
-<p>PhysicsProblem is a base class for other physics to inherit and define their own physics. This class provides routine functions that are needed by every physics such as function space definition, solution io, etc. This class contains as members, the feFlow.Mesh object the physics is defined on, a <code class="docutils literal notranslate"><span class="pre">tag</span></code> which is a name of the physics</p>
+<p>PhysicsProblem is a base class for other physics to inherit and define their own physics. This class provides routine functions that are needed by every physics such as function space definition, solution io, etc. This class contains as members, the flatiron_tk.Mesh object the physics is defined on, a <code class="docutils literal notranslate"><span class="pre">tag</span></code> which is a name of the physics</p>
 <section id="defining-custom-physics">
 <h2>Defining custom physics<a class="headerlink" href="#defining-custom-physics" title="Permalink to this heading"></a></h2>
 <p>Any physics problem will inherit this class. The developer will need to overload the <code class="docutils literal notranslate"><span class="pre">set_weak_form</span></code>, <code class="docutils literal notranslate"><span class="pre">flux</span></code>, and <code class="docutils literal notranslate"><span class="pre">get_residue</span></code> methods and properly define the physics of the particular problem. For example, see the <cite>ScalarTransport</cite> physics.</p>
@@ -125,47 +125,47 @@
 <section id="class-definition">
 <h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">feFlow.physics.</span></span><span class="sig-name descname"><span class="pre">PhysicsProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.</span></span><span class="sig-name descname"><span class="pre">PhysicsProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem" title="Permalink to this definition"></a></dt>
 <dd><p>This is an abstract class that defines a physics problem that we are solving.
 Any specific physics problem, e.g., transport, flow, etc. will inherit this class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mesh</strong> (<em>feFlow.Mesh</em>) – The mesh domain that the physics problem is solved on</p></li>
+<li><p><strong>mesh</strong> (<em>flatiron_tk.Mesh</em>) – The mesh domain that the physics problem is solved on</p></li>
 <li><p><strong>tag</strong> (<em>str</em><em>, </em><em>optional</em>) – A tag for the physics problem name. Default is ‘Var’.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.add_to_weakform">
-<span class="sig-name descname"><span class="pre">add_to_weakform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.add_to_weakform" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.add_to_weakform">
+<span class="sig-name descname"><span class="pre">add_to_weakform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.add_to_weakform" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.build_function_space">
-<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.build_function_space" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.build_function_space" title="Permalink to this definition"></a></dt>
 <dd><p>Build the function space and set member Test/Trial/Solution functions</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.external_function">
-<span class="sig-name descname"><span class="pre">external_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.external_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.external_function">
+<span class="sig-name descname"><span class="pre">external_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.external_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.flux">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.flux" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.flux">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.flux" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.function_space">
-<span class="sig-name descname"><span class="pre">function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.function_space" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.function_space">
+<span class="sig-name descname"><span class="pre">function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.function_space" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.get_residue">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_residue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.get_residue" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.get_residue">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_residue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.get_residue" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the residue of the problem.</p>
 <p>To be implemented in derived classes.</p>
 <dl class="simple">
@@ -175,23 +175,23 @@ Any specific physics problem, e.g., transport, flow, etc. will inherit this clas
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.get_weak_form">
-<span class="sig-name descname"><span class="pre">get_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.get_weak_form" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.get_weak_form">
+<span class="sig-name descname"><span class="pre">get_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.get_weak_form" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.get_zero_constant">
-<span class="sig-name descname"><span class="pre">get_zero_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.get_zero_constant" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.get_zero_constant">
+<span class="sig-name descname"><span class="pre">get_zero_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.get_zero_constant" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.read_function_from_h5">
-<span class="sig-name descname"><span class="pre">read_function_from_h5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.read_function_from_h5" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.read_function_from_h5">
+<span class="sig-name descname"><span class="pre">read_function_from_h5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.read_function_from_h5" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_bcs">
-<span class="sig-name descname"><span class="pre">set_bcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bcs_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_bcs" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_bcs">
+<span class="sig-name descname"><span class="pre">set_bcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bcs_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_bcs" title="Permalink to this definition"></a></dt>
 <dd><p>Create a list of fe.DirichletBC objects based on the values supplied in bcs_dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -204,8 +204,8 @@ The dictionary should have the following structure:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_element">
-<span class="sig-name descname"><span class="pre">set_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_degree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_element" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_element">
+<span class="sig-name descname"><span class="pre">set_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_degree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_element" title="Permalink to this definition"></a></dt>
 <dd><p>Set the finite element for this physics problem.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -218,52 +218,52 @@ The dictionary should have the following structure:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_external_function">
-<span class="sig-name descname"><span class="pre">set_external_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_external_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_external_function">
+<span class="sig-name descname"><span class="pre">set_external_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_external_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_function_space">
-<span class="sig-name descname"><span class="pre">set_function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_function_space" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_function_space">
+<span class="sig-name descname"><span class="pre">set_function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_function_space" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_quadrature_degree">
-<span class="sig-name descname"><span class="pre">set_quadrature_degree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quad_deg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_quadrature_degree" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_quadrature_degree">
+<span class="sig-name descname"><span class="pre">set_quadrature_degree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quad_deg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_quadrature_degree" title="Permalink to this definition"></a></dt>
 <dd><p>Set the quadrature degree for integration. Note that currently, we use the same quadrature degree for both
 the volume and surface integrals</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_solution_function">
-<span class="sig-name descname"><span class="pre">set_solution_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_solution_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_solution_function">
+<span class="sig-name descname"><span class="pre">set_solution_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_solution_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_tag">
-<span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_tag" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_tag">
+<span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_tag" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_test_function">
-<span class="sig-name descname"><span class="pre">set_test_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_test_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_test_function">
+<span class="sig-name descname"><span class="pre">set_test_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_test_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_trial_function">
-<span class="sig-name descname"><span class="pre">set_trial_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_trial_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_trial_function">
+<span class="sig-name descname"><span class="pre">set_trial_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_trial_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_weak_form">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_weak_form" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_weak_form">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_weak_form" title="Permalink to this definition"></a></dt>
 <dd><p>Sets the weak formulation for the problem.</p>
 <p>To be implemented in derived classes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.set_writer">
-<span class="sig-name descname"><span class="pre">set_writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.set_writer" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.set_writer">
+<span class="sig-name descname"><span class="pre">set_writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.set_writer" title="Permalink to this definition"></a></dt>
 <dd><p>Set the output file and field name for writing results.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -276,23 +276,23 @@ the volume and surface integrals</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.solution_function">
-<span class="sig-name descname"><span class="pre">solution_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.solution_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.solution_function">
+<span class="sig-name descname"><span class="pre">solution_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.solution_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.test_function">
-<span class="sig-name descname"><span class="pre">test_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.test_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.test_function">
+<span class="sig-name descname"><span class="pre">test_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.test_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.trial_function">
-<span class="sig-name descname"><span class="pre">trial_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.trial_function" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.trial_function">
+<span class="sig-name descname"><span class="pre">trial_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.trial_function" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.PhysicsProblem.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_to_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.PhysicsProblem.write" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.PhysicsProblem.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_to_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.PhysicsProblem.write" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

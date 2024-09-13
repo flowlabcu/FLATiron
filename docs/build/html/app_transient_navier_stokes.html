@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vortex street demo &mdash; feFlow 1.0.0 documentation</title>
+  <title>Vortex street demo &mdash; flatiron_tk 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
@@ -35,7 +35,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            feFlow
+            flatiron_tk
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -87,7 +87,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">feFlow</a>
+          <a href="index.html">flatiron_tk</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -133,7 +133,7 @@
 </div>
 <p>Next is the boundary condition. Here we specify a parabolic profile using the <code class="docutils literal notranslate"><span class="pre">inlet</span></code> keyword on boundary face <code class="docutils literal notranslate"><span class="pre">1</span></code>. The <code class="docutils literal notranslate"><span class="pre">inlet</span></code> boundary condition keyword take in 5 additional inputs, these are the <code class="docutils literal notranslate"><span class="pre">profile</span> <span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">direction</span></code>, <code class="docutils literal notranslate"><span class="pre">centerline</span> <span class="pre">speed</span></code>, <code class="docutils literal notranslate"><span class="pre">face</span> <span class="pre">center</span></code>, and <code class="docutils literal notranslate"><span class="pre">face</span> <span class="pre">radius</span></code>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">profile</span></code> in this case is supplied as <code class="docutils literal notranslate"><span class="pre">parabolic</span></code>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">direction</span></code> here is supplied as the keyword <code class="docutils literal notranslate"><span class="pre">wall</span></code>. If the keyward <code class="docutils literal notranslate"><span class="pre">wall</span></code> is used, the solver will assume that the inlet face is <cite>flat</cite>, i.e., every elements on the face has the same normal direction. feFlow will, then, assume that the flow direction be the <strong>inward</strong> pointing normal to the associated boundary. In this case, one can modify the <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">direciton</span></code> variable to <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">direciton</span> <span class="pre">=</span> <span class="pre">(1,0)</span></code> and you will get the same result</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">direction</span></code> here is supplied as the keyword <code class="docutils literal notranslate"><span class="pre">wall</span></code>. If the keyward <code class="docutils literal notranslate"><span class="pre">wall</span></code> is used, the solver will assume that the inlet face is <cite>flat</cite>, i.e., every elements on the face has the same normal direction. FLATiron will, then, assume that the flow direction be the <strong>inward</strong> pointing normal to the associated boundary. In this case, one can modify the <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">direciton</span></code> variable to <code class="docutils literal notranslate"><span class="pre">flow</span> <span class="pre">direciton</span> <span class="pre">=</span> <span class="pre">(1,0)</span></code> and you will get the same result</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">centerline</span> <span class="pre">speed</span></code> is indicated as the input variable <code class="docutils literal notranslate"><span class="pre">U</span></code> and it is the velocity at the peak of the parabolic profile.</p>
 <p>Next, the <code class="docutils literal notranslate"><span class="pre">face</span> <span class="pre">center</span></code> variable is the location where the flow velocity peaks</p>
 <p>Finally, the <code class="docutils literal notranslate"><span class="pre">face</span> <span class="pre">radius</span></code> variable indicate the distance from <code class="docutils literal notranslate"><span class="pre">face</span> <span class="pre">center</span></code> where the flow velocity go to 0. Any point on the surface further away from <code class="docutils literal notranslate"><span class="pre">face</span> <span class="pre">center</span></code> will have zero velocity.</p>

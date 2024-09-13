@@ -1,5 +1,5 @@
 '''
-This demo demonstrates the 2D transient transport problem in feFlow
+This demo demonstrates the 2D transient transport problem in flatiron_tk
 Here, we use the analytical results found in: DOI:10.1029/CE047p0241
 
 Problem 4: Diffusion in a plane shear flow.
@@ -35,9 +35,9 @@ import sys
 # ------------------------------------------------------- #
 
 import fenics as fe
-from feFlow.physics import TransientScalarTransport
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
+from flatiron_tk.physics import TransientScalarTransport
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
 
 
 # Define problem definitions

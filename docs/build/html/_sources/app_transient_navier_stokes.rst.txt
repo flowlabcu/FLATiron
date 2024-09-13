@@ -42,7 +42,7 @@ Next is the boundary condition. Here we specify a parabolic profile using the ``
 
 The ``flow profile`` in this case is supplied as ``parabolic``.
 
-The ``flow direction`` here is supplied as the keyword ``wall``. If the keyward ``wall`` is used, the solver will assume that the inlet face is `flat`, i.e., every elements on the face has the same normal direction. feFlow will, then, assume that the flow direction be the **inward** pointing normal to the associated boundary. In this case, one can modify the ``flow direciton`` variable to ``flow direciton = (1,0)`` and you will get the same result
+The ``flow direction`` here is supplied as the keyword ``wall``. If the keyward ``wall`` is used, the solver will assume that the inlet face is `flat`, i.e., every elements on the face has the same normal direction. FLATiron will, then, assume that the flow direction be the **inward** pointing normal to the associated boundary. In this case, one can modify the ``flow direciton`` variable to ``flow direciton = (1,0)`` and you will get the same result
 
 The ``centerline speed`` is indicated as the input variable ``U`` and it is the velocity at the peak of the parabolic profile.
 

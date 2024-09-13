@@ -32,9 +32,9 @@ C'(x=L) = K_s A B   / D_C
 # ---------------------------------------------------------- #
 
 import fenics as fe
-from feFlow.physics import MultiPhysicsProblem, ScalarTransport
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
+from flatiron_tk.physics import MultiPhysicsProblem, ScalarTransport
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
 
 # Define mesh
 ne = 10

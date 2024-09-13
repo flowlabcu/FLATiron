@@ -8,9 +8,9 @@ import os
 # ------------------------------------------------------- #
 
 import fenics as fe
-from feFlow.physics import TransientMultiPhysicsProblem, TransientScalarTransport, IncompressibleNavierStokes
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
+from flatiron_tk.physics import TransientMultiPhysicsProblem, TransientScalarTransport, IncompressibleNavierStokes
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
 
 # Constants
 dt = 0.00625

@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------- #
 
 import fenics as fe
-from feFlow.physics import StokesFlow
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
+from flatiron_tk.physics import StokesFlow
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
 import sys
 
 # Define mesh
@@ -74,7 +74,7 @@ bc_dict = {'u': u_bcs,
 ics.set_bcs(bc_dict)
 
 # Manually add a point-wise boundary condition for pressure to set pressure level
-# TODO: Integrate this into feFlow
+# TODO: Integrate this into flatiron_tk
 # def bottom_left_corner(x, on_boundary):
 #     return fe.near(x[0], 0.) and fe.near(x[1], 0.)
 # ics.dirichlet_bcs.append(fe.DirichletBC(ics.V.sub(1), fe.Constant(0), bottom_left_corner, method='pointwise'))

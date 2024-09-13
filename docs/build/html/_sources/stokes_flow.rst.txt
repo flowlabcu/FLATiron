@@ -77,7 +77,7 @@ For linear element, the stabilization is defined according to :doc:`[1] <referen
 ===================
 Class definition
 ===================
-.. autoclass:: feFlow.physics.StokesFlow
+.. autoclass:: flatiron_tk.physics.StokesFlow
     :members:
     :undoc-members:
 

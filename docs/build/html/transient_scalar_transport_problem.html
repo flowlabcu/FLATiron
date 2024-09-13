@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Transient scalar transport &mdash; feFlow 1.0.0 documentation</title>
+  <title>Transient scalar transport &mdash; flatiron_tk 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
@@ -37,7 +37,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            feFlow
+            flatiron_tk
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -74,7 +74,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#time-discretization">Time discretization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#stabilization-parameters">Stabilization parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#feFlow.physics.TransientScalarTransport"><code class="docutils literal notranslate"><span class="pre">TransientScalarTransport</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.TransientScalarTransport"><code class="docutils literal notranslate"><span class="pre">TransientScalarTransport</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -96,7 +96,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">feFlow</a>
+          <a href="index.html">flatiron_tk</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -150,22 +150,22 @@
 <section id="class-definition">
 <h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">feFlow.physics.</span></span><span class="sig-name descname"><span class="pre">TransientScalarTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.</span></span><span class="sig-name descname"><span class="pre">TransientScalarTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport" title="Permalink to this definition"></a></dt>
 <dd><dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.add_stab">
-<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.add_stab" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.add_stab" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.build_function_space">
-<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.build_function_space" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.build_function_space" title="Permalink to this definition"></a></dt>
 <dd><p>Build the function space and set member Test/Trial/Solution functions</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.get_residue">
-<span class="sig-name descname"><span class="pre">get_residue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.get_residue" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.get_residue">
+<span class="sig-name descname"><span class="pre">get_residue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.get_residue" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the residue of the problem.</p>
 <p>To be implemented in derived classes.</p>
 <dl class="simple">
@@ -175,28 +175,28 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_advection_velocity">
-<span class="sig-name descname"><span class="pre">set_advection_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">un</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_advection_velocity" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_advection_velocity">
+<span class="sig-name descname"><span class="pre">set_advection_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">un</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_advection_velocity" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_diffusivity">
-<span class="sig-name descname"><span class="pre">set_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_diffusivity" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_diffusivity">
+<span class="sig-name descname"><span class="pre">set_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_diffusivity" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_initial_condition">
-<span class="sig-name descname"><span class="pre">set_initial_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_initial_condition" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_initial_condition">
+<span class="sig-name descname"><span class="pre">set_initial_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_initial_condition" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_reaction">
-<span class="sig-name descname"><span class="pre">set_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_reaction" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_reaction">
+<span class="sig-name descname"><span class="pre">set_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_reaction" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.set_weak_form">
-<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.set_weak_form" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_weak_form" title="Permalink to this definition"></a></dt>
 <dd><p>Set weak formulation as:
 dc/dt + mid(advection) - mid(diffusion) - mid(reaction) == 0</p>
 <p>for a mid point type method
@@ -204,14 +204,14 @@ where mid(f) = theta*f1 + (1-theta)*f0</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.stab_constant">
-<span class="sig-name descname"><span class="pre">stab_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.stab_constant" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.stab_constant">
+<span class="sig-name descname"><span class="pre">stab_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.stab_constant" title="Permalink to this definition"></a></dt>
 <dd><p>tau from Donea’s book Remark 5.8</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.physics.TransientScalarTransport.update_previous_solution">
-<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.physics.TransientScalarTransport.update_previous_solution" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.update_previous_solution">
+<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.update_previous_solution" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

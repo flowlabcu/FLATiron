@@ -1,14 +1,14 @@
-.. feFlow documentation master file, created by
+.. FLATiron documentation master file, created by
    sphinx-quickstart on Thu Feb 29 15:42:38 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to feFlow's documentation!
-==================================
+Welcome to FLATiron's documentation!
+========================================
 
-Welcome to feFlow documentation
+Welcome to FLATiron's documentation
 
-feFlow is a legacy FEniCS based tool for solving flow physics problems via the Finite Element Method
+FLow And Transport Finite element or FLATiron (Fe == iron) is a toolkit used to solve coupled flow physics problems via the Finite Element Method. The finite element backend of FLATiron is based on legacy FEniCS.
 
 * :ref:`install`
 * :ref:`meshing`

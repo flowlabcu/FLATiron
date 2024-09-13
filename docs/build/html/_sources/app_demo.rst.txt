@@ -1,7 +1,7 @@
 Applications
 ===================
 
-The followings are demo usage for using the application side of feFlow. This is meant for easy-to-run simulations with minimal knowledge of the underlying finite element mathematics. 
+The followings are demo usage for using the application side of FLATiron. This is meant for easy-to-run simulations with minimal knowledge of the underlying finite element mathematics. 
 
 To run the application simulations, simply navigate to apps/ and call the python scripts
 

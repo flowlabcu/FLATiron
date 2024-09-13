@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flatiron_tk"
+version = "1.0.0"
+description = "FLow And Transport Finite element (Fe for iron) Suite"
+authors = [{ name="Chayut Teeraratkul", email="chayut.teeraratkul@colorado.edu" }]
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = [
+    "flatiron_tk", 
+    "flatiron_tk.physics", 
+    "flatiron_tk.functions", 
+    "flatiron_tk.mesh",
+    "flatiron_tk.solver",
+    "flatiron_tk.io",
+    "flatiron_tk.info"]
+
+# [tool.setuptools.packages.find]
+# include ["flatiron_tk*"]
+
+# [tool.setuptools.packages.find]
+# where = ["src"]
+# include = ["mylib*"]

@@ -12,10 +12,10 @@ import os
 
 # ------------------------------------------------------- #
 
-from feFlow.physics import IncompressibleNavierStokes
-from feFlow.io import h5_mod
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
+from flatiron_tk.physics import IncompressibleNavierStokes
+from flatiron_tk.io import h5_mod
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
 import fenics as fe
 
 # Constants

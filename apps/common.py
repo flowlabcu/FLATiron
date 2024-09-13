@@ -8,7 +8,7 @@ import os
 # ------------------------------------------------------- #
 
 import fenics as fe
-from feFlow.io import h5_mod
+from flatiron_tk.io import h5_mod
 
 
 def custom_err_msg(usr_input, input_type, avail_types):
@@ -33,7 +33,7 @@ def _build_ksp(input_object):
     solver_type = input_object('solver type')
     pc_type = input_object('pc type')
     if pc_type is None:
-        print("pc type for krylov solver is not provided, feFlow defaults to the jacobi solver")
+        print("pc type for krylov solver is not provided, flatiron_tk defaults to the jacobi solver")
         pc_type = 'jacobi'
     fe.PETScOptions.set("ksp_type", solver_type)
     fe.PETScOptions.set("pc_type", pc_type)

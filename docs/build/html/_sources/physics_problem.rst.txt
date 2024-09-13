@@ -1,7 +1,7 @@
 Physics problem
 ------------------
 
-PhysicsProblem is a base class for other physics to inherit and define their own physics. This class provides routine functions that are needed by every physics such as function space definition, solution io, etc. This class contains as members, the feFlow.Mesh object the physics is defined on, a ``tag`` which is a name of the physics
+PhysicsProblem is a base class for other physics to inherit and define their own physics. This class provides routine functions that are needed by every physics such as function space definition, solution io, etc. This class contains as members, the flatiron_tk.Mesh object the physics is defined on, a ``tag`` which is a name of the physics
 
 
 =========================
@@ -19,7 +19,7 @@ To streamline the physics parameters, we provide a dictionary mapping a string t
 ===================
 Class definition
 ===================
-.. autoclass:: feFlow.physics.PhysicsProblem
+.. autoclass:: flatiron_tk.physics.PhysicsProblem
     :members:
     :undoc-members:
 

@@ -1,7 +1,7 @@
 import pathlib
 import sys
 import os
-import feFlow
+import flatiron_tk
 sys.path.insert(0, os.path.abspath("../"))
 
 # Configuration file for the Sphinx documentation builder.
@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'feFlow'
+project = 'flatiron_tk'
 copyright = '2024, Chayut Teeraratkul'
 author = 'Chayut Teeraratkul'
 release = '1.0.0'

@@ -14,7 +14,7 @@ c(x,t) = sigma_0/sigma * exp(-(x-x_bar)^2 / 2*sigma^2)
 sigma^2 = sigma_0^2 + 2*D*t
 x_bar = x_0 + int(u(T)dT) from 0 to T
 
-This demo demonstrates how to do a transient convection-diffusion problem in feFlow
+This demo demonstrates how to do a transient convection-diffusion problem in flatiron_tk
 
 Author: njrovito
 '''
@@ -26,9 +26,9 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------- #
 
 import fenics as fe
-from feFlow.physics import TransientScalarTransport
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
+from flatiron_tk.physics import TransientScalarTransport
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
 
 # ------------------------------------------------------- #
 

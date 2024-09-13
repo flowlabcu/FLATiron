@@ -80,7 +80,7 @@ In this case, we use the same stabilization parameter for both SUPG and PSPG
 ===================
 Class definition
 ===================
-.. autoclass:: feFlow.physics.SteadyIncompressibleNavierStokes
+.. autoclass:: flatiron_tk.physics.SteadyIncompressibleNavierStokes
     :members:
     :undoc-members:
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coupled diffusion-reaction problem with surface reaction &mdash; feFlow 1.0.0 documentation</title>
+  <title>Coupled diffusion-reaction problem with surface reaction &mdash; flatiron_tk 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
@@ -37,7 +37,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            feFlow
+            flatiron_tk
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -84,7 +84,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">feFlow</a>
+          <a href="index.html">flatiron_tk</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -105,7 +105,7 @@
              
   <section id="coupled-diffusion-reaction-problem-with-surface-reaction">
 <h1>Coupled diffusion-reaction problem with surface reaction<a class="headerlink" href="#coupled-diffusion-reaction-problem-with-surface-reaction" title="Permalink to this heading"></a></h1>
-<p>This demo code demonstrate how to solve a steady coupled Diffusion-Reaction problem with surface reaction terms at the boundary. This demo is used to demonstrate how to use the feFlow MultiPhysics module. The source code can be found in <code class="docutils literal notranslate"><span class="pre">demo/user_defined/steady_coupled_adr/coupled_diffusion_reaction.py</span></code> The following is the problem description</p>
+<p>This demo code demonstrate how to solve a steady coupled Diffusion-Reaction problem with surface reaction terms at the boundary. This demo is used to demonstrate how to use the flatiron_tk MultiPhysics module. The source code can be found in <code class="docutils literal notranslate"><span class="pre">demo/user_defined/steady_coupled_adr/coupled_diffusion_reaction.py</span></code> The following is the problem description</p>
 <p>First we define the concentration of chemical species <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(B\)</span>, and <span class="math notranslate nohighlight">\(C\)</span>, for a 1D domain of length <span class="math notranslate nohighlight">\(L\)</span>, we have</p>
 <div class="math notranslate nohighlight">
 \[D_A \frac{d^2A}{dx^2} - k_v A B = 0\]</div>
@@ -125,11 +125,11 @@ C(x=0) = 0 \\\end{split}\]</div>
 \frac{dC}{dx}(x=L) = \frac{k_s}{D_C} A B \\\end{split}\]</div>
 <section id="code-description">
 <h2>Code description<a class="headerlink" href="#code-description" title="Permalink to this heading"></a></h2>
-<p>Fist, we import code the relevant modules from feFlow and the basic libraries and define the mesh and constants</p>
+<p>Fist, we import code the relevant modules from flatiron_tk and the basic libraries and define the mesh and constants</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fenics</span> <span class="k">as</span> <span class="nn">fe</span>
-<span class="kn">from</span> <span class="nn">feFlow.physics</span> <span class="kn">import</span> <span class="n">MultiPhysicsProblem</span><span class="p">,</span> <span class="n">ScalarTransport</span>
-<span class="kn">from</span> <span class="nn">feFlow.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">feFlow.solver</span> <span class="kn">import</span> <span class="n">PhysicsSolver</span>
+<span class="kn">from</span> <span class="nn">flatiron_tk.physics</span> <span class="kn">import</span> <span class="n">MultiPhysicsProblem</span><span class="p">,</span> <span class="n">ScalarTransport</span>
+<span class="kn">from</span> <span class="nn">flatiron_tk.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">flatiron_tk.solver</span> <span class="kn">import</span> <span class="n">PhysicsSolver</span>
 
 <span class="c1"># Define mesh</span>
 <span class="n">ne</span> <span class="o">=</span> <span class="mi">10</span>

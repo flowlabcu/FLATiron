@@ -60,7 +60,7 @@ Here, we only provide one stabilization constant for the SUPG stabilization base
 ===================
 Class definition
 ===================
-.. autoclass:: feFlow.physics.TransientScalarTransport
+.. autoclass:: flatiron_tk.physics.TransientScalarTransport
     :members:
     :undoc-members:
 

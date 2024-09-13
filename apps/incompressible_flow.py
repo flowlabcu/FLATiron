@@ -7,15 +7,15 @@ import os
 
 # ------------------------------------------------------- #
 
-from feFlow.io import InputObject
-from feFlow.info import info, warning, error
-from feFlow.physics import StokesFlow
-from feFlow.physics import IncompressibleNavierStokes
-from feFlow.physics import SteadyIncompressibleNavierStokes
-from feFlow.io import h5_mod
-from feFlow.mesh import Mesh
-from feFlow.solver import PhysicsSolver
-from feFlow.functions.profiles import parabolic_2d, parabolic_3d, plug
+from flatiron_tk.io import InputObject
+from flatiron_tk.info import info, warning, error
+from flatiron_tk.physics import StokesFlow
+from flatiron_tk.physics import IncompressibleNavierStokes
+from flatiron_tk.physics import SteadyIncompressibleNavierStokes
+from flatiron_tk.io import h5_mod
+from flatiron_tk.mesh import Mesh
+from flatiron_tk.solver import PhysicsSolver
+from flatiron_tk.functions.profiles import parabolic_2d, parabolic_3d, plug
 import fenics as fe
 from mpi4py import MPI
 from common import build_la_solver, custom_err_msg
@@ -100,7 +100,7 @@ def _build_inlet_bc(bnd_id, input_object, physics, bc_options):
 
         # Normalize if it is not already
         if abs( np.linalg.norm(flow_direction) - 1 ) > 1e-8:
-            wmsg = 'Supplied flow direction of %s is not a unit vector. feFlow will normalize this flow direction.' % str(flow_direction)
+            wmsg = 'Supplied flow direction of %s is not a unit vector. flatiron_tk will normalize this flow direction.' % str(flow_direction)
             warning(wmsg)
             flow_direction = flow_direction/np.linalg.norm(flow_direction)
 
@@ -118,7 +118,7 @@ def _build_inlet_bc(bnd_id, input_object, physics, bc_options):
         # Normalize if it is not already
         # I an redoing this here because the custom option doesn't use flow_direction
         if abs( np.linalg.norm(flow_direction) - 1 ) > 1e-8:
-            wmsg = 'Supplied flow direction of %s is not a unit vector. feFlow will normalized this flow_direction.' % str(flow_direction)
+            wmsg = 'Supplied flow direction of %s is not a unit vector. flatiron_tk will normalized this flow_direction.' % str(flow_direction)
             warning(wmsg)
             flow_direction = flow_direction/np.linalg.norm(flow_direction)
 

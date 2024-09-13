@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InputObject &mdash; feFlow 1.0.0 documentation</title>
+  <title>InputObject &mdash; flatiron_tk 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
@@ -35,7 +35,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            feFlow
+            flatiron_tk
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -67,7 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#example-input-file">Example input file</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#example-class-initialization">Example class initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#feFlow.io.InputObject"><code class="docutils literal notranslate"><span class="pre">InputObject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.io.InputObject"><code class="docutils literal notranslate"><span class="pre">InputObject</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -87,7 +87,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">feFlow</a>
+          <a href="index.html">flatiron_tk</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -119,7 +119,7 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Any line starting with the # is considered comment, and is ignored</span>
 
 <span class="c1"># Variable name is anything to the left of the `=`, so we can have space in the name.</span>
-<span class="n">package</span> <span class="n">name</span> <span class="o">=</span> <span class="n">feFlow</span>
+<span class="n">package</span> <span class="n">name</span> <span class="o">=</span> <span class="n">flatiron_tk</span>
 
 <span class="c1"># These values are automatically parsed into the appopriate data type</span>
 <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
@@ -139,10 +139,10 @@
 </section>
 <section id="example-class-initialization">
 <h2>Example class initialization<a class="headerlink" href="#example-class-initialization" title="Permalink to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">feFlow.io</span> <span class="kn">import</span> <span class="n">InputObject</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flatiron_tk.io</span> <span class="kn">import</span> <span class="n">InputObject</span>
 <span class="n">input_object</span> <span class="o">=</span> <span class="n">InputObject</span><span class="p">(</span><span class="s1">&#39;example_input_file.inp&#39;</span><span class="p">)</span> <span class="c1"># where the ``example_input_file.inp`` is the file above</span>
 
-<span class="n">package_name</span> <span class="o">=</span> <span class="n">input_object</span><span class="p">(</span><span class="s2">&quot;package name&quot;</span><span class="p">)</span> <span class="c1"># return string &quot;feFlow&quot;</span>
+<span class="n">package_name</span> <span class="o">=</span> <span class="n">input_object</span><span class="p">(</span><span class="s2">&quot;package name&quot;</span><span class="p">)</span> <span class="c1"># return string &quot;flatiron_tk&quot;</span>
 <span class="n">i</span> <span class="o">=</span> <span class="n">input_object</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)</span> <span class="c1"># return int 1</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">input_object</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span> <span class="c1"># return float 1.5</span>
 <span class="n">e</span> <span class="o">=</span> <span class="n">input_object</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span> <span class="c1"># return float 100.0</span>
@@ -155,16 +155,16 @@
 <section id="class-definition">
 <h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="feFlow.io.InputObject">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">feFlow.io.</span></span><span class="sig-name descname"><span class="pre">InputObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.io.InputObject" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.io.InputObject">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.</span></span><span class="sig-name descname"><span class="pre">InputObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>input_file</strong> (<em>str</em>) – Path to the input file</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.io.InputObject._parse_input">
-<span class="sig-name descname"><span class="pre">_parse_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.io.InputObject._parse_input" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.io.InputObject._parse_input">
+<span class="sig-name descname"><span class="pre">_parse_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject._parse_input" title="Permalink to this definition"></a></dt>
 <dd><p>Parse an input string based on specific rules:</p>
 <ol class="arabic simple">
 <li><p>If the input string is “true” or “false” (case-insensitive), return the corresponding boolean value.</p></li>
@@ -181,8 +181,8 @@ bool, int, float, str, or tuple: The parsed value or the original input string.<
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.io.InputObject._parse_tuple_elements">
-<span class="sig-name descname"><span class="pre">_parse_tuple_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tuple_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.io.InputObject._parse_tuple_elements" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.io.InputObject._parse_tuple_elements">
+<span class="sig-name descname"><span class="pre">_parse_tuple_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tuple_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject._parse_tuple_elements" title="Permalink to this definition"></a></dt>
 <dd><p>Parse the elements of a string representing a tuple.</p>
 <p>This function takes a string containing elements in tuple format and attempts to parse each element.</p>
 <p>Parameters:
@@ -192,8 +192,8 @@ list: A list containing the parsed elements. Elements are either integers, float
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="feFlow.io.InputObject.dump">
-<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#feFlow.io.InputObject.dump" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.io.InputObject.dump">
+<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject.dump" title="Permalink to this definition"></a></dt>
 <dd><p>Print out all of the entries</p>
 </dd></dl>
 

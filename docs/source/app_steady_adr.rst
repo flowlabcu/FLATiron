@@ -55,7 +55,7 @@ Next, we can add stabilization. Currently, only streamline upwind Petrov-Galerki
 
 	add supg = true
 
-Now we must define boundary conditions. All boundary condition variables must start with "BC" to be recognized by the interpreter. **Note that each active BC must have a unique name otherwise feFlow will overwrite the duplicating BCs**.
+Now we must define boundary conditions. All boundary condition variables must start with "BC" to be recognized by the interpreter. **Note that each active BC must have a unique name otherwise FLATiron will overwrite the duplicating BCs**.
 
 The format of the BC goes as follows: ``(Boundary ID, BC_type, value variable)``
 

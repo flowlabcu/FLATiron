@@ -1,7 +1,7 @@
 Coupled diffusion-reaction problem with surface reaction
 ==============================================================
 
-This demo code demonstrate how to solve a steady coupled Diffusion-Reaction problem with surface reaction terms at the boundary. This demo is used to demonstrate how to use the feFlow MultiPhysics module. The source code can be found in ``demo/user_defined/steady_coupled_adr/coupled_diffusion_reaction.py`` The following is the problem description
+This demo code demonstrate how to solve a steady coupled Diffusion-Reaction problem with surface reaction terms at the boundary. This demo is used to demonstrate how to use the flatiron_tk MultiPhysics module. The source code can be found in ``demo/user_defined/steady_coupled_adr/coupled_diffusion_reaction.py`` The following is the problem description
 
 First we define the concentration of chemical species :math:`A`, :math:`B`, and :math:`C`, for a 1D domain of length :math:`L`, we have
 
@@ -41,14 +41,14 @@ Code description
 =========================
 
 
-Fist, we import code the relevant modules from feFlow and the basic libraries and define the mesh and constants
+Fist, we import code the relevant modules from flatiron_tk and the basic libraries and define the mesh and constants
 
 .. code:: python
 
     import fenics as fe
-    from feFlow.physics import MultiPhysicsProblem, ScalarTransport
-    from feFlow.mesh import Mesh
-    from feFlow.solver import PhysicsSolver
+    from flatiron_tk.physics import MultiPhysicsProblem, ScalarTransport
+    from flatiron_tk.mesh import Mesh
+    from flatiron_tk.solver import PhysicsSolver
 
     # Define mesh
     ne = 10

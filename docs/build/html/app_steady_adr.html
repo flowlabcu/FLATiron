@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Steady scalar transport &mdash; feFlow 1.0.0 documentation</title>
+  <title>Steady scalar transport &mdash; flatiron_tk 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
@@ -35,7 +35,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            feFlow
+            flatiron_tk
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -87,7 +87,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">feFlow</a>
+          <a href="index.html">flatiron_tk</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -143,7 +143,7 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">add</span> <span class="n">supg</span> <span class="o">=</span> <span class="n">true</span>
 </pre></div>
 </div>
-<p>Now we must define boundary conditions. All boundary condition variables must start with “BC” to be recognized by the interpreter. <strong>Note that each active BC must have a unique name otherwise feFlow will overwrite the duplicating BCs</strong>.</p>
+<p>Now we must define boundary conditions. All boundary condition variables must start with “BC” to be recognized by the interpreter. <strong>Note that each active BC must have a unique name otherwise FLATiron will overwrite the duplicating BCs</strong>.</p>
 <p>The format of the BC goes as follows: <code class="docutils literal notranslate"><span class="pre">(Boundary</span> <span class="pre">ID,</span> <span class="pre">BC_type,</span> <span class="pre">value</span> <span class="pre">variable)</span></code></p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">Boundary</span> <span class="pre">ID</span></code> refer to the id of the boundary this BC is being applied to.</p>
