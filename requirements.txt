@@ -1,6 +1,5 @@
 contourpy==1.1.1
 cycler==0.12.1
-flatiron-tk==1.0.0
 fonttools==4.53.1
 importlib-resources==6.4.5
 kiwisolver==1.4.7
