@@ -1,20 +1,27 @@
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
+
 from .mesh import Mesh
 
-class bnd(fe.SubDomain):
-    '''
-    Define the boundary of a cartesian mesh such that x[d] == x_bnd
-    by defining the dimension and the point location at the
-    boundary
-    '''
-    def __init__(self, x_bnd, d, *args, **kwargs):
-        self.x_bnd = x_bnd
-        self.d = d
-        super().__init__(*args, **kwargs)
+class bnd():
+    pass
 
-    def inside(self, x, on_boundary):
-        # return on_boundary and fe.near( x[self.d], self.x_bnd )
-        return on_boundary and abs(x[self.d]-self.x_bnd) < 1e-8
+if fe:
+
+    class bnd(fe.SubDomain):
+        '''
+        Define the boundary of a cartesian mesh such that x[d] == x_bnd
+        by defining the dimension and the point location at the
+        boundary
+        '''
+        def __init__(self, x_bnd, d, *args, **kwargs):
+            self.x_bnd = x_bnd
+            self.d = d
+            super().__init__(*args, **kwargs)
+
+        def inside(self, x, on_boundary):
+            # return on_boundary and fe.near( x[self.d], self.x_bnd )
+            return on_boundary and abs(x[self.d]-self.x_bnd) < 1e-8
 
 def _cart_mesh(comm, x0, x1, dx, *args):
     '''
@@ -52,7 +59,9 @@ class LineMesh(Mesh):
     (x0) ------------------- (x1)
     """
 
-    def __init__(x0, x1, dx, comm=fe.MPI.comm_world):
+    def __init__(x0, x1, dx, comm=None):
+        if comm is None:
+            comm = fe.MPI.comm_world
         mesh, boundary = _cart_mesh(comm, [x0], [x1], [dx])
         super().__init__(mesh=mesh, boundary=boundary)
 
@@ -65,7 +74,9 @@ class RectMesh(Mesh):
     |__________|
   (x0,y0)
     """
-    def __init__(self, x0, y0, x1, y1, dx, comm=fe.MPI.comm_world, *args):
+    def __init__(self, x0, y0, x1, y1, dx, comm=None, *args):
+        if comm is None:
+            comm = fe.MPI.comm_world
         if isinstance(dx, int) or isinstance(dx, float):
             dx_lst = [dx for i in range(2)]
         else:
@@ -74,7 +85,7 @@ class RectMesh(Mesh):
         super().__init__(mesh=mesh, boundary=boundary)
 
 class BoxMesh(Mesh):
-    def __init__(self, x0, y0, z0, x1, y1, z1, dx, comm=fe.MPI.comm_world, *args):
+    def __init__(self, x0, y0, z0, x1, y1, z1, dx, comm=None, *args):
 
         """
                            (x1,y1,z1)
@@ -90,7 +101,8 @@ class BoxMesh(Mesh):
 
         """
 
-
+        if comm is None:
+            comm = fe.MPI.comm_world
 
         if isinstance(dx, int) or isinstance(dx, float):
             dx_lst = [dx for i in range(3)]

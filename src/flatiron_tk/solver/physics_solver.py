@@ -1,5 +1,7 @@
 from .non_linear_problem import NonLinearProblem, NonLinearSolver
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
+
 
 class PhysicsSolver():
 

@@ -1,4 +1,5 @@
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
 import numpy as np
 
 # -----------------------------------------------------

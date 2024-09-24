@@ -1,0 +1,33 @@
+#!/bin/bash
+# mv *.geo geo
+# mv *.msh msh
+# mv *.xml xml
+# mv *.h5 h5
+
+move_from_dirs(){
+  mv -v *.$1 $1 2>/dev/null 
+  mv -v geo/*.$1 $1 2>/dev/null 
+  mv -v msh/*.$1 $1 2>/dev/null 
+  mv -v xml/*.$1 $1 2>/dev/null 
+  mv -v h5/*.$1 $1 2>/dev/null 
+  mv -v stl/*.$1 $1 2>/dev/null
+}
+
+MESH_DIR=$1
+cd $MESH_DIR
+# -- Move to the mesh folder
+# cd ${PWD}/mesh/
+# -- Create directories here in case they are new 
+mkdir -p geo msh xml h5 pvd stl
+move_from_dirs geo
+move_from_dirs msh
+move_from_dirs xml
+move_from_dirs h5
+move_from_dirs stl
+mv *.pvd *.vtu *.pvtu pvd 2>/dev/null
+mv geo/*.pvd geo/*.vtu geo/*.pvtu pvd 2>/dev/null
+mv msh/*.pvd msh/*.vtu msh/*.pvtu pvd 2>/dev/null
+mv xml/*.pvd xml/*.vtu xml/*.pvtu pvd 2>/dev/null
+mv h5/*.pvd h5/*.vtu h5/*.pvtu pvd 2>/dev/null
+mv stl/*.pvd stl/*.vtu stl/*.pvtu pvd 2>/dev/null
+

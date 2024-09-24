@@ -1,0 +1,355 @@
+#!/bin/python3
+import numpy as np
+import sys
+import copy
+import os
+
+# ------------------------------------------------------- #
+
+import fenics as fe
+from numba import jit
+from scipy.spatial import cKDTree
+
+def read_foam_file(file_name):
+    '''
+    Read openfoam file ignoring comments
+    '''
+    # fid = open(file_name, 'r')
+    lines = []
+    append_line = True
+    with open(file_name, 'r') as fid:
+
+        for i, line in enumerate(fid):
+
+            # Handle block comments
+            if line.startswith('/*'):
+                append_line = False
+            if line.startswith('\*'):
+                append_line = True
+                continue
+
+            # Handle normal comment
+            if line.startswith('//'):
+                continue
+
+            # Handle empty line
+            if line.strip() == '':
+                continue
+
+            # Append lines
+            if append_line:
+                lines.append(line.strip())
+
+    # Encode data
+    encode_data = False
+    data = []
+    is_entry = False
+    for i, line in enumerate(lines):
+
+        if line.startswith('(') and not is_entry:
+            encode_data = True
+            is_entry = True
+            continue
+
+        if line.startswith(')'):
+            break
+
+        if encode_data and is_entry:
+            data.append(line.strip())
+    return data
+
+def get_boundary_data(boundary_file):
+    bnds_data = read_foam_file(boundary_file)
+    bnds = {}
+    read_block = False
+    for i, b in enumerate(bnds_data):
+        if b.strip().startswith('{'):
+            block_name = bnds_data[i-1]
+            bnds[block_name] = {}
+            read_block = True
+            continue
+
+        if b.strip().startswith('}'):
+            read_block = False
+            continue
+
+        if read_block:
+            key, value = b.strip().split()
+            value = value[:-1]
+            if key != 'type':
+                bnds[block_name][key] = int(value)
+    return bnds
+
+def get_num_data(owner_file):
+    fid = open(owner_file, 'r')
+    for line in fid.readlines():
+        if line.strip().startswith('note'):
+            val = line.strip()[:-2].split()[1:]
+            n_points, n_cells, n_faces, n_internal_faces = [int(l.split(':')[1]) for l in val]
+            break
+    return n_points, n_cells, n_faces, n_internal_faces
+
+def write_dolfin_xml(points, cells, xml_file):
+    n_points = points.shape[0]
+    n_cells = len(cells)
+    fid = open(xml_file, 'w')
+    fid.write('<?xml version="1.0" encoding="UTF-8"?>\n<dolfin xmlns:dolfin="http://www.fenicsproject.org">\n  <mesh celltype="tetrahedron" dim="3">\n    <vertices size="%d">' % n_points)
+    for i in range(points.shape[0]):
+        p = points[i]
+        fid.write('      <vertex index="%d" x="%s" y="%s" z="%s"/>\n' % (i, p[0], p[1], p[2]))
+    fid.write('    </vertices>\n')
+    fid.write('    <cells size="%d">\n' % n_cells)
+    for i in range(len(cells)):
+        c = list(cells[i])
+        fid.write('      <tetrahedron index="%d" v0="%d" v1="%d" v2="%d" v3="%d"/>\n' % (i, c[0], c[1], c[2], c[3]))
+    fid.write('    </cells>\n')
+    fid.write('  </mesh>\n')
+    fid.write('</dolfin>\n')
+    fid.close()
+    print("Volume mesh written to %s" % xml_file)
+
+def get_foam_face_ids_bounds(foam_boundary_file):
+    '''
+    OpenFoam organizes faces such that cells with similar boundary tags are grouped together.
+    This section reads the range for each boundary tag and stores the data in an array where each
+    column is [start face, end face] .
+    '''
+    boundary_markings = get_boundary_data(foam_boundary_file)
+    boundaryID = []
+    n_faces = len(boundary_markings)
+    boundary_face_ids = np.zeros((n_faces, 2), dtype=int) #probably better way to init this
+
+    # Loops through all boundary definitions
+    for index, faceName in enumerate(boundary_markings):
+        boundaryID.append(index)
+        boundary_face_ids[index, 0] = int(boundary_markings[faceName]['startFace'])
+        boundary_face_ids[index, 1] = int(boundary_markings[faceName]['startFace'] + boundary_markings[faceName]['nFaces'])
+    return boundary_face_ids
+
+def get_foam_face_midpoints(faces, points):
+    '''
+        In order to match openFoam faces and fenics facets we will take the averages of the vertices defining each face.
+        This section created the midpoint array for each face.
+    '''
+    # Create a 3D array for triangle midpoints
+    vertices = points[faces]
+    midpoint_foam = np.mean(vertices, 1)
+    return midpoint_foam
+
+def get_fenics_face_midpoints(fenics_mesh):
+    # _ = fe.FunctionSpace(fenics_mesh, 'CG', 1)
+    fenics_mesh.init(2)
+    midpoint_fenics = np.zeros((fenics_mesh.num_facets(), 3))
+    for f in fe.facets(fenics_mesh):
+        midpoint_fenics[f.index(), :] = f.midpoint().array()
+    return midpoint_fenics
+    '''
+    midpoint_fenics = []
+    for f in fe.facets(fenics_mesh):
+        midpoint_fenics.append(f.midpoint().array()[:])
+    return midpoint_fenics
+    '''
+
+def mark_fenics_faces(midpoint_fenics, midpoint_foam, boundary_face_ids, fenics_mesh, fenics_boundary_markings):
+    '''
+    Build KDTree for fenics midpoint
+    This section matches the midpoints from openFoam and fenics and creates a list 'fenics_ids' that contains the
+    indices in the fenics midpoint array that correspond with the i'th index of the openFoam array
+    '''
+    kdt = cKDTree(midpoint_fenics)
+    dist, fenics_ids = kdt.query(midpoint_foam)
+    for f in fe.facets(fenics_mesh):
+        for i in range(boundary_face_ids.shape[0]):
+            if boundary_face_ids[i,0] <= f.index() < boundary_face_ids[i,1]:
+                fenics_boundary_markings.set_value(fenics_ids[f.index()], i+1)
+                break
+
+def boundary_foam_to_fenics(foam_faces, foam_points, foam_boundary_file, fenics_mesh):
+
+    # Get foam midpoint and face id bounds
+    boundary_face_ids = get_foam_face_ids_bounds(foam_boundary_file)
+    # Get midpoints for foam and fenics
+    midpoint_foam = get_foam_face_midpoints(foam_faces, foam_points)
+    midpoint_fenics = get_fenics_face_midpoints(fenics_mesh)
+    # Mark fenics face
+    fenics_boundary_markings = fe.MeshFunction("size_t", fenics_mesh, fenics_mesh.topology().dim()-1)
+    mark_fenics_faces(midpoint_fenics, midpoint_foam, boundary_face_ids, fenics_mesh, fenics_boundary_markings)
+    print('Finished with boundary foam 2 fenics.')
+    return fenics_boundary_markings, boundary_face_ids
+
+def write_facet_xml(fenics_boundary_markings, mesh_file):
+    facet_file = "%s_facet_region.xml" % mesh_file[:-4]
+    fp = open(facet_file,'w')
+    fp.write('<dolfin xmlns:dolfin="http://fenicsproject.org">\n')
+    fp.write('  <mesh_function type="uint" dim="2" size="%i">\n' % fenics_boundary_markings.size())
+    for index, marking_value in enumerate(fenics_boundary_markings.array()):
+        fp.write('      <entity index="%i" value="%i"/>\n' % (index, marking_value))
+    fp.write('  </mesh_function>\n</dolfin>')
+    fp.close()
+
+@jit
+def create_cell_array(n_cells, faces, neighbour, owner):
+    cells = np.zeros((n_cells, 4), dtype=int) - 1
+    ids = np.zeros(n_cells, dtype=int)
+
+    # Assign owner and neighbor cell ids to each element of cells[]
+    print('Creating cell array...')
+    for face_id, cell_id in enumerate(owner):
+        for point_id in faces[face_id]:
+            if point_id not in cells[cell_id, :]:
+                cells[cell_id, ids[cell_id]] = point_id
+                ids[cell_id] += 1
+    for face_id, cell_id in enumerate(neighbour):
+        for point_id in faces[face_id]:
+            if point_id not in cells[cell_id, :]:
+                cells[cell_id, ids[cell_id]] = point_id
+                ids[cell_id] += 1
+    print('Done creating cell array')
+    # Free memory
+    return cells
+
+def read_foam_file(file_name):
+    '''
+    Read openfoam file ignoring comments
+    '''
+    fid = open(file_name, 'r')
+    lines = []
+    append_line = True
+    for i, line in enumerate(fid.readlines()):
+
+        # Handle block comments
+        if line.startswith('/*'):
+            append_line = False
+        if line.startswith('\*'):
+            append_line = True
+            continue
+
+        # Handle normal comment
+        if line.startswith('//'):
+            continue
+
+        # Handle empty line
+        if line.strip() == '':
+            continue
+
+        # Append lines
+        if append_line:
+            lines.append(line.strip())
+
+    # Encode data
+    encode_data = False
+    data = []
+    is_entry = False
+    for i, line in enumerate(lines):
+
+        if line.startswith('(') and not is_entry:
+            encode_data = True
+            is_entry = True
+            continue
+
+        if line.startswith(')'):
+            break
+
+        if encode_data and is_entry:
+            data.append(line.strip())
+    fid.close()
+    return data
+
+def get_point_data(points_file):
+    print('Reading foam points files...')
+    point_data = read_foam_file(points_file)
+    pts = []
+    for i, p in enumerate(point_data):
+        pts.append([float(pi) for pi in p[1:-1].split()])
+    return np.array(pts)
+
+def get_face_data(faces_file):
+    print('Reading foam face file...')
+    face_data = read_foam_file(faces_file)
+    for i in range(len(face_data)):
+        f = face_data[i]
+        face_data[i] = [int(fi) for fi in f[2:-1].split()]
+    return np.array(face_data)
+
+def get_neighbour_or_owner(neighbour_file):
+    print('Reading foam owner or neighbour...')
+    data = read_foam_file(neighbour_file)
+    for i in range(len(data)):
+        d = data[i]
+        data[i] = int(d.strip())
+    return np.array(data)
+
+def main(foam_directory, _mesh_file):
+
+    # Put mesh file in the foam_directory
+    mesh_file = os.path.join(foam_directory, _mesh_file)
+
+    # Grab file names
+    print('Locating files...')
+    points_file = os.path.join(foam_directory, 'points')
+    faces_file = os.path.join(foam_directory, 'faces')
+    neighbour_file = os.path.join(foam_directory, 'neighbour')
+    owner_file = os.path.join(foam_directory, 'owner')
+    boundary_file = os.path.join(foam_directory, 'boundary')
+    print('Done.')
+
+    # Read files
+    print('Reading files...')
+    points = get_point_data(points_file)
+    faces = get_face_data(faces_file)
+    neighbour = get_neighbour_or_owner(neighbour_file)
+    owner = get_neighbour_or_owner(owner_file)
+    n_cells = np.max([np.max(owner), np.max(neighbour)])+1
+    print('Done.')
+
+    # Create a cell array
+    print('Creating cell array...')
+    cells = create_cell_array(n_cells, faces, neighbour, owner)
+    del neighbour
+    del owner
+    print('Done.')
+
+    # Write xml file
+    print("Writing volume file to xml format...")
+    write_dolfin_xml(points, cells, mesh_file)
+    # Read mesh back as fenics mesh
+    fenics_mesh = fe.Mesh(mesh_file)
+    print('Done.')
+
+    # Do boundary marking
+    print("Marking boundary mesh in fenics... (this may take some time)")
+    fenics_boundary_markings, boundary_face_ids = boundary_foam_to_fenics(faces, points, boundary_file, fenics_mesh)
+    del points
+    del faces
+    print('Done.')
+
+    # Write boundary face ids to a file
+    print('Writing boundary face IDs to \'fenics_boundary_ids.txt\'...')
+    boundary_id_file = open(os.path.join(foam_directory, 'fenics_boundary_ids.txt'), 'w')
+    boundary_id_file.write("id face_name\n")
+    for i, face_name in enumerate(get_boundary_data(boundary_file)):
+        boundary_id_file.write('%d %s\n' % (i+1, face_name))
+    boundary_id_file.close()
+    print('*'*50)
+    for line in open(os.path.join(foam_directory, 'fenics_boundary_ids.txt'), 'r').readlines():
+        print(line)
+    print('*'*50)
+
+    # Write boundary file
+    print("Writing facet to dolfin xml format...")
+    write_facet_xml(fenics_boundary_markings, mesh_file)
+    fe.File(os.path.join(foam_directory, 'bnd.pvd')) << fenics_boundary_markings
+    print("Done.")
+    print('Done with conversion.')
+    return
+
+if __name__ == '__main__':
+    foam_directory = sys.argv[1]
+    mesh_file = sys.argv[2]
+    main(foam_directory, mesh_file)
+
+
+
+
+
+

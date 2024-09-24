@@ -2,7 +2,10 @@
 Base class for transient problems for scalar transports
 '''
 
-import fenics as fe
+
+from ..info.messages import import_fenics
+fe = import_fenics()
+
 from .scalar_transport import ScalarTransport
 
 class TransientScalarTransport(ScalarTransport):

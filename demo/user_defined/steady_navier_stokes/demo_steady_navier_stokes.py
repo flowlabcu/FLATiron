@@ -72,7 +72,7 @@ nse.dirichlet_bcs.append(fe.DirichletBC(nse.V.sub(1), fe.Constant(0), bottom_lef
 # Solve the stokes flow version of the problem first, and use it as an initial
 # guess for the nonlinear iteration
 stk = StokesFlow(mesh)
-stk.set_element('CG', 1, 'CG', 1)
+stk.set_element('CG', 2, 'CG', 1)
 stk.build_function_space()
 stk.set_kinematic_viscosity(mu/rho)
 stk.set_weak_form()

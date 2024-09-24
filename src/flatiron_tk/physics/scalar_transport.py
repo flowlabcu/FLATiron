@@ -1,7 +1,8 @@
 '''
 Defines a scalar transport problem
 '''
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
 from .physics_problem import PhysicsProblem
 
 class ScalarTransport(PhysicsProblem):

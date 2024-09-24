@@ -2,7 +2,9 @@
 This module contains functions that load/save FEniCS mesh and functions into the hdf5 format
 '''
 
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
+
 import os
 import numpy as np
 import sys
@@ -105,13 +107,15 @@ def h5_write(instance, h5_group, h5_file=None, h5_object=None, timestamp=None, m
         else:
             h5_object.write(instance, h5_group)
 
-def h5_read_mesh(h5_file, mesh_name="mesh", boundaries_name="boundaries", subdomain_name="subdomains", comm=fe.MPI.comm_world):
+def h5_read_mesh(h5_file, mesh_name="mesh", boundaries_name="boundaries", subdomain_name="subdomains", comm=None):
     '''
     Read mesh, boundaries, and subdomains in accordance with h5init_output_file method
     Input: h5_read_mesh(h5_file, mesh_name="mesh", boundaries_name="boundaries", subdomain_name="subdomains")
     Return (mesh, boundaries, subdomains), if boundaries or subdomains do not exist, they are returned as None
     mesh must exist
     '''
+    if comm is None:
+        comm = fe.MPI.comm_world
     tmp = fe.Mesh()
     hdf = fe.HDF5File(comm, h5_file, "r")
     hasBoundaries = hdf.has_dataset(boundaries_name)

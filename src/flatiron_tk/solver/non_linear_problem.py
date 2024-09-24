@@ -5,50 +5,59 @@ import copy
 import os
 
 # ------------------------------------------------------- #
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
 
-class NonLinearProblem(fe.NonlinearProblem):
+class NonLinearProblem():
+    pass
 
-    def __init__(self, physics):
+class NonLinearSolver():
+    pass
 
-        # Grab weakform and its derivative from the physics class
-        self.physics = physics
-        F = physics.get_weak_form()
-        sol = physics.solution
-        J = fe.derivative(F, sol)
+if fe:
 
-        # Define it back into the nonlinear problem class
-        self.bilinear_form = J
-        self.linear_form = F
-        self.bcs = physics.dirichlet_bcs
-        fe.NonlinearProblem.__init__(self)
+    class NonLinearProblem(fe.NonlinearProblem):
 
-    def F(self, b, x):
-        fe.assemble(self.linear_form, tensor=b)
-        for bc in self.bcs:
-            bc.apply(b, x)
+        def __init__(self, physics):
 
-    def J(self, A, x):
-        fe.assemble(self.bilinear_form, tensor=A)
-        for bc in self.bcs:
-            bc.apply(A)
+            # Grab weakform and its derivative from the physics class
+            self.physics = physics
+            F = physics.get_weak_form()
+            sol = physics.solution
+            J = fe.derivative(F, sol)
 
-class NonLinearSolver(fe.NewtonSolver):
+            # Define it back into the nonlinear problem class
+            self.bilinear_form = J
+            self.linear_form = F
+            self.bcs = physics.dirichlet_bcs
+            fe.NonlinearProblem.__init__(self)
 
-    def __init__(self, comm, problem, la_solver, **kwargs):
-        self.problem = problem
-        fe.NewtonSolver.__init__(self, comm, la_solver, fe.PETScFactory.instance())
+        def F(self, b, x):
+            fe.assemble(self.linear_form, tensor=b)
+            for bc in self.bcs:
+                bc.apply(b, x)
 
-    def solve(self):
-        sol_vector = self.problem.physics.solution
-        super().solve(self.problem, sol_vector.vector())
+        def J(self, A, x):
+            fe.assemble(self.bilinear_form, tensor=A)
+            for bc in self.bcs:
+                bc.apply(A)
+
+    class NonLinearSolver(fe.NewtonSolver):
+
+        def __init__(self, comm, problem, la_solver, **kwargs):
+            self.problem = problem
+            fe.NewtonSolver.__init__(self, comm, la_solver, fe.PETScFactory.instance())
+
+        def solve(self):
+            sol_vector = self.problem.physics.solution
+            super().solve(self.problem, sol_vector.vector())
 
 
 # class NonLinearSolver(fe.NewtonSolver):
 
 #     def __init__(self, comm, problem, la_solver, **kwargs):
 #         self.problem = problem
-#         self.solver_type = kwargs.pop('solver_type', 'gmres') 
+#         self.solver_type = kwargs.pop('solver_type', 'gmres')
 #         self.pc_type     = kwargs.pop('pc_type'    , 'hypre')
 #         self.rel_tol     = kwargs.pop('relative_tolerance', 1e-2)
 #         self.abs_tol     = kwargs.pop('absolute_tolerance', 1e-3)
@@ -58,7 +67,7 @@ class NonLinearSolver(fe.NewtonSolver):
 
 #     def solver_setup(self, A, P, problem, iteration):
 #         self.linear_solver().set_operator(A)
-#         fe.PETScOptions.set("ksp_type", self.solver_type) 
+#         fe.PETScOptions.set("ksp_type", self.solver_type)
 #         fe.PETScOptions.set("ksp_monitor")
 #         fe.PETScOptions.set("pc_type", self.pc_type)
 #         self.linear_solver().parameters["relative_tolerance"] = self.rel_tol

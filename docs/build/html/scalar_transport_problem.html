@@ -72,10 +72,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#boundary-conditions">Boundary conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#weak-formulation">Weak formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#stabilization-parameters">Stabilization parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.ScalarTransport"><code class="docutils literal notranslate"><span class="pre">ScalarTransport</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="transient_scalar_transport_problem.html">Transient scalar transport</a></li>
@@ -163,91 +160,6 @@
 </section>
 <section id="class-definition">
 <h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.</span></span><span class="sig-name descname"><span class="pre">ScalarTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'u'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.add_stab">
-<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shakib'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.add_stab" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.advection">
-<span class="sig-name descname"><span class="pre">advection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.advection" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.diffusion">
-<span class="sig-name descname"><span class="pre">diffusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.diffusion" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.flux">
-<span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.flux" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.get_advection_velocity">
-<span class="sig-name descname"><span class="pre">get_advection_velocity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.get_advection_velocity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.get_diffusivity">
-<span class="sig-name descname"><span class="pre">get_diffusivity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.get_diffusivity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.get_reaction">
-<span class="sig-name descname"><span class="pre">get_reaction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.get_reaction" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.get_residue">
-<span class="sig-name descname"><span class="pre">get_residue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.get_residue" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the residue of the problem.</p>
-<p>To be implemented in derived classes.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>The residue as a Fenics form.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.get_stab_constant">
-<span class="sig-name descname"><span class="pre">get_stab_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.get_stab_constant" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.reaction">
-<span class="sig-name descname"><span class="pre">reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.reaction" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.set_advection_velocity">
-<span class="sig-name descname"><span class="pre">set_advection_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.set_advection_velocity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.set_diffusivity">
-<span class="sig-name descname"><span class="pre">set_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.set_diffusivity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.set_reaction">
-<span class="sig-name descname"><span class="pre">set_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.set_reaction" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.ScalarTransport.set_weak_form">
-<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.ScalarTransport.set_weak_form" title="Permalink to this definition"></a></dt>
-<dd><p>Set weak formulation as:
-A - D - R = 0
-where</p>
-<p>A, D, R are the weak form terms relating to the advection, diffusion, and reaction term in the final weak form</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 </section>
 

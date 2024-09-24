@@ -1,4 +1,6 @@
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
+
 from .physics_problem import PhysicsProblem
 from .multiphysics_problem import MultiPhysicsProblem
 from ..io import *

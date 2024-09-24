@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+'''
+Convert an xml mesh file into a hdf5 mesh file used in dolfin/fenics
+The program will detect the facet_region and physical_region files and incoorperate them 
+into one hdf5 file along with the mesh as long as the facet_region and physical_region
+files are in the same directory as the main xml file
+
+usage  : ./xml2h5 mesh1.xml mesh2.xml ...
+return : mesh1.h5
+'''
+
+import sys
+import fenics as fe
+import os
+
+def xml2h5(meshFile,savePVD=False):
+
+    # -- Convert a .xml mesh file into h5 format with the same file name.
+    print("Converting %s to hdf5 format" %(meshFile))
+    parsedMeshName = meshFile.split("/")
+    if len(parsedMeshName) == 1: # No "/" in the path name meaning file is in the current directory
+        meshFilePath = "."
+    else:
+        meshFilePath = parsedMeshName[0]
+
+    # -- Recover the path of the meshFile
+    for i in range(1,len(parsedMeshName)-1):
+        meshFilePath += "/"+parsedMeshName[i]
+    meshFilePath += "/"
+
+    # -- Get mesh of the same name with h5 extension instead of xml
+    mesh_xml = parsedMeshName[-1]
+    meshName = mesh_xml.split(".")[0]
+    mesh_h5 = meshName+".h5"
+    meshFilePath_h5 = meshFilePath+mesh_h5
+
+    # -- Convert xml to h5
+    mesh = fe.Mesh(meshFile)
+    hdf = fe.HDF5File(mesh.mpi_comm(), meshFilePath_h5, "w")
+    hdf.write(mesh, "/mesh")
+    if savePVD:
+        fe.File(meshName+".pvd") << mesh
+        print("Mesh pvd is saved to",(meshName+".pvd"))
+    print("Mesh written at %s" %(meshFilePath_h5))
+
+    # -- Check if facet and physical regions exist. If so, save them to meshFilePath_h5
+    facetRegion =  meshFilePath + meshName + "_facet_region.xml"
+    physicalRegion = meshFilePath + meshName + "_physical_region.xml"
+    if os.path.isfile(facetRegion):
+        boundaries = fe.MeshFunction("size_t", mesh, facetRegion)
+        hdf.write(boundaries, "/boundaries")
+        print("Boundaries written at %s" %(meshFilePath_h5))
+        if savePVD:
+            try:
+                fe.File(meshName+"_boundaries.pvd") << boundaries
+                print("Boundaries pvd is saved to",(meshName+"_boundaries.pvd"))
+            except:
+                ''''''
+    if os.path.isfile(physicalRegion):
+        subdomain = fe.MeshFunction("size_t", mesh, physicalRegion)
+        hdf.write(subdomain, "/subdomains")
+        print("Subdomains written at %s" %(meshFilePath_h5))
+        if savePVD:
+            try:
+                fe.File(meshName+"_subdomains.pvd") << boundaries
+                print("Subdomains pvd is saved to",(meshName+"_subdomains.pvd"))
+            except:
+                ''''''
+    hdf.close()
+
+if '-pvd' in sys.argv:
+    sys.argv.remove('-pvd')
+    saveout = True
+else:
+    saveout = False
+for i in range(1,len(sys.argv)):
+    meshname_xml = sys.argv[i]
+    xml2h5(meshname_xml,savePVD=saveout)

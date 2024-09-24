@@ -66,10 +66,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">InputObject</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#example-input-file">Example input file</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#example-class-initialization">Example class initialization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.io.InputObject"><code class="docutils literal notranslate"><span class="pre">InputObject</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a></li>
 </ul>
 </li>
 </ul>
@@ -154,51 +151,6 @@
 </section>
 <section id="class-definition">
 <h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="flatiron_tk.io.InputObject">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.</span></span><span class="sig-name descname"><span class="pre">InputObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>input_file</strong> (<em>str</em>) – Path to the input file</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.io.InputObject._parse_input">
-<span class="sig-name descname"><span class="pre">_parse_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject._parse_input" title="Permalink to this definition"></a></dt>
-<dd><p>Parse an input string based on specific rules:</p>
-<ol class="arabic simple">
-<li><p>If the input string is “true” or “false” (case-insensitive), return the corresponding boolean value.</p></li>
-<li><p>If the input string can be converted to a number, return it as an integer (if it’s an integer) or a float (if it’s a float).</p></li>
-<li><p>If the input string is a tuple in the format “(element1, element2, …)”, parse the elements inside the tuple:
-- If all elements can be converted to numbers, return a tuple of integers or floats as appropriate.
-- If any element cannot be converted to a number, return a tuple with elements as strings.</p></li>
-<li><p>If none of the above conditions are met, return the input string as is.</p></li>
-</ol>
-<p>Parameters:
-input_str (str): The input string to be parsed.</p>
-<p>Returns:
-bool, int, float, str, or tuple: The parsed value or the original input string.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.io.InputObject._parse_tuple_elements">
-<span class="sig-name descname"><span class="pre">_parse_tuple_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tuple_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject._parse_tuple_elements" title="Permalink to this definition"></a></dt>
-<dd><p>Parse the elements of a string representing a tuple.</p>
-<p>This function takes a string containing elements in tuple format and attempts to parse each element.</p>
-<p>Parameters:
-tuple_str (str): The string representing a tuple (e.g., “(element1, element2, …)”) to be parsed.</p>
-<p>Returns:
-list: A list containing the parsed elements. Elements are either integers, floats, bool, or strings.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.io.InputObject.dump">
-<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.InputObject.dump" title="Permalink to this definition"></a></dt>
-<dd><p>Print out all of the entries</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 </section>
 

@@ -74,10 +74,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#boundary-conditions">Boundary conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#weak-formulation">Weak formulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#stabilization-parameters">Stabilization parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.StokesFlow"><code class="docutils literal notranslate"><span class="pre">StokesFlow</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#class-definition">Class definition</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="navier_stokes.html">Navier Stokes Flow</a></li>
@@ -161,61 +158,6 @@
 </section>
 <section id="class-definition">
 <h2>Class definition<a class="headerlink" href="#class-definition" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.</span></span><span class="sig-name descname"><span class="pre">StokesFlow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.add_stab">
-<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.add_stab" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.build_function_space">
-<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.build_function_space" title="Permalink to this definition"></a></dt>
-<dd><p>Build the function space and set member Test/Trial/Solution functions</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.flux">
-<span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.flux" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.get_stab_constant">
-<span class="sig-name descname"><span class="pre">get_stab_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.get_stab_constant" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.set_bcs">
-<span class="sig-name descname"><span class="pre">set_bcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiphysics_bcs_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.set_bcs" title="Permalink to this definition"></a></dt>
-<dd><p>Here I am overloading the set_bcs from the MultiPhysics because
-the pressure boundary conditions has to be handled separately</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.set_body_force">
-<span class="sig-name descname"><span class="pre">set_body_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.set_body_force" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.set_element">
-<span class="sig-name descname"><span class="pre">set_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_degree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.set_element" title="Permalink to this definition"></a></dt>
-<dd><p>Build FEniCS MixedElement from the list of sub elements</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.set_kinematic_viscosity">
-<span class="sig-name descname"><span class="pre">set_kinematic_viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.set_kinematic_viscosity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.physics.StokesFlow.set_weak_form">
-<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.physics.StokesFlow.set_weak_form" title="Permalink to this definition"></a></dt>
-<dd><p>The weak form here is the sum of all of the weak forms from every physics</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 </section>
 

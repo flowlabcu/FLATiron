@@ -62,16 +62,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="io.html">io</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">h5_mod</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.io.h5_mod.h5_get_group"><code class="docutils literal notranslate"><span class="pre">h5_get_group()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.io.h5_mod.h5_get_time_stamp"><code class="docutils literal notranslate"><span class="pre">h5_get_time_stamp()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.io.h5_mod.h5_init_output_file"><code class="docutils literal notranslate"><span class="pre">h5_init_output_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.io.h5_mod.h5_read"><code class="docutils literal notranslate"><span class="pre">h5_read()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.io.h5_mod.h5_read_mesh"><code class="docutils literal notranslate"><span class="pre">h5_read_mesh()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.io.h5_mod.h5_to_pvd"><code class="docutils literal notranslate"><span class="pre">h5_to_pvd()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.io.h5_mod.h5_write"><code class="docutils literal notranslate"><span class="pre">h5_write()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">h5_mod</a></li>
 <li class="toctree-l2"><a class="reference internal" href="input_object.html">InputObject</a></li>
 </ul>
 </li>
@@ -107,117 +98,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-flatiron_tk.io.h5_mod">
-<span id="h5-mod"></span><h1>h5_mod<a class="headerlink" href="#module-flatiron_tk.io.h5_mod" title="Permalink to this heading"></a></h1>
-<p>This module contains functions that load/save FEniCS mesh and functions into the hdf5 format</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.io.h5_mod.h5_get_group">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.h5_mod.</span></span><span class="sig-name descname"><span class="pre">h5_get_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.h5_mod.h5_get_group" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.io.h5_mod.h5_get_time_stamp">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.h5_mod.</span></span><span class="sig-name descname"><span class="pre">h5_get_time_stamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_group</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.h5_mod.h5_get_time_stamp" title="Permalink to this definition"></a></dt>
-<dd><p>Get a list of time stamps from a specified HDF5 file and group.</p>
-<dl class="simple">
-<dt>Parameters:</dt><dd><p>h5_file (str): Path to the HDF5 file containing the data.
-h5_group (str): Name of the HDF5 group within the file where the timestamps are stored.</p>
-</dd>
-<dt>Returns:</dt><dd><p>numpy.ndarray: An array containing the time stamps extracted from the HDF5 dataset.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.io.h5_mod.h5_init_output_file">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.h5_mod.</span></span><span class="sig-name descname"><span class="pre">h5_init_output_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdomain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.h5_mod.h5_init_output_file" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes an HDF5 output file with the mesh, boundaries, and subdomain data. Use this function to initialize the output file
-for the simulation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>output_file</strong> (<em>str</em>) – Path to the .h5 file to initialize</p></li>
-<li><p><strong>mesh</strong> (<em>fe.Mesh</em>) – FEniCS mesh object to write into the initial output file (Optional)</p></li>
-<li><p><strong>boundaries</strong> (<em>fe.MeshFunction</em>) – The fenics MeshFunction object with marked boundary (Optional)</p></li>
-<li><p><strong>subdomain</strong> (<em>fe.MeshFunction</em>) – The fenics MeshFunction object with marked subdomain (Optional)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The initialized FEniCS hdf5 file object</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>fe.HDF5File</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.io.h5_mod.h5_read">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.h5_mod.</span></span><span class="sig-name descname"><span class="pre">h5_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fe_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshFunctionDim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.h5_mod.h5_read" title="Permalink to this definition"></a></dt>
-<dd><p>Reads FEniCS Mesh, MeshFunction, or Function object from a HDF5 file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>h5_file</strong> (<em>str</em>) – Path to the HDF5 file.</p></li>
-<li><p><strong>h5_group</strong> (<em>str</em>) – Name of the hdf5 file group</p></li>
-<li><p><strong>fe_type</strong> (<em>str</em>) – Type of data you want to save - must be ‘mesh’, ‘meshfunction’, or ‘function’.</p></li>
-<li><p><strong>mesh</strong> (<em>fe.Mesh</em>) – FEniCS mesh the function or function space are defined on (required for fe_type=’meshfunction’).</p></li>
-<li><p><strong>meshFunctionDim</strong> (<em>int</em><em>, </em><em>optional</em>) – The dimension of the function_space (required for fe_type=’meshfunction’).</p></li>
-<li><p><strong>function_space</strong> (<em>fe.FunctionSpace optional</em>) – Function space the Function type is defined on (required for fe_type=’function’).</p></li>
-<li><p><strong>time_id</strong> (<em>int</em><em>, </em><em>optional</em>) – Specify the index of the function in the time series you want to read.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The data stored in the file <cite>h5_file</cite> with HDF5 group=`h5_group` of type <cite>fe_type</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.io.h5_mod.h5_read_mesh">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.h5_mod.</span></span><span class="sig-name descname"><span class="pre">h5_read_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name='mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundaries_name='boundaries'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdomain_name='subdomains'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.h5_mod.h5_read_mesh" title="Permalink to this definition"></a></dt>
-<dd><p>Read mesh, boundaries, and subdomains in accordance with h5init_output_file method
-Input: h5_read_mesh(h5_file, mesh_name=”mesh”, boundaries_name=”boundaries”, subdomain_name=”subdomains”)
-Return (mesh, boundaries, subdomains), if boundaries or subdomains do not exist, they are returned as None
-mesh must exist</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.io.h5_mod.h5_to_pvd">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.h5_mod.</span></span><span class="sig-name descname"><span class="pre">h5_to_pvd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pvd_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elem_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elem_order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_h5_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.h5_mod.h5_to_pvd" title="Permalink to this definition"></a></dt>
-<dd><p>Convert function data from a HDF5 file into a paraview readable file format. The HDF5 file must have the <cite>mesh</cite> group saved on it. This is usually a a HDF5 file that’s created by the h5_init_output_file function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>h5_file</strong> (<em>str</em>) – Path to the .h5 file.</p></li>
-<li><p><strong>h5_group</strong> (<em>str</em>) – Name of the h5 variable you want to convert.</p></li>
-<li><p><strong>pvd_file</strong> (<em>str</em>) – Path to the ParaView pvd file.</p></li>
-<li><p><strong>func_type</strong> (<em>str</em>) – Either ‘scalar’ or ‘vector’. This determines the type of function space used.</p></li>
-<li><p><strong>elem_order</strong> (<em>int</em>) – Order of the element used to save the initial dataset. This must match the order used in the simulation!!!</p></li>
-<li><p><strong>save_interval</strong> (<em>list</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – (Optional) A Python list of 2 entries [i1, i2] where the data will be converted from time index i1 to time index i2.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.io.h5_mod.h5_write">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.h5_mod.</span></span><span class="sig-name descname"><span class="pre">h5_write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_object</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'a'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.io.h5_mod.h5_write" title="Permalink to this definition"></a></dt>
-<dd><p>Writes FEniCS Mesh, MeshFunction, or Function object into a hdf5 file format</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>instance</strong> (<em>fe.Mesh</em><em> or </em><em>fe.MeshFunction</em><em> or </em><em>fe.Function</em>) – The FEniCS data you want to save.</p></li>
-<li><p><strong>h5_group</strong> (<em>str</em>) – HDF5 group within the HDF5 file structure to write the instance to.</p></li>
-<li><p><strong>h5_file</strong> (<em>str</em><em>, </em><em>optional</em>) – HDF5 file name to write to. If <code class="docutils literal notranslate"><span class="pre">h5_file</span></code> is specified, <code class="docutils literal notranslate"><span class="pre">h5_object</span></code> cannot be specified</p></li>
-<li><p><strong>h5_object</strong> (<em>fe.HDF5File</em><em>, </em><em>optional</em>) – FEniCS HDF5File object one wants to save the data to. If <code class="docutils literal notranslate"><span class="pre">h5_object</span></code> is specified, <code class="docutils literal notranslate"><span class="pre">h5_file</span></code> cannot be specified</p></li>
-<li><p><strong>timestamp</strong> (<em>float</em><em>, </em><em>optional</em>) – Timestamp for the function. Used for writing time series.</p></li>
-<li><p><strong>mode</strong> (<em>str</em>) – “a” for append, or “w” for overwrite</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
+  <section id="h5-mod">
+<h1>h5_mod<a class="headerlink" href="#h5-mod" title="Permalink to this heading"></a></h1>
 </section>
 
 

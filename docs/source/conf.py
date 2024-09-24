@@ -1,7 +1,7 @@
 import pathlib
 import sys
 import os
-import flatiron_tk
+# import flatiron_tk
 sys.path.insert(0, os.path.abspath("../"))
 
 # Configuration file for the Sphinx documentation builder.

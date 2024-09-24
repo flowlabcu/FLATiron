@@ -60,18 +60,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Mesh</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#flatiron_tk.mesh.Mesh"><code class="docutils literal notranslate"><span class="pre">Mesh</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.mesh.Mesh.cell_diameter"><code class="docutils literal notranslate"><span class="pre">Mesh.cell_diameter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.mesh.Mesh.facet_normal"><code class="docutils literal notranslate"><span class="pre">Mesh.facet_normal()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.mesh.Mesh.fenics_mesh"><code class="docutils literal notranslate"><span class="pre">Mesh.fenics_mesh()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.mesh.Mesh.flat_boundary_normal"><code class="docutils literal notranslate"><span class="pre">Mesh.flat_boundary_normal()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.mesh.Mesh.mark_boundary"><code class="docutils literal notranslate"><span class="pre">Mesh.mark_boundary()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.mesh.Mesh.write"><code class="docutils literal notranslate"><span class="pre">Mesh.write()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mesh</a></li>
 <li class="toctree-l1"><a class="reference internal" href="io.html">io</a></li>
 <li class="toctree-l1"><a class="reference internal" href="physics.html">physics</a></li>
 </ul>
@@ -107,97 +96,6 @@
   <section id="mesh">
 <h1>Mesh<a class="headerlink" href="#mesh" title="Permalink to this heading"></a></h1>
 <p>This class is a wrapper around FEniCS mesh object for easy access to commonly used values of the mesh</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="flatiron_tk.mesh.Mesh">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.</span></span><span class="sig-name descname"><span class="pre">Mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.mesh.Mesh" title="Permalink to this definition"></a></dt>
-<dd><p>This class is a wapper object for dolfin.cpp.Mesh.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mesh_file</strong> – Path to the .h5 file containing the mesh</p></li>
-<li><p><strong>mesh</strong> (<em>fe.Mesh</em>) – The FEniCS mesh object.</p></li>
-<li><p><strong>boundary</strong> (<em>fe.MeshFunction</em>) – The fenics MeshFunction object with marked boundary values (dim = mesh.dim - 1)</p></li>
-</ul>
-</dd>
-</dl>
-<p>This class can be instantiate in 2 ways. Either by supplying <em>only</em> the <code class="docutils literal notranslate"><span class="pre">mesh_file</span></code> or <em>both</em> the FEniCS <code class="docutils literal notranslate"><span class="pre">mesh</span></code> and <code class="docutils literal notranslate"><span class="pre">boundary</span></code> objects</p>
-<dl class="field-list">
-<dt class="field-odd">Example<span class="colon">:</span></dt>
-<dd class="field-odd"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate with an existing *.h5 file format</span>
-<span class="c1"># This Mesh class will automatically look for the `boundary` group in the hdf5 file</span>
-<span class="n">Mesh</span><span class="p">(</span><span class="n">mesh_file</span><span class="o">=</span><span class="s2">&quot;mesh_file.h5&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate with the fenics mesh and boundary objects</span>
-<span class="kn">import</span> <span class="nn">fenics</span> <span class="k">as</span> <span class="nn">fe</span>
-<span class="n">fenics_mesh</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="n">fenics_boundary</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">MeshFunction</span><span class="p">(</span><span class="s2">&quot;size_t&quot;</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">fenics_mesh</span><span class="o">.</span><span class="n">topology</span><span class="p">()</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">Mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="n">fenics_mesh</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="n">fenics_boundary</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.mesh.Mesh.cell_diameter">
-<span class="sig-name descname"><span class="pre">cell_diameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.mesh.Mesh.cell_diameter" title="Permalink to this definition"></a></dt>
-<dd><p>Return the ufl object for mesh cell diameter</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.mesh.Mesh.facet_normal">
-<span class="sig-name descname"><span class="pre">facet_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.mesh.Mesh.facet_normal" title="Permalink to this definition"></a></dt>
-<dd><p>Return the ufl object for mesh facet norma</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.mesh.Mesh.fenics_mesh">
-<span class="sig-name descname"><span class="pre">fenics_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.mesh.Mesh.fenics_mesh" title="Permalink to this definition"></a></dt>
-<dd><p>Return the original fenics mesh</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.mesh.Mesh.flat_boundary_normal">
-<span class="sig-name descname"><span class="pre">flat_boundary_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.mesh.Mesh.flat_boundary_normal" title="Permalink to this definition"></a></dt>
-<dd><p>Return inwards boundary normal associated with the boundary_id
-NOTE that this function assumes that your face boundary is flat, i.e.,
-all facets on the boundary has the same normal direction</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.mesh.Mesh.mark_boundary">
-<span class="sig-name descname"><span class="pre">mark_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.mesh.Mesh.mark_boundary" title="Permalink to this definition"></a></dt>
-<dd><p>Mark a boundary on a mesh with boundary_id based on eval_func
-eval_func(x, *args) should return a boolean</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.mesh.Mesh.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flatiron_tk.mesh.Mesh.write" title="Permalink to this definition"></a></dt>
-<dd><p>Writes the mesh into either pvd or h5 format.</p>
-<p>If <cite>mesh_file</cite> ends with “pvd”, writes to a ParaView VTU file.
-If <cite>mesh_file</cite> ends with “h5”, writes to an HDF5 file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mesh_file</strong> (<em>str</em>) – The path to the output file.</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If <cite>mesh_file</cite> has an unsupported extension.</p>
-</dd>
-<dt class="field-odd">Example<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p>Writing mesh to ParaView VTU format:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;output.pvd&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Writing mesh to HDF5 format:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;output.h5&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 

@@ -1,0 +1,34 @@
+#!/bin/python3
+
+'''
+Usage:
+    ./extract_velocity_pressure <data_file.h5> <u_poly_degree (default=1)> <p_poly_degree (default=1)>
+e.g., 1-1 element
+    ./extract_velocity_pressure data_file.h5
+e.g., 2-1 element
+    ./extract_velocity_pressure data_file.h5 2 1
+'''
+
+from flatirons.io import *
+import sys
+
+# Grab h5 file
+h5_file = os.path.abspath(sys.argv[1])
+
+# Grab u polynomial degree
+try:
+    u_poly_deg = int(sys.argv[2])
+except:
+    u_poly_deg = 1
+
+# Grab p polynomial deree
+try:
+    p_poly_deg = int(sys.argv[3])
+except:
+    p_poly_deg = 1
+
+# Extract velocity
+h5_to_pvd(h5_file, 'Velocity', h5_file[:-3]+"-u.pvd", 'vector', 'CG', u_poly_deg, 'all')
+
+# Extract pressure
+h5_to_pvd(h5_file, 'Pressure', h5_file[:-3]+"-p.pvd", 'scalar', 'CG', u_poly_deg, 'all')

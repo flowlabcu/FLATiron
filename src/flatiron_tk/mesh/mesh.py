@@ -6,7 +6,9 @@ import os
 
 # ------------------------------------------------------- #
 
-import fenics as fe
+from ..info.messages import import_fenics
+fe = import_fenics()
+
 from ..io import *
 from mpi4py import MPI
 
