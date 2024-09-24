@@ -2,7 +2,7 @@
 
 ## 1. About
 
-**FLATiron** is a hierarchical, modular, finite element library for flow physics and transport phenomena. FLATiron - interpreted as FLAT-FE ( **FL**ow and **T**ransport using **F**inite **E**lements) - is named after the famous rock formations in Boulder, Colorado (the site of development of this package). The toolkit is based on the open-source finite element library named `FEniCS`, and leverages the underlying `dolfin` and `Unified Form Language (ufl)` modules heavily in its design. The library has been developed based on research and development activities at the **[FLOWLab](https://www.flowphysicslab.com/)** at *University of Colorado Boulder*.
+**FLATiron** is a hierarchical, modular, finite element library for flow physics and transport phenomena. FLATiron - interpreted as FLAT-FE ( **FL**ow and **T**ransport using **F**inite **E**lements) - is named after the famous rock formations in Boulder, Colorado (the site of development of this package). The toolkit is based on the open-source finite element library named `FEniCS`, and leverages the underlying `dolfin` and `Unified Form Language (ufl)` modules heavily in its design. The library has been developed based on research and development activities at the **[FLOWLab](https://www.flowphysicslab.com/)** at *University of Colorado Boulder*. The complete documentation for thei `FLATiron` toolkit is available **[here](https://flatiron-docs.readthedocs.io/en/latest/index.html#)**.
 
 ## 2. Features
 
