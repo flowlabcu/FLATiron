@@ -10,7 +10,7 @@ from ..info.messages import import_fenics
 fe = import_fenics()
 
 from ..io import *
-from mpi4py import MPI
+#from mpi4py import MPI
 
 def _load_mesh(comm, mesh_file):
     hdf = fe.HDF5File(comm, mesh_file, 'r')
@@ -205,5 +205,3 @@ class Mesh():
                 if bnd_dict[bnd_id] is not None:
                     global_bnd_normal_dict[bnd_id] = bnd_dict[bnd_id]
         self._flat_boundary_normals = global_bnd_normal_dict
-
-
