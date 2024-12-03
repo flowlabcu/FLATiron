@@ -13,8 +13,8 @@ sys.path.insert(0, os.path.abspath("../"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'flatiron_tk'
-copyright = '2024, Chayut Teeraratkul'
-author = 'Chayut Teeraratkul'
+copyright = '2024, FLOWLab (PI: Debanjan Mukherjee), University of Colorado Boulder'
+author = 'FLOWLab Team'
 release = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
