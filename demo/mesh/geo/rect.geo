@@ -12,7 +12,7 @@ Mesh.MshFileVersion = 2.0;
 // -- Parameters
 w  = 1;
 h  = 0.1;
-dx = h/10; 
+dx = w/500; 
 
 // -- Points
 Point(1) = {0, h, 0, dx};

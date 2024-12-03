@@ -37,6 +37,7 @@ export PETSC_DIR=$(readlink -f .)
 export PETSC_ARCH=arch-linux-c-opt
 make PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH} all
 make install
+python3 -m pip install --prefix=${PREFIX} src/binding/petsc4py
 cd ../../
 echo "export PETSC_DIR=${PETSC_DIR}" >> fenics_env
 echo "export PETSC_ARCH=${PETSC_ARCH}" >> fenics_env

@@ -4,6 +4,7 @@ import sys
 import time
 import copy
 import os
+from collections.abc import Iterable
 
 # ------------------------------------------------------- #
 
@@ -21,6 +22,9 @@ def _split_element(element):
         return element.sub_elements()
     else:
         return element
+
+def _is_container(obj):
+    return isinstance(obj, Iterable) and not isinstance(obj, (str, bytes))
 
 class MultiPhysicsProblem(PhysicsProblem):
 
@@ -151,6 +155,26 @@ class MultiPhysicsProblem(PhysicsProblem):
         physics_id = self.get_physics_id(physics_tag)
         return self.sub_physics[physics_id]
 
+    def get_dofs(self, physics_tag=None, sort=True):
+
+        """
+        Return the global dofs ids for a the physics tag
+        if physics_tag is None, return the dofs of this entire multiphysics
+        """
+
+        if not _is_container(physics_tag):
+            V = self.function_space(physics_tag)
+            return V.dofmap().dofs()
+
+        # If dofs is a tuple containing multiple tags,
+        # get the dofs from the individual tags, and 
+        # stack them together in an ascending manner
+        dofs = []
+        for tag in physics_tag:
+            dofs += self.function_space(tag).dofmap().dofs()
+        if sort: dofs.sort()
+        return dofs
+
     def set_weak_form(self, *options):
 
         """
@@ -162,12 +186,12 @@ class MultiPhysicsProblem(PhysicsProblem):
         while len(options) < self.num_sub_physics:
             options.append({})
 
-        # Set individual subphysics problems
-        self.sub_physics[0].set_weak_form(**options[0])
-        self.weak_form = self.sub_physics[0].weak_form
-        for i in range(1, self.num_sub_physics):
+        weak_forms = []
+        for i in range(self.num_sub_physics):
             self.sub_physics[i].set_weak_form(**options[i])
-            self.weak_form += self.sub_physics[i].weak_form
+            if hasattr(self.sub_physics[i], "weak_form"):
+                weak_forms.append(self.sub_physics[i].weak_form)
+        self.weak_form = sum(weak_forms)
 
     def flux(self, h, physics_tag):
         physics_id = self.get_physics_id[physics_tag]

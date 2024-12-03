@@ -56,3 +56,5 @@ For questions and issues, please either directly reach out to contributors below
 
 - Dr. Chayut Teeraratkul (email: chayut.teeraratkul@colorado.edu): Lead developer, researcher, and contributor.
 - Nick Rovito (email: nick.rovito@colorado.edu): Researcher, and contributor.
+- Jessica Holmes (email: jessica.holmes-1@colorado.edu): Researcher, and contributer.
+

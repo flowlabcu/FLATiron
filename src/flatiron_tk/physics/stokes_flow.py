@@ -99,8 +99,9 @@ class StokesFlow(MultiPhysicsProblem):
     def add_stab(self):
         (u, p) = fe.split(self.solution_function())
         q = self.test_function('p')
-        P = fe.grad(q)
-        R = fe.grad(p)
+        b = self.external_function('body force')
+        P = fe.grad(q) 
+        R = fe.grad(p) 
         tau = self.get_stab_constant()
         self.add_to_weakform(fe.dot(P, tau*R), self.dx)
 

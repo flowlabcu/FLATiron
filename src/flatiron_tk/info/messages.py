@@ -10,6 +10,14 @@ def import_fenics():
         print("WARNING: unable to import FEniCS. Please make sure FEniCS is installed")
     return fe
 
+def import_PETSc():
+    PETSc = None
+    try:
+        from petsc4py import PETSc
+    except ImportError:
+        print("Warning: unable to import petsc4py. Please make sure petsc4py is installed")
+    return PETSc
+
 def info(msg, all_rank=False):
     fe = import_fenics()
     if all_rank:

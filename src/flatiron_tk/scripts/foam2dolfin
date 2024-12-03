@@ -24,7 +24,7 @@ def read_foam_file(file_name):
             # Handle block comments
             if line.startswith('/*'):
                 append_line = False
-            if line.startswith('\*'):
+            if line.startswith('*/'):
                 append_line = True
                 continue
 
@@ -117,7 +117,7 @@ def get_foam_face_ids_bounds(foam_boundary_file):
     boundary_markings = get_boundary_data(foam_boundary_file)
     boundaryID = []
     n_faces = len(boundary_markings)
-    boundary_face_ids = np.zeros((n_faces, 2), dtype=int) #probably better way to init this
+    boundary_face_ids = np.zeros((n_faces, 2), dtype=np.int32) #probably better way to init this
 
     # Loops through all boundary definitions
     for index, faceName in enumerate(boundary_markings):
@@ -189,7 +189,7 @@ def write_facet_xml(fenics_boundary_markings, mesh_file):
 
 @jit
 def create_cell_array(n_cells, faces, neighbour, owner):
-    cells = np.zeros((n_cells, 4), dtype=int) - 1
+    cells = np.zeros((n_cells, 4), dtype=np.int32) - 1
     ids = np.zeros(n_cells, dtype=int)
 
     # Assign owner and neighbor cell ids to each element of cells[]
@@ -220,7 +220,7 @@ def read_foam_file(file_name):
         # Handle block comments
         if line.startswith('/*'):
             append_line = False
-        if line.startswith('\*'):
+        if line.startswith('*/'):
             append_line = True
             continue
 

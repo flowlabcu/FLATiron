@@ -9,7 +9,7 @@ def plug(x, flow_direction, centerline_speed):
     Constant value in direction flow_direction.
     Here I have `x` as an input to make it consistent with the other profile functions
     '''
-    return flow_direction*centerline_speed
+    return np.array(flow_direction)*centerline_speed
 
 
 def parabolic_2d(x, flow_direction, centerline_speed, center, face_radius):
@@ -27,20 +27,22 @@ def parabolic_2d(x, flow_direction, centerline_speed, center, face_radius):
             |              -
     '''
 
-    nx = flow_direction[0]
-    ny = flow_direction[1]
+    nn = np.array(flow_direction)
+    nn = nn/np.linalg.norm(nn)
+    nx = nn[0]
+    ny = nn[1]
     tx = ny ; ty = -nx
-    xc = center ; R = face_radius
+    xc = np.array(center) ; R = face_radius
     U = centerline_speed
-    eta = (tx*x[0] - tx*xc[0] + ty*x[1] - ty*xc[1]) / R
+    eta = np.abs(np.dot(x-xc, [tx,ty]))/R
 
     # Constrain velocity to 0 if it exceed the (normalized) radius
-    if eta >= 1 or eta <= 1:
+    if eta >= 1:
         u = 0.
     else:
         u = U * (1 + eta) * (1 - eta)
     ux = nx*u ; uy = ny*u
-    return [ux, uy]
+    return np.array([ux, uy])
 
 
 def parabolic_3d(x, flow_direction, centerline_speed, center, face_radius):

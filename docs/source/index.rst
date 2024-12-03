@@ -6,33 +6,21 @@
 Welcome to FLATiron's documentation!
 ========================================
 
-Welcome to FLATiron's documentation
+Welcome to FLATiron's documentation!
 
-FLow And Transport Finite element or FLATiron (Fe == iron) is a toolkit used to solve coupled flow physics problems via the Finite Element Method. The finite element backend of FLATiron is based on legacy FEniCS.
+FLow And Transport Finite element or FLATiron (Fe == iron) is a toolkit used to solve coupled flow physics problems via the Finite Element Method. The finite element backend of FLATiron is based on legacy FEniCS. FLATiron is a hierarchical, modular, finite element library for flow physics and transport phenomena. This toolkit is based on the open-source finite element library named `FEniCS <https://fenicsproject.org/>`_, and leverages the underlying dolfin and Unified Form Language (ufl) modules heavily in its design. The library has been developed based on research and development activities at the FLOWLab at University of Colorado Boulder.
 
-* :ref:`install`
-* :ref:`meshing`
-* :ref:`demos`
-* :ref:`modules`
-* :ref:`references`
-
-.. _meshing:
+.. _introduction:
 
 .. toctree::
-    :maxdepth: 1
-    :caption: Meshing
+   :maxdepth: 1
+   :caption: Introduction
 
-    meshing
+   install
+   meshing
 
-
-.. _install:
-
-.. toctree::
-    :maxdepth: 1
-    :caption: Install
-
-    install
-
+..
+    ########################################
 
 .. _demos:
 
@@ -43,23 +31,18 @@ FLow And Transport Finite element or FLATiron (Fe == iron) is a toolkit used to 
     app_demo
     lib_demo
 
+..
+    ########################################
 
 
 .. _modules:
 
 .. toctree::
     :maxdepth: 2
-    :caption: Modules
+    :caption: API references
 
+    physics
     mesh
     io
-    physics
 
 
-.. _references:
-
-.. toctree::
-    :maxdepth: 1
-    :caption: References
-
-    references

@@ -6,3 +6,6 @@ from .transient_scalar_transport import TransientScalarTransport
 from .stokes_flow import StokesFlow
 from .incompressible_navier_stokes import IncompressibleNavierStokes
 from .steady_incompressible_navier_stokes import SteadyIncompressibleNavierStokes
+from .fictitious_domain_nse import SteadyFicDomNSE, FicDomNSE
+from .elastodynamics import ElastoDynamics
+

@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 from pathlib import Path
 
@@ -11,7 +11,7 @@ setup(
     version='1.0.0',
     author='Chayut Teeraratkul',
     author_email='chayut.teeraratkul@colorado.edu',
-    packages=['flatiron_tk'],
+    packages=find_packages(where='src'),
     package_dir={'': 'src/'},
     url='',
     license='See LICENSE.txt',

@@ -81,16 +81,16 @@ class SteadyIncompressibleNavierStokes(StokesFlow):
     def _T_SUPG(self, u, h, alpha):
         mu = self.external_function('dynamic viscosity')
         rho = self.external_function('density')
-        u2 = fe.sqrt(fe.dot(u,u))
+        u2 = fe.dot(u,u)
         nu = mu/rho
-        return alpha * ( (2*u2/h)**2 + 9*(4*nu/h**2)**2 )**(-0.5)
+        return alpha * ( (4*u2)/h**2 + 9*(4*nu/h**2)**2 ) ** (-0.5)
 
     def _T_PSPG(self, u, h, beta):
         mu = self.external_function('dynamic viscosity')
         rho = self.external_function('density')
-        u2 = fe.sqrt(fe.dot(u,u))
+        u2 = fe.dot(u,u)
         nu = mu/rho
-        return beta  * ( (2*u2/h)**2 + 9*(4*nu/h**2)**2 )**(-0.5)
+        return beta * ( (4*u2)/h**2 + 9*(4*nu/h**2)**2 ) ** (-0.5)
 
     def set_dynamic_viscosity(self, mu):
         self.set_external_function('dynamic viscosity', mu)

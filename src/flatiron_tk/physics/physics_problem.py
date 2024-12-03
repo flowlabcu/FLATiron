@@ -38,10 +38,11 @@ class PhysicsProblem(ABC):
         self.mesh = mesh
         self.dim = self.mesh.dim
         self.dirichlet_bcs = []
+        self.number_of_steps_written = 0
 
         # Get domain measure
         self.dx = fe.dx(metadata={"quadrature_degree": 4})
-        self.ds = fe.ds(subdomain_data=mesh.boundary, metadata={"quadrature_degree": 4})
+        self.ds = fe.ds(subdomain_data=self.mesh.boundary, metadata={"quadrature_degree": 4})
 
         # Set variable name tag
         self.tag = tag
@@ -84,7 +85,7 @@ class PhysicsProblem(ABC):
         the volume and surface integrals
         '''
         self.dx = fe.dx(metadata={"quadrature_degree": quad_deg})
-        self.ds = fe.ds(subdomain_data=mesh.boundary, metadata={"quadrature_degree": quad_deg})
+        self.ds = fe.ds(subdomain_data=self.mesh.boundary, metadata={"quadrature_degree": quad_deg})
 
     # -----------------------------------------
     # Setters/Getters for functions
@@ -143,14 +144,12 @@ class PhysicsProblem(ABC):
     def get_zero_constant(self):
         return fe.Constant(0.)
 
-    @abstractmethod
     def flux(self, h):
         pass
 
     # -----------------------------------------
     # Residue
     # -----------------------------------------
-    @abstractmethod
     def get_residue(self):
         """Computes the residue of the problem.
 
@@ -213,7 +212,7 @@ class PhysicsProblem(ABC):
         else:
             raise ValueError("Incorrect output file extension")
 
-        # Print out the path
+        # Print out the output path
         if self.mesh.comm.rank == 0:
             print("Output file set to %s"%self.output_file)
 
@@ -226,7 +225,8 @@ class PhysicsProblem(ABC):
     def write(self, function_to_save=None, **kwargs):
 
         # Get time stamp if applicable
-        time_stamp = kwargs.pop("time_stamp", 0.0)
+        time_stamp = kwargs.pop("time_stamp", self.number_of_steps_written)
+        self.number_of_steps_written += 1
 
         # If nothing is provided, save the solution
         if function_to_save is None:

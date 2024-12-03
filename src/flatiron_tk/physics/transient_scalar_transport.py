@@ -13,8 +13,8 @@ class TransientScalarTransport(ScalarTransport):
     # -----------------------------------------
     # Init
     # -----------------------------------------
-    def __init__(self, mesh, dt, theta=0.5):
-        super().__init__(mesh)
+    def __init__(self, mesh, dt, theta=0.5, *args, **kwargs):
+        super().__init__(mesh, *args, **kwargs)
         self.set_external_function('dt', dt)
         self.set_external_function('midpoint theta', theta)
 

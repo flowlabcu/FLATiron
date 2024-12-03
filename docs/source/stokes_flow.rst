@@ -10,14 +10,14 @@ Strong formulation
 Momentum equation
 
 .. math::
-    \nabla p = \nu \nabla^2 \vec{u} + \vec{b}
+    \nabla p = \nu \nabla^2 \textbf{u} + \textbf{b}
 
 Continuity
 
 .. math::
-    \nabla \cdot \vec{u} = 0
+    \nabla \cdot \textbf{u} = 0
 
-where :math:`\vec{u}` and `p` are the velocity and pressure field respectively with the constants :math:`\nu` is the kinematic viscosity. Note that pressure here is the scaled pressure. True pressure :math:`p_{true} = p/\rho` where :math:`\rho` is the density. :math:`\vec{b}` is the external body force
+where :math:`\textbf{u}` and `p` are the velocity and pressure field respectively with the constants :math:`\nu` is the kinematic viscosity. Note that pressure here is the scaled pressure. True pressure :math:`p_{true} = p/\rho` where :math:`\rho` is the density. :math:`\textbf{b}` is the external body force
 
 
 =======================
@@ -28,12 +28,12 @@ Boundary conditions
 Fixed value boundary condition
 
 .. math::
-    \vec{u} = \vec{u}_D \;\forall \vec{x} \in \Gamma_D
+    \textbf{u} = \textbf{u}_D \;\forall \textbf{x} \in \Gamma_D
 
 (pseudo) Traction boundary condition
 
 .. math::
-    -p\textbf{n} + \nu(\textbf{n} \cdot \nabla)\vec{u} = \vec{t} \;\;\forall \vec{x} \in \Gamma_N
+    -p\textbf{n} + \nu(\textbf{n} \cdot \nabla)\textbf{u} = \textbf{t} \;\;\forall \textbf{x} \in \Gamma_N
 
 
 
@@ -46,22 +46,22 @@ The weak formulation is stated as follows:
 For the velocity trial function
 
 .. math::
-    \mathcal{U} := \{\vec{U} \in H^1(\Omega) | \vec{u} = \vec{u}_D \;\text{on}\; \Gamma_D\}
+    \mathcal{U} := \{\textbf{U} \in H^1(\Omega) | \textbf{u} = \textbf{u}_D \;\text{on}\; \Gamma_D\}
 
 and the corresponding test function
 
 .. math::
-    \mathcal{W} := \{\vec{w} \in H^1(\Omega) | \vec{w} = 0 \;\text{on}\; \Gamma_D\}
+    \mathcal{W} := \{\textbf{w} \in H^1(\Omega) | \textbf{w} = 0 \;\text{on}\; \Gamma_D\}
 
 And the pressure space
 
 .. math::
     \mathcal{Q} := \mathcal{L}_2(\Omega)
 
-for external body force :math:`\vec{b}` and surface traction :math:`\vec{t}`, find :math:`\vec{u} \in \mathcal{U}` and :math:`p \in \mathcal{Q}` with the corresponding test functions :math:`\vec{w} \in \mathcal{W}` and :math:`q \in \mathcal{Q}` such that
+for external body force :math:`\textbf{b}` and surface traction :math:`\textbf{t}`, find :math:`\textbf{u} \in \mathcal{U}` and :math:`p \in \mathcal{Q}` with the corresponding test functions :math:`\textbf{w} \in \mathcal{W}` and :math:`q \in \mathcal{Q}` such that
 
 .. math::
-    0 = \left(\nabla\vec{w}, \nu\nabla\vec{u}\right)_\Omega - \left( \nabla \cdot \vec{w}, p \right)_\Omega - \left(\vec{w}, \vec{b}\right)_\Omega - \left(q, \nabla \cdot \vec{u}\right)_\Omega + (\vec{w}, \vec{t})_{\Gamma_N} + \sum_{\Omega_e} \int_{\Omega_e}  \tau \nabla q \cdot \nabla p d\Omega
+    0 = \left(\nabla\textbf{w}, \nu\nabla\textbf{u}\right)_\Omega - \left( \nabla \cdot \textbf{w}, p \right)_\Omega - \left(\textbf{w}, \textbf{b}\right)_\Omega - \left(q, \nabla \cdot \textbf{u}\right)_\Omega + (\textbf{w}, \textbf{t})_{\Gamma_N} + \sum_{\Omega_e} \int_{\Omega_e}  \tau \nabla q \cdot \nabla p d\Omega
 
 
 

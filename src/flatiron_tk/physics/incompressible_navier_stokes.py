@@ -52,37 +52,49 @@ class IncompressibleNavierStokes(SteadyIncompressibleNavierStokes):
         pn = self.solution_function('p')
         (u0, p0) = fe.split(self.previous_solution)
 
-
         # Add stabilization
-        r0 = self.get_residue(u0, pn)
-        rn = self.get_residue(un, pn)
-        r = rho*(un-u0)/dt + theta*rn + (1-theta)*r0
+        r = self.get_residue()
         stab_SUPG = self._T_SUPG(u0, h, 1)*fe.inner(fe.grad(w)*u0, r)
         stab_PSPG = 1/rho*self._T_PSPG(u0, h, 1)*fe.inner(fe.grad(q), r)
         self.add_to_weakform(stab_SUPG, self.dx)
         self.add_to_weakform(stab_PSPG, self.dx)
 
+    def get_residue(self):
+
+        rho = self.external_function('density')
+        dt = self.external_function('dt')
+        theta = self.external_function('mid point theta')
+        un = self.solution_function('u')
+        pn = self.solution_function('p')
+        (u0, p0) = fe.split(self.previous_solution)
+        r0 = super().get_residue(u0, pn)
+        rn = super().get_residue(un, pn)
+        r = rho*(un-u0)/dt + theta*rn + (1-theta)*r0
+        return r
+
     def _T_SUPG(self, u, h, alpha):
         mu = self.external_function('dynamic viscosity')
         rho = self.external_function('density')
         dt = self.external_function('dt')
-        u2 = fe.sqrt(fe.dot(u,u))
+        theta = self.external_function('mid point theta')
+        tdt = theta*dt
         nu = mu/rho
-        return alpha * ( (2/dt)**2 + (2*u2/h)**2 + 9*(4*nu/h**2)**2 )**(-0.5)
+        u2 = fe.dot(u, u)
+        return alpha * ( (1/tdt)**2 + (4*u2)/h**2 + 9*(4*nu/h**2)**2 ) ** (-0.5)
 
     def _T_PSPG(self, u, h, beta):
         mu = self.external_function('dynamic viscosity')
         rho = self.external_function('density')
         dt = self.external_function('dt')
-        u2 = fe.sqrt(fe.dot(u,u))
+        theta = self.external_function('mid point theta')
+        tdt = theta*dt
         nu = mu/rho
-        return beta  * ( (2/dt)**2 + (2*u2/h)**2 + 9*(4*nu/h**2)**2 )**(-0.5)
+        u2 = fe.dot(u, u)
+        return beta * ( (1/tdt)**2 + (4*u2)/h**2 + 9*(4*nu/h**2)**2 ) ** (-0.5)
 
     def set_initial_conditions(self, u, p):
-
         fe.assign(self.solution_function('u'), u)
         fe.assign(self.solution_function('p'), p)
-
         fe.assign(self.mmt.previous_solution, u)
         fe.assign(self.cont.previous_solution, p)
 

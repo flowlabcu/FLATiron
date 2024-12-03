@@ -10,7 +10,6 @@ from ..info.messages import import_fenics
 fe = import_fenics()
 
 from ..io import *
-#from mpi4py import MPI
 
 def _load_mesh(comm, mesh_file):
     hdf = fe.HDF5File(comm, mesh_file, 'r')
@@ -43,7 +42,7 @@ class Mesh():
 
             # Instantiate with an existing *.h5 file format
             # This Mesh class will automatically look for the `boundary` group in the hdf5 file
-            Mesh(mesh_file="mesh_file.h5")
+            Mesh(mesh_file=\"mesh_file.h5\")
 
 
         .. code-block:: python
@@ -51,7 +50,7 @@ class Mesh():
             # Instantiate with the fenics mesh and boundary objects
             import fenics as fe
             fenics_mesh = fe.UnitSquareMesh(4, 4)
-            fenics_boundary = fe.MeshFunction("size_t", mesh, fenics_mesh.topology().dim()-1)
+            fenics_boundary = fe.MeshFunction(\"size_t\", fenics_mesh, fenics_mesh.topology().dim()-1)
             Mesh(mesh=fenics_mesh, boundary=fenics_boundary)
 
     """
@@ -69,6 +68,8 @@ class Mesh():
             self.mesh = _mesh
             if _boundary is None:
                 self.boundary = fe.MeshFunction("size_t", self.mesh, self.mesh.topology().dim()-1)
+            else:
+                self.boundary = _boundary
         elif _mesh_file is not None:
             self.mesh, self.boundary = _load_mesh(self.comm, _mesh_file)
         else:
@@ -93,7 +94,7 @@ class Mesh():
     def mark_boundary(self, boundary_id, eval_func, *args):
         """
         Mark a boundary on a mesh with boundary_id based on eval_func
-        eval_func(x, \*args) should return a boolean
+        eval_func(x, *args) should return a boolean
         """
         class BD(fe.SubDomain):
             def inside(self, x, on_boundary):
@@ -111,6 +112,20 @@ class Mesh():
         Return the ufl object for mesh facet norma
         """
         return fe.FacetNormal(self.mesh)
+
+    def mean_boundary_normal(self, boundary_id):
+        """
+        \\overline{\\hat{n}} = \\frac{\\int_{\\Gamma} \\hat{n} d\\Gamma}{\\int_{\\Gamma} d\\Gamma}
+        """
+        # mesh = mesh.mesh; dim = mesh.dim; boundary = physics.ds(boundary_id)
+        
+        # Calls for facet normal of one side?
+        n = self.facet_normal() 
+        ds = fe.ds(subdomain_data=self.boundary) # what dis
+        normal = np.array([fe.assemble(n[i] *  ds(boundary_id)) for i in range(self.dim)])
+        normal_mag = np.linalg.norm(normal, 2)
+        normal_vector = (1/normal_mag) * normal
+        return normal_vector 
 
     def write(self, mesh_file):
         """
@@ -205,3 +220,21 @@ class Mesh():
                 if bnd_dict[bnd_id] is not None:
                     global_bnd_normal_dict[bnd_id] = bnd_dict[bnd_id]
         self._flat_boundary_normals = global_bnd_normal_dict
+
+    def facet(self, i):
+        return fe.Facet(self.fenics_mesh(), i)
+
+    def cell(self, i):
+        return fe.Cell(self.fenics_mesh(), i)
+
+    def avg_cell_diameter(self):
+        hs = [c.h() for c in fe.cells(self.fenics_mesh())] 
+        h_sum = np.sum(hs)
+        num_cell = len(hs)
+        h_sum = self.comm.allgather(h_sum)
+        num_cell = self.comm.allgather(num_cell)
+        h_avg = np.sum(h_sum)/np.sum(num_cell)
+        return h_avg
+
+
+

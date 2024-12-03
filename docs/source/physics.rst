@@ -12,5 +12,6 @@ physics
     stokes_flow
     navier_stokes
     transient_navier_stokes
+    elastodynamics
     
 

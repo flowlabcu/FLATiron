@@ -23,10 +23,15 @@ class PhysicsSolver():
 
     def set_problem_solver(self):
         self.problem_solver = NonLinearSolver(self.physics.mesh.comm, self.problem, self.la_solver)
+        # self.problem_solver = fe.PETScSNESSolver("newtonls")
+        # snes = self.problem_solver.snes()
+        # snes.setKSP(self.la_solver.ksp())
 
     def set_nonzero_initial_guess(self, is_nonzero):
         self.problem_solver.parameters['krylov_solver']['nonzero_initial_guess'] = is_nonzero
 
     def solve(self):
+        # return self.problem_solver.solve(self.problem, self.physics.solution.vector())
         return self.problem_solver.solve()
+
 

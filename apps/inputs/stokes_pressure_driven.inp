@@ -24,9 +24,10 @@ BC3 = (3, pressure, face, outlet pressure)
 BC4 = (4, wall, no slip)
 
 # Linear solver
-solver type = gmres
-pc type = ilu
-ksp relative tolerance = 1e-8
-ksp absolute tolerance = 1e-10
-ksp maximum iterations = 1000
-ksp monitor convergence = true
+solver type = direct
+# solver type = gmres
+# pc type = ilu
+# ksp relative tolerance = 1e-8
+# ksp absolute tolerance = 1e-10
+# ksp maximum iterations = 1000
+# ksp monitor convergence = true

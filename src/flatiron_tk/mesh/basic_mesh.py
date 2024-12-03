@@ -1,6 +1,7 @@
 from ..info.messages import import_fenics
 fe = import_fenics()
 
+
 from .mesh import Mesh
 
 class bnd():
@@ -55,25 +56,43 @@ def _cart_mesh(comm, x0, x1, dx, *args):
     return mesh, boundary
 
 class LineMesh(Mesh):
-    """
-    (x0) ------------------- (x1)
+    r"""
+    
+    Define an equally spaced line mesh within the interval :math:`x \in [x_0, x_1]` with spacing size :math:`dx`. 
+    
+    The boundares are marked with the following ids:
+
+        1: :math:`x = x_0`
+
+        2: :math:`x = x_1`
+
     """
 
-    def __init__(x0, x1, dx, comm=None):
+    def __init__(self, x0, x1, dx, comm=None):
+
         if comm is None:
             comm = fe.MPI.comm_world
         mesh, boundary = _cart_mesh(comm, [x0], [x1], [dx])
         super().__init__(mesh=mesh, boundary=boundary)
 
 class RectMesh(Mesh):
+
+    r"""
+    
+    Define an equally spaced rectangular mesh (triangle elements) which spans :math:`x, y \in [x_0, x_1] \times [y_0, y_1]`
+    
+    The exterior boundary faces are marked with the following ids:
+
+        1: :math:`x = x_0`
+
+        2: :math:`y = y_0`
+
+        3: :math:`x = x_1`
+
+        4: :math:`y = y_1`
+
     """
-              (x1,y1)
-     ___________
-    |          |
-    |          |
-    |__________|
-  (x0,y0)
-    """
+
     def __init__(self, x0, y0, x1, y1, dx, comm=None, *args):
         if comm is None:
             comm = fe.MPI.comm_world
@@ -85,21 +104,29 @@ class RectMesh(Mesh):
         super().__init__(mesh=mesh, boundary=boundary)
 
 class BoxMesh(Mesh):
+
+    r"""
+
+    Define an equally spaced rectangular mesh (triangle elements) which spans :math:`x, y, z \in [x_0, x_1] \times [y_0, y_1] \times [z_0, z_1]`
+    
+    The exterior boundary faces are marked with the following ids:
+
+        1: :math:`x = x_0`
+
+        2: :math:`y = y_0`
+
+        3: :math:`z = z_0`
+
+        4: :math:`x = x_1`
+
+        5: :math:`y = y_1`
+
+        6: :math:`z = z_1`
+
+
+    """
+
     def __init__(self, x0, y0, z0, x1, y1, z1, dx, comm=None, *args):
-
-        """
-                           (x1,y1,z1)
-                    __________
-                   /|        /
-                  / |       /|
-                 /  |______/_|
-                /___/_____/  /
-                |  /     |  /
-                | /      | /
-                |/_______|/
-            (x0,y0,z0)
-
-        """
 
         if comm is None:
             comm = fe.MPI.comm_world

@@ -4,7 +4,7 @@
 set -e
 
 # Directory containing mpicc
-MPI_DIR=/usr/local/
+MPI_DIR=/usr/
 
 # Build install directory and add prefix to fenics_env
 mkdir -p src

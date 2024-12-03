@@ -1,29 +1,32 @@
 Coupled diffusion-reaction problem with surface reaction
 ==============================================================
 
-This demo code demonstrate how to solve a steady coupled Diffusion-Reaction problem with surface reaction terms at the boundary. This demo is used to demonstrate how to use the flatiron_tk MultiPhysics module. The source code can be found in ``demo/user_defined/steady_coupled_adr/coupled_diffusion_reaction.py`` The following is the problem description
+This demo code demonstrate how to solve a steady coupled Diffusion-Reaction problem with surface reaction terms at the boundary. This demo is used to demonstrate how to use the flatiron_tk MultiPhysics module. The source code can be found in **demo/user_defined/documented/steady_coupled_adr/coupled_diffusion_reaction.py**
+
+Problem definition
+--------------------
 
 First we define the concentration of chemical species :math:`A`, :math:`B`, and :math:`C`, for a 1D domain of length :math:`L`, we have
 
 .. math::
 
-    D_A \frac{d^2A}{dx^2} - k_v A B = 0 
+    D_A \frac{d^2A}{dx^2} - k_v A B = 0
 
 .. math::
 
-    D_B \frac{d^2B}{dx^2} - 2k_v A B = 0 
+    D_B \frac{d^2B}{dx^2} - 2k_v A B = 0
 
 .. math::
 
-    D_C \frac{d^2C}{dx^2} + k_v A B = 0 
+    D_C \frac{d^2C}{dx^2} + k_v A B = 0
 
 
 The left boundary conditions are as follows
 
 .. math::
 
-    A(x=0) = C0 \\
-    B(x=0) = C0 \\
+    A(x=0) = C_0 \\
+    B(x=0) = C_0 \\
     C(x=0) = 0 \\
 
 And the surface reactions on the right boundary
@@ -34,12 +37,8 @@ And the surface reactions on the right boundary
     \frac{dB}{dx}(x=L) = - \frac{2k_s}{D_B} A B \\
     \frac{dC}{dx}(x=L) = \frac{k_s}{D_C} A B \\
 
-
-
-=========================
-Code description
-=========================
-
+Implementation
+----------------
 
 Fist, we import code the relevant modules from flatiron_tk and the basic libraries and define the mesh and constants
 
@@ -52,26 +51,20 @@ Fist, we import code the relevant modules from flatiron_tk and the basic librari
 
     # Define mesh
     ne = 10
-    IM = fe.IntervalMesh(ne, 0, 1)
     h = 1/ne
-    mesh = Mesh(mesh=IM)
+    mesh = LineMesh(0, 1, h)
 
     # Define constants
-    D_A = 1.0; D_B = 1.0; D_C = 1.0 # diffusion coefficients
+    # diffusion coefficients
+    D_A = 1.0
+    D_B = 1.0
+    D_C = 1.0
     k_v = 1 # Volumetric reaction rate
     k_s = 1 # Surface reaction rate
     C0 = 1 # Left BC for species A and B
     u = 0 # No advection
 
-    # Mark mesh
-    def left(x, left_bnd):
-        return abs(x[0] - left_bnd) < fe.DOLFIN_EPS
-    def right(x, right_bnd):
-        return abs(right_bnd - x[0]) < fe.DOLFIN_EPS
-    mesh.mark_boundary(1, left, (0.))
-    mesh.mark_boundary(2, right, (1.))
-
-Next I define the ``ScalarTransport`` problems for species A, B, and C
+Next I define the ``ScalarTransport`` problems for all three species and set the appopriate tag to disambiguate them.
 
 .. code:: python
 
@@ -93,8 +86,7 @@ Next I define the ``ScalarTransport`` problems for species A, B, and C
     C_pde.set_advection_velocity(u)
     C_pde.set_diffusivity(D_C)
 
-
-Now we set a ``MultiPhysicsProblem`` based on the three ``ScalarTransport`` problems that we created
+Now we build a ``MultiPhysicsProblem`` as a collection of the three ``ScalarTransport`` physics that we created.
 
 .. code:: python
 
@@ -104,16 +96,11 @@ Now we set a ``MultiPhysicsProblem`` based on the three ``ScalarTransport`` prob
     coupled_physics.set_element()
     coupled_physics.build_function_space()
 
-
-Set the coupling part of the equations here, we can see the coupling as the reaction terms we use the solution_function instead of trial function because this will be a nonlinear problem, and we will solve the problem using Newton iteration by taking the Gateaux derivative of the weak form W.R.T the solution functions.
+Now, we will set the terms which couple the three equations together. This is done by first grabbing the solution function of from each species through the ``solution_function()`` method by supplying the appopriate tag for each species. Then we set reaction associated with each species' equation through the ``set_reaction()`` function on the individual ``ScalarTransport`` object. Finally, we finalize the volumetric weak formulation.
 
 .. code:: python
 
     # Set the coupling part of the equations
-    # here, we can see the coupling as the reaction terms
-    # we use the solution_function instead of trial function because this will be a
-    # nonlinear problem, and we will solve the problem using Newton iteration by taking
-    # the Gateaux derivative of the weak form W.R.T the solution functions
     A = coupled_physics.solution_function('A')
     B = coupled_physics.solution_function('B')
     C = coupled_physics.solution_function('C')
@@ -121,12 +108,10 @@ Set the coupling part of the equations here, we can see the coupling as the reac
     B_pde.set_reaction(-2*k_v*A*B)
     C_pde.set_reaction(k_v*A*B)
 
-    # Set weakform. Make sure that the problem linearity
-    # is set to False as this is a non-linear problem
+    # Set weakform
     coupled_physics.set_weak_form()
 
-
-Now we set the boundary conditions dictionary foe each physics, and create an overall dictionary with the species tag called ``bc_dict`` which we supply into the ``coupled_physics`` object.
+Now we set the boundary conditions dictionary for each physics and create an overall dictionary with the species tag called ``bc_dict`` which we supply into the ``coupled_physics`` object. The format for the individual boundary condition dictionary has the same format as a single species transport problem. Here, we utilize the solution functions that we grabbed earlier to define the Neumann boundary condition. We can do this because Neumann boundary condition is simply an additional term in the weak formulation.
 
 .. code:: python
 
@@ -153,13 +138,12 @@ Now we set the boundary conditions dictionary foe each physics, and create an ov
               }
     coupled_physics.set_bcs(bc_dict)
 
-Finally we solve the problem and plot the results
+Finally we solve the problem and plot the results. 
 
 .. code:: python
 
     # Solve this problem using a nonlinear solver
-    la_solver = fe.LUSolver()
-    solver = PhysicsSolver(coupled_physics, la_solver)
+    solver = PhysicsSolver(coupled_physics)
     solver.solve()
 
     # Write solution
@@ -174,11 +158,10 @@ Finally we solve the problem and plot the results
     plt.ylim([-0.1, 1.1])
     plt.legend()
     plt.savefig('coupled_diffusion_reaction.png')
-    plt.show()
 
 
 
+This code should give the following result
 
-
-
+.. image:: ../pngs/coupled_diffusion_reaction.png
 
