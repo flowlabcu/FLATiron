@@ -127,6 +127,14 @@ class TransientScalarTransport(ScalarTransport):
         tau = ( (1/(theta*dt))**2 + (2*u_norm/h)**2 + 9*(4*D/h**2)**2 + r**2 ) **(-0.5)
         return tau
 
+    def edge_stab(self, gamma, c):
+        theta = self.external_function('midpoint theta')
+        h_f = fe.FacetArea(self.mesh.fenics_mesh())
+        c0 = self.previous_solution
+        J0 = super().edge_stab(gamma, c0)
+        Jn = super().edge_stab(gamma, c)
+        return (theta)*J0 + (1-theta)*Jn
+
     def get_residue(self):
 
         # Midpoint integration parameters
@@ -175,6 +183,14 @@ class TransientScalarTransport(ScalarTransport):
     def update_previous_solution(self):
         self.previous_solution.assign(self.solution_function())
 
+    ####################################
+    ## Set physics properties
+    ####################################
+    def set_time_step_size(self, dt):
+        self.set_external_function('dt', dt)
+
+    def set_mid_point_theta(self, new_theta):
+        self.set_external_function('mid point theta', new_theta)
 
 
 

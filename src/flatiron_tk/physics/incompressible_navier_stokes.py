@@ -29,7 +29,7 @@ class IncompressibleNavierStokes(SteadyIncompressibleNavierStokes):
 
         # Main weak formulation
         Tn = self.stress(un, pn, mu)
-        F1 = fe.inner( Tn, gw )  + fe.inner( rho*fe.grad(un)*un, w ) + q*fe.div(un)
+        F1 = fe.inner( Tn, gw )  + fe.inner( rho*fe.grad(un)*un, w ) - q*fe.div(un)
         T0 = self.stress(u0, pn, mu)
         F0 = fe.inner( T0, gw ) + fe.inner( rho*fe.grad(u0)*u0, w )
         self.weak_form = fe.inner( rho*(un-u0)/dt , w ) + (1-theta)*F0 + theta*F1

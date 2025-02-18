@@ -78,7 +78,7 @@ class StokesFlow(MultiPhysicsProblem):
 
         # Build weak form
         # self.weak_form = a + b + bT - fb
-        bT = q * fe.div(u) * dx
+        bT = -q * fe.div(u) * dx
         self.weak_form = self._get_stokes_mmt(u, p, body_force, nu) + bT
 
     def _get_stokes_mmt(self, u, p, body_force, nu):

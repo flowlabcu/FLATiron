@@ -82,7 +82,7 @@ class Mesh():
         # Get mesh dimension
         self.dim = self.mesh.topology().dim()
 
-        # boundary normals
+        # Boundary normals
         self._flat_boundary_normals = {}
 
     def fenics_mesh(self):
@@ -118,14 +118,30 @@ class Mesh():
         \\overline{\\hat{n}} = \\frac{\\int_{\\Gamma} \\hat{n} d\\Gamma}{\\int_{\\Gamma} d\\Gamma}
         """
         # mesh = mesh.mesh; dim = mesh.dim; boundary = physics.ds(boundary_id)
-        
-        # Calls for facet normal of one side?
+
         n = self.facet_normal() 
-        ds = fe.ds(subdomain_data=self.boundary) # what dis
+        ds = fe.ds(subdomain_data=self.boundary)
         normal = np.array([fe.assemble(n[i] *  ds(boundary_id)) for i in range(self.dim)])
         normal_mag = np.linalg.norm(normal, 2)
         normal_vector = (1/normal_mag) * normal
         return normal_vector 
+
+    def boundary_centroid(self, boundary_id):
+        '''Compute the geometric center of a boundary. If the boundary has concavity or is not symmetric, 
+        the centroid may exist outside of the boundary.'''
+
+        midpoints = []
+        for f in fe.facets(self.fenics_mesh()):
+            if self.boundary.array()[f.index()] != boundary_id:
+                continue
+            midpoints.append(f.midpoint()[:])
+        
+        midpoints = np.array(self.comm.allreduce(midpoints))
+        midpoints = np.array([val for val in midpoints if val is not None])
+        centroid = np.mean(midpoints, axis=0)
+
+        return centroid
+
 
     def write(self, mesh_file):
         """
@@ -212,7 +228,7 @@ class Mesh():
                     bnd_normal_dict[bnd_id] = -1*facet.normal()[:]
                     break
 
-        # gather boundaries
+        # Gather boundaries
         all_bnd_dict = self.comm.allgather(bnd_normal_dict)
         global_bnd_normal_dict = {}
         for bnd_dict in all_bnd_dict:

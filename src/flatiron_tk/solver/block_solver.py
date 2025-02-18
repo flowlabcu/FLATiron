@@ -67,8 +67,10 @@ class FieldSplitNode():
         _fields.sort()
         return tuple(_fields)
 
-    def set_ksp(self, ksp):
+    def set_ksp(self, ksp, _is=None):
         self._ksp = ksp
+        if _is is not None:
+            self._is = _is
 
     def ksp(self):
         return self._ksp
@@ -219,19 +221,15 @@ class FieldSplitTree():
                                                is0, field_0_name,
                                                is1, field_1_name,
                                                **split_settings)
-        parent_node.left.set_ksp(ksp0)
-        parent_node.right.set_ksp(ksp1)
+        parent_node.left.set_ksp(ksp0, is0)
+        parent_node.right.set_ksp(ksp1, is1)
         return ksp0, ksp1
 
-    # def split_node(self, node, dofs_dict):
-    #     """
-    #     Create a split off the node with custom dofs defined
-    #     in the dofs_dict[field] = [0, 1, 2, ...]
-    #     """
-    #     nsplits = len(dofs_dict.keys())
-
-
     def get_fieldsplit_IS(self, node, dofs0, dofs1):
+
+        """
+        Get index set for dofs0 and dofs1 relative to the current node.
+        """
 
         if node.is_root():
             is0 = PETSc.IS().createGeneral(dofs0).sort()
@@ -317,7 +315,6 @@ class BlockNonLinearSolver(NonLinearSolver):
             ksp0, ksp1 = self._fs_tree.split(fields[0], fields[1], **split)
             ksp0_set_function(ksp0)
             ksp1_set_function(ksp1)
-
         ksp.setUp()
 
     def default_set_ksp0(self, ksp):

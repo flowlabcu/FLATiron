@@ -43,7 +43,7 @@ class SteadyIncompressibleNavierStokes(StokesFlow):
 
         # Build weak form
         T = self.stress(u, p, mu)
-        F = fe.inner(T, fe.grad(w)) + fe.inner(rho*fe.grad(u)*u, w) + q*fe.div(u)
+        F = fe.inner(T, fe.grad(w)) + fe.inner(rho*fe.grad(u)*u, w) - q*fe.div(u)
         self.weak_form = F*self.dx
 
     def get_residue(self, u, p):

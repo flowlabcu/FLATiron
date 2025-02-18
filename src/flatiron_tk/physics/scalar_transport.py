@@ -62,6 +62,24 @@ class ScalarTransport(PhysicsProblem):
         if stab:
             self.add_stab()
 
+    def add_edge_stab(self, gamma):
+        c = self.solution_function()
+        self.weak_form += self.edge_stab(gamma, c)
+
+    def edge_stab(self, gamma, c):
+        h_f = fe.FacetArea(self.mesh.fenics_mesh())
+        w = self.test_function()
+        n = self.mesh.facet_normal()
+        if self.dim == 1:
+            coef = 0.5 * gamma # facet is a point, so we don't have edge length
+        else:
+            coef = 0.5 * gamma * h_f("+")**self.dim
+        J = coef * fe.jump(fe.dot(fe.grad(w), n)) * fe.jump(fe.dot(fe.grad(c), n)) * fe.dS
+        # J = fe.dot(fe.jump(fe.grad(w), fe.grad(c)))*fe.dS
+        # J = coef * fe.dot(fe.jump(fe.grad(w)), fe.jump(fe.grad(c))) * fe.dS
+
+        return J
+
     def advection(self, u, c, domain=None):
         w = self.test_function()
         if domain is None: domain = self.dx

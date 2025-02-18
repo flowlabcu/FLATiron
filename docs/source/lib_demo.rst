@@ -10,6 +10,7 @@ These are demos for on how to use the FLATiron library API to define a more comp
 
     demo_steady_adr.rst
     demo_transient_adr.rst
+    demo_adr_edge_stab.rst
     demo_coupled_diffusion_reaction.rst
     demo_2_species_reaction_2D.rst
     demo_stokes_external_force.rst

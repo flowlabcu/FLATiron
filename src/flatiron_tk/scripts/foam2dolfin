@@ -190,7 +190,7 @@ def write_facet_xml(fenics_boundary_markings, mesh_file):
 @jit
 def create_cell_array(n_cells, faces, neighbour, owner):
     cells = np.zeros((n_cells, 4), dtype=np.int32) - 1
-    ids = np.zeros(n_cells, dtype=int)
+    ids = np.zeros(n_cells, dtype=np.int32)
 
     # Assign owner and neighbor cell ids to each element of cells[]
     print('Creating cell array...')
