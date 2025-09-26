@@ -1,7 +1,0 @@
-===========================
-Changes in version 2018.1.0
-===========================
-
-dijitso 2018.1.0 was released on 2018-06-14.
-
-- Very minor cleanups.

@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.physics.steady_scalar_transport &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.physics.steady_scalar_transport</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.physics.steady_scalar_transport</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span> 
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicsProblem</span>
+
+<div class="viewcode-block" id="SteadyScalarTransport">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SteadyScalarTransport</span><span class="p">(</span><span class="n">PhysicsProblem</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to represent the steady scalar transport equations.</span>
+<span class="sd">    This class extends the PhysicsProblem class to include advection, diffusion, and reaction terms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SteadyScalarTransport.build_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.build_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the function space for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            *args: Arguments to be passed to the parent class method.</span>
+<span class="sd">            **kwargs: Keyword arguments to be passed to the parent class method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Call the parent class method</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Add a name to the soltuion function </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span></div>
+
+        
+<div class="viewcode-block" id="SteadyScalarTransport.set_advection_velocity">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_advection_velocity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_advection_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the advection velocity for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            u: The advection velocity function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;advection_velocity&#39;</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SteadyScalarTransport.set_diffusivity">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_diffusivity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the diffusivity for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            D: The diffusivity function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;diffusivity&#39;</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SteadyScalarTransport.set_reaction">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_reaction">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_reaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the reaction for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            R: The reaction function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;reaction&#39;</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyScalarTransport.get_advection_velocity">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_advection_velocity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_advection_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the advection velocity for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The advection velocity function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;advection_velocity&#39;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SteadyScalarTransport.get_diffusivity">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_diffusivity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the diffusivity for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The diffusivity function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;diffusivity&#39;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SteadyScalarTransport.get_reaction">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_reaction">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_reaction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the reaction for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The reaction function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;reaction&#39;</span><span class="p">)</span></div>
+
+    
+    <span class="c1"># ---- Weak Form ---- #</span>
+<div class="viewcode-block" id="SteadyScalarTransport.set_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stab</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the weak form for the steady scalar transport problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            stab: Whether to include stabilization terms.   </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_diffusivity</span><span class="p">()</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_advection_velocity</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reaction</span><span class="p">()</span>
+
+        <span class="n">a_form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_advective_form</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+        <span class="n">d_form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diffusive_form</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
+        <span class="n">r_form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reactive_form</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span> <span class="o">=</span> <span class="n">a_form</span> <span class="o">+</span> <span class="n">d_form</span> <span class="o">-</span> <span class="n">r_form</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_advective_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Define the advective transport term of the weak form.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            c: The solution function.</span>
+<span class="sd">            u: The advection velocity function.</span>
+<span class="sd">            domain: The domain over which to integrate.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            form: The advective transport term of the weak form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_gdim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">u</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">domain</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="o">*</span> <span class="n">domain</span>
+
+        <span class="k">return</span> <span class="n">form</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_diffusive_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Define the diffusive transport term of the weak form.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            c: The solution function.</span>
+<span class="sd">            D: The diffusivity function.</span>
+<span class="sd">            domain: The domain over which to integrate.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            form: The diffusive transport term of the weak form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+        
+        <span class="n">form</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="o">*</span> <span class="n">domain</span>
+
+        <span class="k">return</span> <span class="n">form</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reactive_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the reactive transport term of the weak form.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            c: The solution function.</span>
+<span class="sd">            r: The reaction function.</span>
+<span class="sd">            domain: The domain over which to integrate.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            form: The reactive transport term of the weak form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+        
+        <span class="n">form</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">r</span> <span class="o">*</span> <span class="n">domain</span>
+
+        <span class="k">return</span> <span class="n">form</span>
+
+<div class="viewcode-block" id="SteadyScalarTransport.flux">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the flux of the problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            q: The flux vector </span>
+
+<span class="sd">        Advection_Matrix + Diffusion_Matrix - Reaction_Matrix - Flux_Term = 0 =&gt; we subtract the form </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_gdim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="o">-</span><span class="n">w</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="o">-</span><span class="n">w</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        
+        <span class="k">return</span> <span class="n">form</span></div>
+
+    
+<div class="viewcode-block" id="SteadyScalarTransport.add_stab">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.add_stab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_stab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tau_type</span><span class="o">=</span><span class="s1">&#39;shakib&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds the stabilization term to the weak form.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            tau_type: The type of stabilization constant to use. Options are &#39;shakib&#39;,&#39;su&#39;, or &#39;codina&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">()</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_cell_diameter</span><span class="p">()</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_diffusivity</span><span class="p">()</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_advection_velocity</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reaction</span><span class="p">()</span>
+
+        <span class="c1"># --- SU term --- #</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_gdim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">w</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+
+        <span class="c1"># --- Stabilization Constant --- #</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stabilization_constant</span><span class="p">(</span><span class="n">tau_type</span><span class="p">)</span>
+        <span class="n">residual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_residual</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">P</span> <span class="o">*</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">residual</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyScalarTransport.stabilization_constant">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.stabilization_constant">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stabilization_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tau_type</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the stabilization constant.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            tau_type: The type of stabilization constant to use. Options are &#39;shakib&#39;,&#39;su&#39;, or &#39;codina&#39;.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            tau: The stabilization constant.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">avail_tau</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;shakib&#39;</span><span class="p">,</span> <span class="s1">&#39;su&#39;</span><span class="p">,</span> <span class="s1">&#39;codina&#39;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="n">tau_type</span> <span class="ow">in</span> <span class="n">avail_tau</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tau_type </span><span class="si">%s</span><span class="s2"> is not available. Available tau_type are </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tau_type</span><span class="p">,</span> <span class="n">avail_tau</span><span class="p">))</span>
+        
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_diffusivity</span><span class="p">()</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_advection_velocity</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reaction</span><span class="p">()</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_cell_diameter</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_gdim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">u_norm</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">u</span><span class="o">*</span><span class="n">u</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">u_norm</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+
+        <span class="c1"># --- Cell Peclet Number --- #</span>
+        <span class="n">Pe</span> <span class="o">=</span> <span class="n">u_norm</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">h</span> <span class="o">/</span> <span class="n">D</span>
+
+        <span class="k">if</span> <span class="n">tau_type</span> <span class="o">==</span> <span class="s1">&#39;shakib&#39;</span><span class="p">:</span>
+            <span class="n">tau</span> <span class="o">=</span> <span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u_norm</span> <span class="o">/</span> <span class="n">h</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">9</span><span class="o">*</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">D</span> <span class="o">/</span> <span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tau_type</span> <span class="o">==</span> <span class="s1">&#39;su&#39;</span><span class="p">:</span>
+            <span class="n">coth</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">))</span> <span class="c1"># exponential form</span>
+            <span class="n">tau</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u_norm</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coth</span><span class="p">(</span><span class="n">Pe</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="n">Pe</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tau_type</span> <span class="o">==</span> <span class="s1">&#39;codina&#39;</span><span class="p">:</span>
+            <span class="n">tau</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u_norm</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="n">Pe</span> <span class="o">+</span> <span class="n">h</span> <span class="o">*</span> <span class="n">r</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">u_norm</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">tau</span></div>
+
+    
+<div class="viewcode-block" id="SteadyScalarTransport.add_edge_stab">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.add_edge_stab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge_stab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds edge stabilization to the weak form.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            gamma: The edge stabilization parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_edge_stab</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span></div>
+
+        
+<div class="viewcode-block" id="SteadyScalarTransport.get_edge_stab">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_edge_stab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_stab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the edge stabilization term.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------</span>
+<span class="sd">            gamma: The edge stabilization parameter.</span>
+<span class="sd">            c: The solution function.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            J: The edge stabilization term.&quot;&quot;&quot;</span>
+
+        <span class="c1"># NOTE: ufl.FacetArea may not work for higher order meshes (non-teterahedral)</span>
+        <span class="n">h_f</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetArea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_tdim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">coef</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">gamma</span> <span class="c1"># facet is a point, so we don&#39;t have edge length</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coef</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">h_f</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_tdim</span><span class="p">()</span> <span class="c1"># FacetArea(&quot;+&quot;) is the positive side of each facet</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="n">coef</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">jump</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">n</span><span class="p">))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">jump</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">n</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dS</span>
+
+        <span class="k">return</span> <span class="n">J</span></div>
+
+    
+<div class="viewcode-block" id="SteadyScalarTransport.get_residual">
+<a class="viewcode-back" href="../../physics_modules/module_scalar_transport.html#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the residual of the problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            residual: The residual of the problem as a fenicsx form</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_diffusivity</span><span class="p">()</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_advection_velocity</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reaction</span><span class="p">()</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_gdim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">advection_residual</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">advection_residual</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+        <span class="n">diffusion_residual</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">D</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+        <span class="n">reaction_residual</span> <span class="o">=</span> <span class="n">r</span>
+
+        <span class="k">return</span> <span class="n">advection_residual</span> <span class="o">-</span> <span class="n">diffusion_residual</span> <span class="o">-</span> <span class="n">reaction_residual</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

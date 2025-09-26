@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.physics.steady_navier_stokes &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.physics.steady_navier_stokes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.physics.steady_navier_stokes</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicsProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiphysicsProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">SteadyStokes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span> 
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span> 
+
+<div class="viewcode-block" id="SteadyNavierStokes">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SteadyNavierStokes</span><span class="p">(</span><span class="n">SteadyStokes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to represent the steady Navier-Stokes equations.</span>
+<span class="sd">    This class extends the SteadyStokes class to include the convective term</span>
+<span class="sd">    in the momentum equation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SteadyNavierStokes.set_initial_guess">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_initial_guess">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_initial_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_guess_u</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_guess_p</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the initial guess for the steady Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            initial_guess_u: A user-defined initial guess for the velocity field. If None, a zero initial guess is used.</span>
+<span class="sd">            initial_guess_p: A user-defined initial guess for the pressure field. If None, a zero initial guess is used.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -----------</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u_sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">p_sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">initial_guess_u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># User provided velocity initial guess</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_guess_u</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+                <span class="n">u_sol</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">initial_guess_u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">u_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">initial_guess_u</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Zero initial guess</span>
+            <span class="n">u_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">initial_guess_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># User provided pressure initial guess</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_guess_p</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+                <span class="n">p_sol</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">initial_guess_p</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">initial_guess_p</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Zero initial guess</span>
+            <span class="n">p_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SteadyNavierStokes.set_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stab</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the weak form for the steady Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">            stab: A boolean indicating whether to include stabilization terms in the weak form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
+
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;dynamic_viscosity&#39;</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">body_force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;body_force&#39;</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+
+        <span class="n">T0</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span> 
+        <span class="n">T1</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">))</span> <span class="o">*</span> <span class="n">dx</span> 
+        <span class="n">T2</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+        <span class="n">T3</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+        <span class="n">T4</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">body_force</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span> <span class="o">=</span> <span class="n">T0</span> <span class="o">+</span> <span class="n">T1</span> <span class="o">-</span> <span class="n">T2</span> <span class="o">+</span> <span class="n">T3</span> <span class="o">-</span> <span class="n">T4</span> 
+
+        <span class="k">if</span> <span class="n">stab</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_stab</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SteadyNavierStokes.add_stab">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.add_stab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_stab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add stabilization terms to the weak form for the steady Navier-Stokes problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_cell_diameter</span><span class="p">()</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_residual</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">tau_SUPG</span><span class="p">,</span> <span class="n">tau_PSPG</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stab_constant</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">stab_SUPG</span> <span class="o">=</span> <span class="n">tau_SUPG</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">stab_PSPG</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">rho</span> <span class="o">*</span> <span class="n">tau_PSPG</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">r</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">stab_SUPG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">stab_PSPG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyNavierStokes.get_residual">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.get_residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the residual for the steady Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">            u: The velocity field.</span>
+<span class="sd">            p: The pressure field.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -----------</span>
+<span class="sd">            The residual of the steady Navier-Stokes equations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;dynamic_viscosity&#39;</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">body_force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;body_force&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rho</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">u</span> <span class="o">-</span> <span class="n">mu</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">))</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">rho</span><span class="o">*</span><span class="n">body_force</span></div>
+
+        
+    
+<div class="viewcode-block" id="SteadyNavierStokes.get_stab_constant">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.get_stab_constant">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stab_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the stabilization constants for the steady Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            u: The velocity field.</span>
+<span class="sd">            h: The cell diameter.</span>
+<span class="sd">            alpha: The SUPG stabilization parameter.</span>
+<span class="sd">            beta: The PSPG stabilization parameter.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            A tuple containing the SUPG and PSPG stabilization constants.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_T_SUPG</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">alpha</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_T_PSPG</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_T_SUPG</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the SUPG stabilization term for the steady Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            u: The velocity field.</span>
+<span class="sd">            h: The cell diameter.</span>
+<span class="sd">            alpha: The SUPG stabilization parameter.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The SUPG stabilization term.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;dynamic_viscosity&#39;</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">u2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">mu</span><span class="o">/</span><span class="n">rho</span>
+        <span class="k">return</span> <span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u2</span><span class="p">)</span><span class="o">/</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">9</span><span class="o">*</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">nu</span><span class="o">/</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_T_PSPG</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the PSPG stabilization term for the steady Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            u: The velocity field.</span>
+<span class="sd">            h: The cell diameter.</span>
+<span class="sd">            beta: The PSPG stabilization parameter.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The PSPG stabilization term.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;dynamic_viscosity&#39;</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">u2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">mu</span><span class="o">/</span><span class="n">rho</span>
+        <span class="k">return</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u2</span><span class="p">)</span><span class="o">/</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">9</span><span class="o">*</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">nu</span><span class="o">/</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SteadyNavierStokes.set_dynamic_viscosity">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_dynamic_viscosity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_dynamic_viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the dynamic viscosity for the Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            mu: The dynamic viscosity value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;dynamic_viscosity&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyNavierStokes.set_density">
+<a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_density">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the density for the Navier-Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            rho: The density value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,307 @@
+===============================================
+Demo: Steady Stokes with External Body Force
+===============================================
+
+This demo shows how to solve a stokes flow within a 1-by-1 rectangular channel with external forcing. 
+This problem is defined in Chapter 6.8 in `Donea's <https://onlinelibrary.wiley.com/doi/book/10.1002/0470013826>`_.
+
+Problem definition
+---------------------
+
+.. math::
+
+	\nu \nabla^2 \textbf{u} - \nabla p = \textbf{b}
+
+	\nabla \cdot \textbf{u} = 0
+
+With the forcing term :math:`\textbf{b} = (b_1, b_2)` are defined as:
+
+.. math::
+
+   b_1 = &( 12 - 24y)  x^4 + (-24 + 48y)x^3 + ( 12 - 48y + 72y^2 - 48y^3 )x^2 + \\
+   &( -2 + 24y - 72y^2 + 48y^3 )x + (  1 -  4y + 12y^2 -  8y^3 ) \\
+   \\
+   b_2 = &(  8 - 48y + 48y^2 )x^3 + (-12 + 72y - 72y^2 )x^2 + \\
+   &( 4 - 24y + 48y^2 - 48y^3 + 24y^4 )x + (- 12y^2 + 24y^3 - 12y^4 )\\
+
+and the boundary conditions being :math:`u=0` on all four faces and :math:`p=0` at the bottom left corner.
+
+The analytical solution is:
+
+.. math::
+
+   u_1(x,y) &= x^2(1-x)^2(2y-6y^2+4y^3) \\
+   \\
+   u_2(x,y) &= -y^2(1-y)^2(2x-6x^2+4x^3) \\
+   \\
+   p(x,y) &= x(1-x)\\
+
+First we import the necessary modules and define body force and boundary condition arrays.
+
+.. code-block:: python
+    import dolfinx
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import ufl 
+
+    from flatiron_tk.solver  import ConvergenceMonitor
+    from flatiron_tk.solver import NonLinearProblem
+    from flatiron_tk.solver import NonLinearSolver
+    from flatiron_tk.mesh import RectMesh
+    from flatiron_tk.physics import SteadyStokes
+
+    # Define body force term 
+    def body_force(x):
+        bx = (1 - 4 * x[1] + 12 * x[1]**2 - 8 * x[1]**3) + \
+            (-2 + 24 * x[1] - 72 * x[1]**2 + 48 * x[1]**3) * x[0] + \
+            (12 - 48 * x[1] + 72 * x[1]**2 - 48 * x[1]**3) * x[0]**2 + \
+            (-24 + 48 * x[1]) * x[0]**3 + \
+            (12 - 24 * x[1]) * x[0]**4
+
+        by = (-12 * x[1]**2 + 24 * x[1]**3 - 12 * x[1]**4) + \
+            (4 - 24 * x[1] + 48 * x[1]**2 - 48 * x[1]**3 + 24 * x[1]**4) * x[0] + \
+            (-12 + 72 * x[1] - 72 * x[1]**2) * x[0]**2 + \
+            (8 - 48 * x[1] + 48 * x[1]**2) * x[0]**3
+
+        # ufl vector prevents us from having to interpolate and solve the mass matrix
+        return ufl.as_vector([bx, by]) 
+    
+    # Boundary condition function
+    def no_slip(x):
+        return np.stack((np.zeros(x.shape[1]), np.zeros(x.shape[1])))
+
+    def zero_pressure(x):
+        return np.zeros(x.shape[1], dtype=dolfinx.default_scalar_type)
+
+Next, we create the mesh and define the `SteadyStokes` physics object.
+
+.. code-block:: python
+
+    # Define the mesh 
+    ne = 64
+    h = 1/ne
+    mesh = RectMesh(0, 0, 1, 1, h)
+
+    # Define the Stokes problem
+    stk = SteadyStokes(mesh)
+    stk.set_element('CG', 1, 'CG', 1)
+    stk.build_function_space()
+
+Now we set the physics parameters and impose the body force on the Stokes problem. Then, we set the weak form and add stabilization. 
+
+.. code-block:: python
+
+    # Physical parameters 
+    nu = 1.0
+    stk.set_kinematic_viscosity(nu)
+
+    # Define the body force 
+    x = ufl.SpatialCoordinate(mesh.msh)
+    stk.set_body_force(body_force(x))
+
+    # Set weak form and stabilization
+    stk.set_weak_form()
+    stk.add_stab()
+
+Next, we define the boundary conditions and apply them to the Stokes problem. We create function on the velocity and pressure 
+subspaces to hold the boundary conditions.
+
+.. code-block:: python
+
+    # Create functions for boundary conditions on the appropriate function spaces
+    V_u = stk.get_function_space('u').collapse()[0]
+    V_p = stk.get_function_space('p').collapse()[0]
+
+    zero_v = dolfinx.fem.Function(V_u)
+    zero_v.interpolate(no_slip)
+
+    zero_p = dolfinx.fem.Function(V_p)
+    zero_p.interpolate(zero_pressure)
+
+    u_bcs = {
+        1: {'type': 'dirichlet', 'value': zero_v},
+        2: {'type': 'dirichlet', 'value': zero_v},
+        3: {'type': 'dirichlet', 'value': zero_v},
+        4: {'type': 'dirichlet', 'value': zero_v},
+    }
+
+    p_bcs = {
+        1: {'type': 'dirichlet', 'value': zero_p},
+        }
+
+    bc_dict = {
+            'u': u_bcs, 
+            'p': p_bcs
+            }
+
+    stk.set_bcs(bc_dict)
+
+Next, we define the nonlinear problem and solver. We use a Krylov solver and adjust 
+the solver parameter using a function that sets the PETSc KSP options. Then, we call `solver.solve()` to solve the problem 
+and write the solution to file.
+
+.. code-block:: python
+
+    
+    # Set solver and solve
+    stk.set_writer('output', 'pvd')
+    problem = NonLinearProblem(stk)
+    def my_custom_ksp_setup(ksp):
+        ksp.setType(ksp.Type.FGMRES)        
+        ksp.pc.setType(ksp.pc.Type.LU)  
+        ksp.setTolerances(rtol=1e-8, atol=1e-10, max_it=500)
+        ksp.setMonitor(ConvergenceMonitor('ksp'))
+
+    solver = NonLinearSolver(mesh.msh.comm, problem, outer_ksp_set_function=my_custom_ksp_setup)
+    solver.solve()
+    stk.write()
+
+We then extract the velocity solutions and compare with the analytical solution.
+
+.. code-block:: python
+
+    # Define exact solution for error computation
+    def u_exact_solution(x):
+        u0e = x[0]**2 * (1 - x[0])**2 * (2 * x[1] - 6 * x[1]**2 + 4 * x[1]**3)
+        u1e = -x[1]**2 * (1 - x[1])**2 * (2 * x[0] - 6 * x[0]**2 + 4 * x[0]**3)
+        return ufl.as_vector([u0e, u1e])
+
+    u_exact = dolfinx.fem.Function(V_u)
+    expr = dolfinx.fem.Expression(u_exact_solution(x), V_u.element.interpolation_points())
+    u_exact.interpolate(expr)
+
+    # Get numerical solution
+    u = stk.get_solution_function('u')
+
+    # Compute error
+    error_L2 = np.sqrt(dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.inner(u - u_exact, u - u_exact) * ufl.dx)))
+    print(f"L2 error in velocity: {error_L2}")
+
+    # Save exact solution to file
+    with dolfinx.io.VTKFile(mesh.msh.comm, "output/u_exact.pvd", "w") as vtk:
+        vtk.write_function(u_exact(x))
+
+Full Script
+-----------------
+
+.. code-block:: python
+    
+    import dolfinx
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import ufl 
+
+    from flatiron_tk.solver  import ConvergenceMonitor
+    from flatiron_tk.solver import NonLinearProblem
+    from flatiron_tk.solver import NonLinearSolver
+    from flatiron_tk.mesh import RectMesh
+    from flatiron_tk.physics import SteadyStokes
+
+    # Define body force term 
+    def body_force(x):
+        bx = (1 - 4 * x[1] + 12 * x[1]**2 - 8 * x[1]**3) + \
+            (-2 + 24 * x[1] - 72 * x[1]**2 + 48 * x[1]**3) * x[0] + \
+            (12 - 48 * x[1] + 72 * x[1]**2 - 48 * x[1]**3) * x[0]**2 + \
+            (-24 + 48 * x[1]) * x[0]**3 + \
+            (12 - 24 * x[1]) * x[0]**4
+
+        by = (-12 * x[1]**2 + 24 * x[1]**3 - 12 * x[1]**4) + \
+            (4 - 24 * x[1] + 48 * x[1]**2 - 48 * x[1]**3 + 24 * x[1]**4) * x[0] + \
+            (-12 + 72 * x[1] - 72 * x[1]**2) * x[0]**2 + \
+            (8 - 48 * x[1] + 48 * x[1]**2) * x[0]**3
+
+        # ufl vector prevents us from having to interpolate and solve the mass matrix
+        return ufl.as_vector([bx, by]) 
+    
+    # Boundary condition function
+    def no_slip(x):
+        return np.stack((np.zeros(x.shape[1]), np.zeros(x.shape[1])))
+
+    def zero_pressure(x):
+        return np.zeros(x.shape[1], dtype=dolfinx.default_scalar_type)
+
+    # Define the mesh 
+    ne = 64
+    h = 1/ne
+    mesh = RectMesh(0, 0, 1, 1, h)
+
+    # Define the Stokes problem
+    stk = SteadyStokes(mesh)
+    stk.set_element('CG', 1, 'CG', 1)
+    stk.build_function_space()
+
+    # Physical parameters 
+    nu = 1.0
+    stk.set_kinematic_viscosity(nu)
+
+    # Define the body force 
+    x = ufl.SpatialCoordinate(mesh.msh)
+    stk.set_body_force(body_force(x))
+
+    # Set weak form and stabilization
+    stk.set_weak_form()
+    stk.add_stab()
+
+    # Create functions for boundary conditions on the appropriate function spaces
+    V_u = stk.get_function_space('u').collapse()[0]
+    V_p = stk.get_function_space('p').collapse()[0]
+
+    zero_v = dolfinx.fem.Function(V_u)
+    zero_v.interpolate(no_slip)
+
+    zero_p = dolfinx.fem.Function(V_p)
+    zero_p.interpolate(zero_pressure)
+
+    u_bcs = {
+        1: {'type': 'dirichlet', 'value': zero_v},
+        2: {'type': 'dirichlet', 'value': zero_v},
+        3: {'type': 'dirichlet', 'value': zero_v},
+        4: {'type': 'dirichlet', 'value': zero_v},
+    }
+
+    p_bcs = {
+        1: {'type': 'dirichlet', 'value': zero_p},
+        }
+
+    bc_dict = {
+            'u': u_bcs, 
+            'p': p_bcs
+            }
+
+    stk.set_bcs(bc_dict)
+
+    # Set solver and solve
+    stk.set_writer('output', 'pvd')
+    problem = NonLinearProblem(stk)
+    def my_custom_ksp_setup(ksp):
+        ksp.setType(ksp.Type.FGMRES)        
+        ksp.pc.setType(ksp.pc.Type.LU)  
+        ksp.setTolerances(rtol=1e-8, atol=1e-10, max_it=500)
+        ksp.setMonitor(ConvergenceMonitor('ksp'))
+
+    solver = NonLinearSolver(mesh.msh.comm, problem, outer_ksp_set_function=my_custom_ksp_setup)
+    solver.solve()
+    stk.write()
+
+    # Define exact solution for error computation
+    def u_exact_solution(x):
+        u0e = x[0]**2 * (1 - x[0])**2 * (2 * x[1] - 6 * x[1]**2 + 4 * x[1]**3)
+        u1e = -x[1]**2 * (1 - x[1])**2 * (2 * x[0] - 6 * x[0]**2 + 4 * x[0]**3)
+        return ufl.as_vector([u0e, u1e])
+
+    u_exact = dolfinx.fem.Function(V_u)
+    expr = dolfinx.fem.Expression(u_exact_solution(x), V_u.element.interpolation_points())
+    u_exact.interpolate(expr)
+
+    # Get numerical solution
+    u = stk.get_solution_function('u')
+
+    # Compute error
+    error_L2 = np.sqrt(dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.inner(u - u_exact, u - u_exact) * ufl.dx)))
+    print(f"L2 error in velocity: {error_L2}")
+
+    # Save exact solution to file
+    with dolfinx.io.VTKFile(mesh.msh.comm, "output/u_exact.pvd", "w") as vtk:
+        vtk.write_function(u_exact(x))
+
+

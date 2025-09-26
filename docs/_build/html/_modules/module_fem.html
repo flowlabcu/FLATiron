@@ -1,0 +1,184 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEM &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Functions" href="module_functions.html" />
+    <link rel="prev" title="FLATiron Modules" href="../toc_modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">FEM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.fem.boundary_conditions.build_dirichlet_bc"><code class="docutils literal notranslate"><span class="pre">build_dirichlet_bc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.fem.boundary_conditions.get_function_space_search"><code class="docutils literal notranslate"><span class="pre">get_function_space_search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flatiron_tk.fem.boundary_conditions.is_subspace"><code class="docutils literal notranslate"><span class="pre">is_subspace()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_io.html">I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_mesh.html">Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="toc_physics_modules.html">Physics Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="toc_solver_modules.html">Solver Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../toc_modules.html">FLATiron Modules</a></li>
+      <li class="breadcrumb-item active">FEM</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_modules/module_fem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-flatiron_tk.fem.boundary_conditions">
+<span id="fem"></span><h1>FEM<a class="headerlink" href="#module-flatiron_tk.fem.boundary_conditions" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="flatiron_tk.fem.boundary_conditions.build_dirichlet_bc">
+<span class="sig-prename descclassname"><span class="pre">flatiron_tk.fem.boundary_conditions.</span></span><span class="sig-name descname"><span class="pre">build_dirichlet_bc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bnd_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_space</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/fem/boundary_conditions.html#build_dirichlet_bc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.fem.boundary_conditions.build_dirichlet_bc" title="Link to this definition"></a></dt>
+<dd><p>Builds a Dirichlet boundary condition for a given boundary and value.
+:param mesh: The mesh object containing the boundary information.
+:type mesh: flatironx.mesh
+:param bnd_id: The boundary ID to apply the Dirichlet condition on.
+:type bnd_id: int
+:param bc_val: The value of the Dirichlet condition, which can be a function or a constant.
+:type bc_val: dolfinx.fem.Function or dolfinx.fem.Constant
+:param function_space: The function space to which the Dirichlet condition applies.
+:type function_space: dolfinx.fem.FunctionSpace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dolfinx.fem.dirichletbc</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Dirichlet boundary condition object.</p>
+</dd>
+</dl>
+<p>:raises TypeError : If <cite>bc_val</cite> is not a <cite>dolfinx.fem.Function</cite> or <cite>dolfinx.fem.Constant</cite>.:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="flatiron_tk.fem.boundary_conditions.get_function_space_search">
+<span class="sig-prename descclassname"><span class="pre">flatiron_tk.fem.boundary_conditions.</span></span><span class="sig-name descname"><span class="pre">get_function_space_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/fem/boundary_conditions.html#get_function_space_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.fem.boundary_conditions.get_function_space_search" title="Link to this definition"></a></dt>
+<dd><p>Returns the function space to search for dofs in case V is a subspace.
+If V is not a subspace, returns V itself.
+:param V: The function space to check.
+:type V: dolfinx.fem.FunctionSpace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>if V is a subspace</em> – tuple(dolfinx.fem.FunctionSpace, list mapping of the subspace to original space)</p></li>
+<li><p><em>else</em> – dolfinx.fem.FunctionSpace
+The function space to search for dofs.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="flatiron_tk.fem.boundary_conditions.is_subspace">
+<span class="sig-prename descclassname"><span class="pre">flatiron_tk.fem.boundary_conditions.</span></span><span class="sig-name descname"><span class="pre">is_subspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/fem/boundary_conditions.html#is_subspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.fem.boundary_conditions.is_subspace" title="Link to this definition"></a></dt>
+<dd><p>Returns True if V is a subspace of a function space, False otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>V</strong> (<em>dolfinx.fem.FunctionSpace</em>) – The function space to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if V is a subspace, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../toc_modules.html" class="btn btn-neutral float-left" title="FLATiron Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_functions.html" class="btn btn-neutral float-right" title="Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

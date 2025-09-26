@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mesh &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Physics Modules" href="toc_physics_modules.html" />
+    <link rel="prev" title="I/O" href="module_io.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="module_fem.html">FEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_io.html">I/O</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mesh</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Mesh</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.mesh.mesh.Mesh"><code class="docutils literal notranslate"><span class="pre">Mesh</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-flatiron_tk.mesh.basic_mesh">Built-In Meshes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.mesh.basic_mesh.CuboidMesh"><code class="docutils literal notranslate"><span class="pre">CuboidMesh</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.mesh.basic_mesh.LineMesh"><code class="docutils literal notranslate"><span class="pre">LineMesh</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.mesh.basic_mesh.RectMesh"><code class="docutils literal notranslate"><span class="pre">RectMesh</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="toc_physics_modules.html">Physics Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="toc_solver_modules.html">Solver Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../toc_modules.html">FLATiron Modules</a></li>
+      <li class="breadcrumb-item active">Mesh</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_modules/module_mesh.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mesh">
+<h1>Mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>Mesh<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<dl class="py class" id="module-flatiron_tk.mesh.mesh">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.mesh.</span></span><span class="sig-name descname"><span class="pre">Mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A base class for creating and managing computational meshes using Dolfinx.
+Parameters:
+————-</p>
+<blockquote>
+<div><p>comm: MPI communicator, default is MPI.COMM_WORLD
+mesh: dolfinx mesh object, default is None
+mesh_file: mesh file name, default is None
+boundary: dolfinx mesh tags for boundary, default is None
+subdomain: dolfinx mesh tags for subdomain, default is None
+gdim: geometric dimension of the mesh, optional, used when loading from file</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_boundary_area">
+<span class="sig-name descname"><span class="pre">get_boundary_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_boundary_area"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_boundary_area" title="Link to this definition"></a></dt>
+<dd><p>Calculate the area of a given boundary.
+:param boundary_id (int):
+:type boundary_id (int): The id of the boundary for which to compute the area.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The area of the boundary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_boundary_centroid">
+<span class="sig-name descname"><span class="pre">get_boundary_centroid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_boundary_centroid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_boundary_centroid" title="Link to this definition"></a></dt>
+<dd><p>Calculate the centroid of a given boundary.
+:param boundary_id (int):
+:type boundary_id (int): The id of the boundary for which to compute the centroid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>np.ndarray</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A point representing the centroid of the boundary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_cell_diameter">
+<span class="sig-name descname"><span class="pre">get_cell_diameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_cell_diameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_cell_diameter" title="Link to this definition"></a></dt>
+<dd><p>Returns the ufl cell diameter of the mesh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_facet_normal">
+<span class="sig-name descname"><span class="pre">get_facet_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_facet_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_facet_normal" title="Link to this definition"></a></dt>
+<dd><p>Returns the ufl facet normal of the mesh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_fdim">
+<span class="sig-name descname"><span class="pre">get_fdim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_fdim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_fdim" title="Link to this definition"></a></dt>
+<dd><p>Returns the facet dimension of the mesh; the dimension of the mesh boundary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_gdim">
+<span class="sig-name descname"><span class="pre">get_gdim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_gdim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_gdim" title="Link to this definition"></a></dt>
+<dd><p>Returns the geometric dimension of the mesh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_mean_boundary_normal">
+<span class="sig-name descname"><span class="pre">get_mean_boundary_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_mean_boundary_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_mean_boundary_normal" title="Link to this definition"></a></dt>
+<dd><p>Calculate the mean normal vector of a given boundary.
+:param boundary_id (int):
+:type boundary_id (int): The id of the boundary for which to compute the mean normal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>np.ndarray</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A unit vector representing the mean outward normal of the boundary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_mean_cell_diameter">
+<span class="sig-name descname"><span class="pre">get_mean_cell_diameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_mean_cell_diameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_mean_cell_diameter" title="Link to this definition"></a></dt>
+<dd><p>Get mean cell diameter.
+:returns: <strong>float</strong>
+:rtype: the average length of the cell diameters within the mesh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_num_facets_local">
+<span class="sig-name descname"><span class="pre">get_num_facets_local</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_num_facets_local"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_num_facets_local" title="Link to this definition"></a></dt>
+<dd><p>Returns the number of facets in the local mesh partition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_tdim">
+<span class="sig-name descname"><span class="pre">get_tdim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_tdim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_tdim" title="Link to this definition"></a></dt>
+<dd><p>Returns the topological dimension of the mesh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.mark_boundary">
+<span class="sig-name descname"><span class="pre">mark_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">marking_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.mark_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.mark_boundary" title="Link to this definition"></a></dt>
+<dd><p>Mark the boundary of the mesh with user-defined markers.
+:param marking_dict: indicating which facets to mark.
+:type marking_dict: dict, A dictionary where keys are marker ids and values are functions that return boolean arrays</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.mark_subdomain">
+<span class="sig-name descname"><span class="pre">mark_subdomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">marking_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.mark_subdomain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.mark_subdomain" title="Link to this definition"></a></dt>
+<dd><p>Mark the subdomains of the mesh with user-defined markers.
+:param marking_dict: indicating which cells to mark.
+:type marking_dict: dict, A dictionary where keys are marker ids and values are functions that return boolean arrays</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-flatiron_tk.mesh.basic_mesh">
+<span id="built-in-meshes"></span><h2>Built-In Meshes<a class="headerlink" href="#module-flatiron_tk.mesh.basic_mesh" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.basic_mesh.CuboidMesh">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.basic_mesh.</span></span><span class="sig-name descname"><span class="pre">CuboidMesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/basic_mesh.html#CuboidMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.basic_mesh.CuboidMesh" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a></p>
+<p>Create a 3D cuboid mesh between (x0, y0, z0) and (x1, y1, z1) with a given element size.
+Parameters:
+————-</p>
+<blockquote>
+<div><p>x0: Start point of the mesh in the x-direction.
+y0: Start point of the mesh in the y-direction.
+z0: Start point of the mesh in the z-direction.
+x1: End point of the mesh in the x-direction.
+y1: End point of the mesh in the y-direction.
+z1: End point of the mesh in the z-direction.
+dx: Element size in each direction (can be a single float or a list/tuple of three floats).
+comm: MPI communicator, default is MPI.COMM_WORLD.
+<a href="#id2"><span class="problematic" id="id3">**</span></a>kwargs: Additional keyword arguments passed to dolfinx.mesh.create_box (e.g., cell_type).</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.basic_mesh.LineMesh">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.basic_mesh.</span></span><span class="sig-name descname"><span class="pre">LineMesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/basic_mesh.html#LineMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.basic_mesh.LineMesh" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a></p>
+<p>Create a 1D line mesh between x0 and x1 with a given element size.
+Parameters:
+————-</p>
+<blockquote>
+<div><p>x0: Start point of the mesh.
+x1: End point of the mesh.
+dx: Element size.
+comm: MPI communicator, default is MPI.COMM_WORLD.
+<a href="#id4"><span class="problematic" id="id5">**</span></a>kwargs: Additional keyword arguments passed to dolfinx.mesh.create_interval.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.mesh.basic_mesh.RectMesh">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.basic_mesh.</span></span><span class="sig-name descname"><span class="pre">RectMesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/basic_mesh.html#RectMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.basic_mesh.RectMesh" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a></p>
+<p>Create a 2D rectangular mesh between (x0, y0) and (x1, y1) with a given element size.
+Parameters:
+————-</p>
+<blockquote>
+<div><p>x0: Start point of the mesh in the x-direction.
+y0: Start point of the mesh in the y-direction.
+x1: End point of the mesh in the x-direction.
+y1: End point of the mesh in the y-direction.
+dx: Element size in each direction (can be a single float or a list/tuple of two floats).
+comm: MPI communicator, default is MPI.COMM_WORLD.
+<a href="#id6"><span class="problematic" id="id7">**</span></a>kwargs: Additional keyword arguments passed to dolfinx.mesh.create_rectangle (e.g., cell_type).</p>
+</div></blockquote>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="module_io.html" class="btn btn-neutral float-left" title="I/O" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="toc_physics_modules.html" class="btn btn-neutral float-right" title="Physics Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

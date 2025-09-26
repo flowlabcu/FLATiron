@@ -1,0 +1,738 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.physics.multiphysics_problem &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.physics.multiphysics_problem</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.physics.multiphysics_problem</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">basix</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.io</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicsProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_container</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the object is a container (like list, tuple, set, etc.) but not a string or bytes.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : any</span>
+<span class="sd">        The object to check.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the object is a container, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">))</span>
+
+<div class="viewcode-block" id="MultiphysicsProblem">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiphysicsProblem</span><span class="p">(</span><span class="n">PhysicsProblem</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to represent a multiphysics problem by combining multiple physics problems.</span>
+
+<span class="sd">    Initialize a multiphysics problem by combining multiple physics problems.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        \*physics_problems : `PhysicsProblem`</span>
+<span class="sd">            A variable number of physics problem instances to be combined into a multiphysics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the provided physics problems do not share the same mesh or if there are tag conflicts.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">physics_problems</span><span class="p">):</span>
+        <span class="c1"># Check if all physics problems are defined on the same mesh</span>
+        <span class="n">mesh_hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="n">physics_problems</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">physics</span> <span class="ow">in</span> <span class="n">physics_problems</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hash</span><span class="p">(</span><span class="n">physics</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span> <span class="o">!=</span> <span class="n">mesh_hash</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;All physics problems must share the same mesh.&#39;</span><span class="p">)</span>
+            
+        <span class="c1"># Put the subphysics problems in a list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">physics_problems</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_sub_physics</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">)</span>
+
+        <span class="c1"># Initialize the joint monolithic multiphysics problem using the mesh </span>
+        <span class="c1"># of the first subphysics problem (they&#39;re all the same mesh)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physics_problems</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+
+        <span class="c1"># Set a unique tag for each subphysics problem/solution </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_mixed_element</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">physics_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">physics</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">:</span>
+            <span class="c1"># Check to see if the physics problem already has a dictionary </span>
+            <span class="c1"># and therefore already is a multiphysics problem</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">physics</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_mixed_element</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Check to see if the sub_physics uses an already existing tag</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">physics</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Tag </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1"> already exists in the multiphysics problem. </span><span class="se">\</span>
+<span class="s1">                                         Please set a unique tag for each type of physics.&#39;</span><span class="p">)</span>
+                    <span class="c1"># Create a dicitionary entry for the tag with the key as the tag and </span>
+                    <span class="c1"># the value as the physics_id</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">physics_id</span> 
+                
+                <span class="n">physics_id</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_mixed_element</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="c1"># Check to see if the sub_physics uses an already existing tag</span>
+                <span class="k">if</span> <span class="n">physics</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Tag </span><span class="si">{</span><span class="n">physics</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> already exists in the multiphysics problem. </span><span class="se">\</span>
+<span class="s1">                                     Please set a unique tag for each type of physics.&#39;</span><span class="p">)</span>
+                <span class="c1"># Create a dicitionary entry for the tag with the key as the tag and</span>
+                <span class="c1"># the value as the physics_id</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">[</span><span class="n">physics</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">physics_id</span>
+                <span class="n">physics_id</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+<div class="viewcode-block" id="MultiphysicsProblem.set_element">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_element">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the finite element for the multiphysics problem by creating a mixed element</span>
+<span class="sd">        from the elements of the subphysics problems.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_elements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Create a list of subphysics elements</span>
+        <span class="k">for</span> <span class="n">physics</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sub_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">physics</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+
+        <span class="c1"># Make the monolithic mixed element from the subphysics elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">basix</span><span class="o">.</span><span class="n">ufl</span><span class="o">.</span><span class="n">mixed_element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_elements</span><span class="p">)</span> </div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.set_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the function space for the multiphysics problem and for each subphysics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        V : dolfinx.fem.FunctionSpace</span>
+<span class="sd">            The function space for the multiphysics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span>
+            <span class="c1"># Set the function space for each subphysics problem</span>
+            <span class="c1"># Not recursive - physics.set_function_space calls sub physics set_function_space</span>
+            <span class="n">physics</span><span class="o">.</span><span class="n">set_function_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">physics_id</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.set_test_function">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_test_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_test_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiphysics_test_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the test function for the multiphysics problem and for each subphysics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        multiphysics_test_function : ufl.TestFunction</span>
+<span class="sd">            The test function for the multiphysics problem. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_function</span> <span class="o">=</span> <span class="n">multiphysics_test_function</span>
+        <span class="n">te_split</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_function</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span>
+            <span class="c1"># Set the test function for each subphysics problem</span>
+            <span class="c1"># Not recursive </span>
+            <span class="n">physics</span><span class="o">.</span><span class="n">set_test_function</span><span class="p">(</span><span class="n">te_split</span><span class="p">[</span><span class="n">physics_id</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.set_trial_function">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_trial_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_trial_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiphysics_trial_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the trial function for the multiphysics problem and for each subphysics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        multiphysics_trial_function : ufl.TrialFunction</span>
+<span class="sd">            The trial function for the multiphysics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">trial_function</span> <span class="o">=</span> <span class="n">multiphysics_trial_function</span>
+        <span class="n">tr_split</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trial_function</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span>
+            <span class="c1"># Set the trial function for each subphysics problem</span>
+            <span class="c1"># Not recursive </span>
+            <span class="n">physics</span><span class="o">.</span><span class="n">set_trial_function</span><span class="p">(</span><span class="n">tr_split</span><span class="p">[</span><span class="n">physics_id</span><span class="p">])</span></div>
+
+    
+<div class="viewcode-block" id="MultiphysicsProblem.set_solution_function">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_solution_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_solution_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiphysics_solution_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the solution function for the multiphysics problem and for each subphysics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        multiphysics_solution_function : dolfinx.fem.Function</span>
+<span class="sd">            The solution function for the multiphysics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="n">multiphysics_solution_function</span>
+        <span class="n">sol_split</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span>
+            <span class="c1"># Set the solution function for each subphysics problem</span>
+            <span class="c1"># Not recursive </span>
+            <span class="n">physics</span><span class="o">.</span><span class="n">set_solution_function</span><span class="p">(</span><span class="n">sol_split</span><span class="p">[</span><span class="n">physics_id</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.get_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the function space for a given physics tag.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem. If None, returns the function space for the multiphysics problem.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dolfinx.fem.FunctionSpace</span>
+<span class="sd">            The function space associated with the given physics tag, or the multiphysics function space if no tag is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">physics_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_physics</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="MultiphysicsProblem.get_test_function">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_test_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_test_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the test function for a given physics tag.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem. If None, returns the test function for the multiphysics problem.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.core.expr.Expr</span>
+<span class="sd">            The test function associated with the given physics tag, or the multiphysics test function if no tag is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">physics_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_function</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_physics</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="MultiphysicsProblem.get_trial_function">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_trial_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_trial_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the trial function for a given physics tag.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem. If None, returns the trial function for the multiphysics problem.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.core.expr.Expr</span>
+<span class="sd">            The trial function associated with the given physics tag, or the multiphysics trial function if no tag is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">physics_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial_function</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_physics</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span><span class="o">.</span><span class="n">get_trial_function</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="MultiphysicsProblem.get_solution_function">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_solution_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_solution_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the solution function for a given physics tag.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem. If None, returns the solution function for the multiphysics problem.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.core.expr.Expr</span>
+<span class="sd">            The solution function associated with the given physics tag, or the multiphysics solution function if no tag is provided.   </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If no physics tag is provided, return the solution function for the multiphysics problem</span>
+        <span class="k">if</span> <span class="n">physics_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span>
+        
+        <span class="c1"># If a physics tag is provided, get the physics ID and return the solution function for that physics problem</span>
+        <span class="n">physics_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_physics_id</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span>
+
+        <span class="c1"># If the physics problem is a mixed element, return the solution function for that specific tag</span>
+        <span class="c1"># Otherwise, return the solution function for the multiphysics problem</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_mixed_element</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="MultiphysicsProblem.get_physics">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_physics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_physics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the physics problem for a given physics tag.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str</span>
+<span class="sd">            The tag of the physics problem.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PhysicsProblem</span>
+<span class="sd">            The physics problem associated with the given tag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">physics_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_physics_id</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.get_physics_id">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_physics_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_physics_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the physics ID for a given physics tag.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str</span>
+<span class="sd">            The tag of the physics problem.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The ID of the physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">[</span><span class="n">physics_tag</span><span class="p">]</span></div>
+
+    
+<div class="viewcode-block" id="MultiphysicsProblem.get_global_dofs">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_global_dofs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_global_dofs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_function_space</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the global degrees of freedom (DOFs) indices on the local process for a given physics tag or </span>
+<span class="sd">        for all physics problems.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_function_space : dolfinx.fem.FunctionSpace</span>
+<span class="sd">            The global function space from which to extract the DOFs.</span>
+<span class="sd">        physics_tag : str or list of str, optional</span>
+<span class="sd">            The tag(s) of the physics problem(s). If None, returns the DOFs for all physics problems.</span>
+<span class="sd">        sort : bool, optional</span>
+<span class="sd">            Whether to sort the DOFs before returning. Default is True.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            An array of global DOFs indices on local process associated with the given physics tag(s), or all DOFs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">W</span> <span class="o">=</span> <span class="n">global_function_space</span>
+        
+        <span class="c1"># Get all physics tags in the multiphysics system</span>
+        <span class="k">if</span> <span class="n">physics_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">physics_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="c1"># If the physics tag is not a list, we wrap it in a list to reuse the same logic</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">):</span>
+            <span class="n">physics_tag</span> <span class="o">=</span> <span class="p">[</span><span class="n">physics_tag</span><span class="p">]</span>
+
+        <span class="n">dofs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">physics_tag</span><span class="p">:</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            <span class="n">V</span><span class="p">,</span> <span class="n">map_WV</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
+
+            <span class="c1"># Get the local dofs for the function space and strip the ghost nodes</span>
+            <span class="n">local_V</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">dofmap</span><span class="o">.</span><span class="n">index_map</span><span class="o">.</span><span class="n">size_local</span> <span class="o">*</span> <span class="n">V</span><span class="o">.</span><span class="n">dofmap</span><span class="o">.</span><span class="n">index_map_bs</span>
+            <span class="n">map_VW_stripped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">map_WV</span><span class="p">)[:</span><span class="n">local_V</span><span class="p">]</span>
+            <span class="n">V_dofs_global</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">dofmap</span><span class="o">.</span><span class="n">index_map</span><span class="o">.</span><span class="n">local_to_global</span><span class="p">(</span><span class="n">map_VW_stripped</span><span class="p">)</span>
+
+            <span class="n">dofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">V_dofs_global</span><span class="p">)</span>
+
+        <span class="n">dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+            <span class="n">dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="MultiphysicsProblem.set_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the weak form for the multiphysics problem by summing the weak forms of each subphysics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        options : dict, optional</span>
+<span class="sd">            Options for each subphysics problem&#39;s weak form. If not provided, </span>
+<span class="sd">            an empty dictionary is used for each subphysics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If a subphysics problem does not have the attribute weak_form defined. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="c1"># Add empty dictionary as options for each physics if the option is not provided.</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sub_physics</span><span class="p">:</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+
+        <span class="n">weak_forms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sub_physics</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_weak_form</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;weak_form&#39;</span><span class="p">):</span>
+                <span class="n">weak_forms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">weak_form</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Physics problem </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> does not have attribute weak_form defined. </span><span class="se">\</span>
+<span class="s1">                                 Please define a weak form for each physics problem before setting the multiphysics weak form.&#39;</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weak_forms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.flux">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">physics_tag</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the flux for a given physics tag.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        h : ufl.core.expr.Expr</span>
+<span class="sd">            The test function for the flux calculation.</span>
+<span class="sd">        physics_tag : str</span>
+<span class="sd">            The tag of the physics problem for which to calculate the flux.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.core.expr.Expr</span>
+<span class="sd">            The flux expression for the specified physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">physics_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_physics_id</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span><span class="o">.</span><span class="n">flux</span><span class="p">(</span><span class="n">h</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="MultiphysicsProblem.get_residual">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the residual of the multiphysics problem by summing the residuals of each subphysics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.core.expr.Expr</span>
+<span class="sd">            The residual expression for the multiphysics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">residual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_residual</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">physics</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">residual</span> <span class="o">+=</span> <span class="n">physics</span><span class="o">.</span><span class="n">get_residual</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">residual</span></div>
+
+    
+<div class="viewcode-block" id="MultiphysicsProblem.set_bcs">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_bcs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiphysics_bc_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the boundary conditions for the multiphysics problem by iterating over the boundary conditions of each subphysics problem.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        multiphysics_bc_dict : dict</span>
+<span class="sd">            A dictionary containing the boundary conditions for each subphysics problem. </span>
+<span class="sd">            The keys are the boundary IDs and the values are dictionaries with the boundary condition type and value.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If a boundary condition type is not recognized or if the physics ID is not found in the multiphysics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">sub_bcs</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sub_physics</span><span class="p">)]</span>
+        
+        <span class="k">for</span> <span class="n">physics_tag</span> <span class="ow">in</span> <span class="n">multiphysics_bc_dict</span><span class="p">:</span>
+            <span class="n">bc_dict</span> <span class="o">=</span> <span class="n">multiphysics_bc_dict</span><span class="p">[</span><span class="n">physics_tag</span><span class="p">]</span>
+            <span class="n">physics_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_physics_id</span><span class="p">(</span><span class="n">physics_tag</span><span class="p">)</span>            
+
+            <span class="k">for</span> <span class="n">boundary_id</span> <span class="ow">in</span> <span class="n">bc_dict</span><span class="p">:</span>
+                <span class="n">bc_data</span> <span class="o">=</span> <span class="n">bc_dict</span><span class="p">[</span><span class="n">boundary_id</span><span class="p">]</span>
+                <span class="n">bc_type</span> <span class="o">=</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+                
+                <span class="k">if</span> <span class="n">bc_type</span> <span class="o">==</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">:</span>
+                    <span class="c1"># Handles multiphyics problems inside multiphysics problems</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_mixed_element</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">physics_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sub_bcs</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]:</span>
+                            <span class="n">sub_bcs</span><span class="p">[</span><span class="n">physics_id</span><span class="p">][</span><span class="n">physics_tag</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">sub_bcs</span><span class="p">[</span><span class="n">physics_id</span><span class="p">][</span><span class="n">physics_tag</span><span class="p">][</span><span class="n">boundary_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">bc_data</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sub_bcs</span><span class="p">[</span><span class="n">physics_id</span><span class="p">][</span><span class="n">boundary_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">bc_data</span>
+
+                <span class="k">elif</span> <span class="n">bc_type</span> <span class="o">==</span> <span class="s1">&#39;neumann&#39;</span><span class="p">:</span>
+                    <span class="n">bc_value</span> <span class="o">=</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+                    <span class="n">flux_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span><span class="o">.</span><span class="n">flux</span><span class="p">(</span><span class="n">bc_value</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">flux_term</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">boundary_id</span><span class="p">))</span>
+
+        <span class="c1"># Set the boundary conditions for each subphysics problem</span>
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">sub_bc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sub_bcs</span><span class="p">):</span>            
+            <span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">(</span><span class="n">sub_bc</span><span class="p">)</span>
+            
+        <span class="c1"># Add the Dirichlet boundary conditions from each subphysics problem to the multiphysics problem</span>
+        <span class="k">for</span> <span class="n">physics_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sub_physics</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.set_writer">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_writer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">file_format</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the writer for each subphysics problem to write output to the specified directory.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_dir : str</span>
+<span class="sd">            The directory where the output files will be written.</span>
+<span class="sd">        file_format : str, optional</span>
+<span class="sd">            The file format for the output files.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Remove the output directory if it already exists</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+                <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;rm&#39;</span><span class="p">,</span> <span class="s1">&#39;-rf&#39;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">])</span>
+        
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;mkdir&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">])</span>
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span>
+            <span class="n">physics</span><span class="o">.</span><span class="n">set_writer</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">file_format</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.write_subphysics">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.write_subphysics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_subphysics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics</span><span class="p">,</span> <span class="n">solution</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursive function that splits (monolithic) multiphysics problems and solutions </span>
+<span class="sd">        until each sub solution can be written.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            Coupled-Flow-Transport[Navier-Stokes[momentum, continuity], Transport]</span>
+<span class="sd">                |</span>
+<span class="sd">            Split 1</span>
+<span class="sd">                |----Navier-Stokes[momentum, continuity] (call function)</span>
+<span class="sd">                |       |</span>
+<span class="sd">                |    Split 2</span>
+<span class="sd">                |       |----Momentum -&gt; write to file</span>
+<span class="sd">                |       |</span>
+<span class="sd">                |       |----Continuity -&gt; write to file</span>
+<span class="sd">                |</span>
+<span class="sd">                |----Transport -&gt; write to file </span>
+<span class="sd">        </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics : PhysicsProblem</span>
+<span class="sd">            The physics problem to write the solution for.</span>
+<span class="sd">        solution : dolfinx.fem.Function</span>
+<span class="sd">            The solution function to write.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">physics</span><span class="p">,</span> <span class="s1">&#39;sub_physics&#39;</span><span class="p">):</span>
+            <span class="n">sub_solutions</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">sub_physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">physics</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_subphysics</span><span class="p">(</span><span class="n">sub_physics</span><span class="p">,</span> <span class="n">sub_solutions</span><span class="p">[</span><span class="n">physics_id</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
+            <span class="n">solution</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">physics</span><span class="o">.</span><span class="n">tag</span>
+            <span class="n">physics</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiphysicsProblem.write">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_to_save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the solution of the multiphysics problem to files.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function_to_save : ufl.core.expr.Expr, optional</span>
+<span class="sd">            The function to save. If None, the solution function of the multiphysics problem is used.</span>
+<span class="sd">        *args : tuple</span>
+<span class="sd">            Additional positional arguments to pass to the write method of each subphysics problem.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments to pass to the write method of each subphysics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">function_to_save</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sols</span> <span class="o">=</span> <span class="n">function_to_save</span>
+
+        <span class="n">sols_components</span> <span class="o">=</span> <span class="n">sols</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">sub_physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_subphysics</span><span class="p">(</span><span class="n">sub_physics</span><span class="p">,</span> <span class="n">sols_components</span><span class="p">[</span><span class="n">physics_id</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="TransientMultiPhysicsProblem">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TransientMultiPhysicsProblem</span><span class="p">(</span><span class="n">MultiphysicsProblem</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extension of MultiphysicsProblem to support transient simulations.</span>
+
+<span class="sd">    This class manages the storage and update of the previous time step&#39;s solution, which </span>
+<span class="sd">    is essential for time-stepping schemes in transient simulations involving multiple </span>
+<span class="sd">    coupled physics components.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TransientMultiPhysicsProblem.build_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem.build_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the function space for the multiphysics problem and initialize the previous solution function.</span>
+<span class="sd">        This method extends the `build_function_space` method of the `MultiphysicsProblem` class</span>
+<span class="sd">        by also creating a function to store the solution from the previous time step.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_solution</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">())</span>
+        <span class="n">prev_sol_split</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">previous_solution</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">physics_id</span><span class="p">,</span> <span class="n">physics</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_physics</span><span class="p">):</span> 
+            <span class="n">physics</span><span class="o">.</span><span class="n">previous_solution</span> <span class="o">=</span> <span class="n">prev_sol_split</span><span class="p">[</span><span class="n">physics_id</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TransientMultiPhysicsProblem.update_previous_solution">
+<a class="viewcode-back" href="../../physics_modules/module_multiphysics_problem.html#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem.update_previous_solution">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_previous_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the previous solution function with the current solution.</span>
+<span class="sd">        This method copies the values from the current solution function to the previous solution function, </span>
+<span class="sd">        preparing it for the next time step in a transient simulation.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_solution</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span></div>
+</div>
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

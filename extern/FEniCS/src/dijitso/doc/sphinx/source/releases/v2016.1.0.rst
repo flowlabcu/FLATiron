@@ -1,9 +1,0 @@
-===========================
-Changes in version 2016.1.0
-===========================
-
-dijitso 2016.1.0 was released on 2016-06-23.
-
-- This is the first version that covers all the immediate needs of the
-  FEniCS Form Compiler (FFC) for just in time compilation of generated
-  code using ctypes to import a simple generated factory function.

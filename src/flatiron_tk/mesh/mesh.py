@@ -1,256 +1,259 @@
-'''
-Wrapper for FEniCS mesh containing mesh and boundary information
-'''
-
-import os
-
-# ------------------------------------------------------- #
-
-from ..info.messages import import_fenics
-fe = import_fenics()
+import dolfinx
+import numpy as np
+import ufl
 
 from ..io import *
-
-def _load_mesh(comm, mesh_file):
-    hdf = fe.HDF5File(comm, mesh_file, 'r')
-    mesh = fe.Mesh(comm)
-    hdf.read(mesh, 'mesh', False)
-    boundary = fe.MeshFunction("size_t", mesh, mesh.topology().dim()-1)
-    hdf.read(boundary, 'boundaries')
-    hdf.close()
-    return mesh, boundary
+from mpi4py import MPI
+from petsc4py import PETSc
 
 class Mesh():
-
-    """This class is a wapper object for dolfin.cpp.Mesh.
-
-    :param mesh_file: Path to the .h5 file containing the mesh
-    :type mesh: str
-
-    :param mesh: The FEniCS mesh object.
-    :type mesh: fe.Mesh
-
-    :param boundary: The fenics MeshFunction object with marked boundary values (dim = mesh.dim - 1)
-    :type boundary: fe.MeshFunction
-
-    This class can be instantiate in 2 ways. Either by supplying *only* the ``mesh_file`` or *both* the FEniCS ``mesh`` and ``boundary`` objects
-
-    :Example:
-
-
-        .. code-block:: python
-
-            # Instantiate with an existing *.h5 file format
-            # This Mesh class will automatically look for the `boundary` group in the hdf5 file
-            Mesh(mesh_file=\"mesh_file.h5\")
-
-
-        .. code-block:: python
-
-            # Instantiate with the fenics mesh and boundary objects
-            import fenics as fe
-            fenics_mesh = fe.UnitSquareMesh(4, 4)
-            fenics_boundary = fe.MeshFunction(\"size_t\", fenics_mesh, fenics_mesh.topology().dim()-1)
-            Mesh(mesh=fenics_mesh, boundary=fenics_boundary)
-
     """
-
+    A base class for creating and managing computational meshes using Dolfinx.  
+    Parameters:
+    -------------
+        comm: MPI communicator, default is MPI.COMM_WORLD
+        mesh: dolfinx mesh object, default is None
+        mesh_file: mesh file name, default is None
+        boundary: dolfinx mesh tags for boundary, default is None
+        subdomain: dolfinx mesh tags for subdomain, default is None
+        gdim: geometric dimension of the mesh, optional, used when loading from file
+    """
     def __init__(self, **kwargs):
+        self.comm = kwargs.get('comm', MPI.COMM_WORLD)
 
-        # Get comm
-        self.comm = kwargs.get('comm', fe.MPI.comm_world)
+        # --- Get the mesh -- - #
+        _msh = kwargs.get('mesh', None)  
+        _msh_file = kwargs.get('mesh_file', None) 
 
-        # Get mesh
-        _mesh = kwargs.get('mesh', None)
-        _mesh_file = kwargs.get('mesh_file', None)
-        if _mesh is not None:
+        # --- Load fenics mesh objects --- #
+        if _msh is not None:
+            # Assigm dolfinx mesh object to flationx mesh object
+            self.msh = _msh 
+
+            # Set empty boundary and subdomain if not provided, otherwise use the provided ones
             _boundary = kwargs.get('boundary', None)
-            self.mesh = _mesh
+            _subdomain = kwargs.get('subdomain', None)
+
             if _boundary is None:
-                self.boundary = fe.MeshFunction("size_t", self.mesh, self.mesh.topology().dim()-1)
+                self.boundary = dolfinx.mesh.meshtags(self.msh, self.get_fdim(), np.array([]), np.array([]))
             else:
                 self.boundary = _boundary
-        elif _mesh_file is not None:
-            self.mesh, self.boundary = _load_mesh(self.comm, _mesh_file)
-        else:
-            raise ValueError('All mesh inputs are None. Please provide either the mesh or mesh file')
 
-        # Get mpi variables
-        self.mpi_rank = self.comm.rank
-        self.mpi_size = self.comm.size
+            if _subdomain is None: 
+                self.subdomain = dolfinx.mesh.meshtags(self.msh, self.get_tdim(), np.array([]), np.array([]))
+            else: 
+                self.subdomain = _subdomain
 
-        # Get mesh dimension
-        self.dim = self.mesh.topology().dim()
+        elif _msh_file is not None:
+            # Option to provide gdim instead of having the mesh reader guess it
+            _gdim = kwargs.get('gdim', None)
+            self.msh, self.subdomain, self.boundary = io.read_mesh(_msh_file, gdim=_gdim, comm=self.comm)
 
-        # Boundary normals
-        self._flat_boundary_normals = {}
-
-    def fenics_mesh(self):
+    def get_tdim(self):
         """
-        Return the original fenics mesh
+        Returns the topological dimension of the mesh.
         """
-        return self.mesh
+        return self.msh.topology.dim
 
-    def mark_boundary(self, boundary_id, eval_func, *args):
+    def get_fdim(self):
         """
-        Mark a boundary on a mesh with boundary_id based on eval_func
-        eval_func(x, *args) should return a boolean
+        Returns the facet dimension of the mesh; the dimension of the mesh boundary.
         """
-        class BD(fe.SubDomain):
-            def inside(self, x, on_boundary):
-                return on_boundary and eval_func(x, *args)
-        BD().mark(self.boundary, boundary_id)
+        return self.msh.topology.dim - 1
+    
+    def get_gdim(self):
+        """
+        Returns the geometric dimension of the mesh.
+        """
+        return self.msh.geometry.dim
+    
+    def get_cell_diameter(self):
+        """
+        Returns the ufl cell diameter of the mesh.
+        """
+        return ufl.CellDiameter(self.msh)
+    
+    def get_facet_normal(self):
+        """
+        Returns the ufl facet normal of the mesh.
+        """
+        return ufl.FacetNormal(self.msh)
 
-    def cell_diameter(self):
+    def _mark_entities(self, marking_dict, entity_dim):
         """
-        Return the ufl object for mesh cell diameter
+        Mark entities (facets or cells) of the mesh based on user-defined markers. Method called by mark_boundary and mark_subdomain.
+        Parameters
+        -----------
+            marking_dict : dict, A dictionary where keys are marker ids and values are functions that return boolean arrays
+                        indicating which entities to mark.
+            entity_dim : int, The dimension of the entities to mark (e.g., facets or cells).
+        Returns
+        -------
+            dolfinx.mesh.MeshTags: A MeshTags object containing the marked entities.
         """
-        return fe.CellDiameter(self.mesh)
 
-    def facet_normal(self):
-        """
-        Return the ufl object for mesh facet norma
-        """
-        return fe.FacetNormal(self.mesh)
+        # Build connectivity
+        if entity_dim != self.get_tdim():
+            self.msh.topology.create_connectivity(entity_dim, self.get_tdim())
 
-    def mean_boundary_normal(self, boundary_id):
-        """
-        \\overline{\\hat{n}} = \\frac{\\int_{\\Gamma} \\hat{n} d\\Gamma}{\\int_{\\Gamma} d\\Gamma}
-        """
-        # mesh = mesh.mesh; dim = mesh.dim; boundary = physics.ds(boundary_id)
-
-        n = self.facet_normal() 
-        ds = fe.ds(subdomain_data=self.boundary)
-        normal = np.array([fe.assemble(n[i] *  ds(boundary_id)) for i in range(self.dim)])
-        normal_mag = np.linalg.norm(normal, 2)
-        normal_vector = (1/normal_mag) * normal
-        return normal_vector 
-
-    def boundary_centroid(self, boundary_id):
-        '''Compute the geometric center of a boundary. If the boundary has concavity or is not symmetric, 
-        the centroid may exist outside of the boundary.'''
-
-        midpoints = []
-        for f in fe.facets(self.fenics_mesh()):
-            if self.boundary.array()[f.index()] != boundary_id:
-                continue
-            midpoints.append(f.midpoint()[:])
+        # Create a list of entities and marking ids
+        entity_ids = []
+        all_marking_ids = []
         
-        midpoints = np.array(self.comm.allreduce(midpoints))
-        midpoints = np.array([val for val in midpoints if val is not None])
-        centroid = np.mean(midpoints, axis=0)
+        # for marker, idx in zip(marking_function_lst, marking_ids):
+        for idx, marker in marking_dict.items():
+            this_bnd = dolfinx.mesh.locate_entities(self.msh, entity_dim, marker)
+            this_ids = [idx for i in range(len(this_bnd))]
+            entity_ids.extend(this_bnd)
+            all_marking_ids.extend(this_ids)
 
+        # Sort marking and entities by entity ids
+        entity_ids = np.array(entity_ids)
+        all_marking_ids = np.array(all_marking_ids)
+        sorted_ids = np.argsort(entity_ids)
+        entity_ids = entity_ids[sorted_ids]
+        all_marking_ids = all_marking_ids[sorted_ids]
+
+        return dolfinx.mesh.meshtags(self.msh, entity_dim, entity_ids, all_marking_ids)
+
+    def mark_boundary(self, marking_dict):
+        """
+        Mark the boundary of the mesh with user-defined markers.
+        Parameters
+        -----------
+            marking_dict : dict, A dictionary where keys are marker ids and values are functions that return boolean arrays
+                        indicating which facets to mark.
+        """
+        self.boundary = self._mark_entities(marking_dict, self.get_fdim())
+
+    def mark_subdomain(self, marking_dict):
+        """
+        Mark the subdomains of the mesh with user-defined markers.
+        Parameters
+        -----------
+            marking_dict : dict, A dictionary where keys are marker ids and values are functions that return boolean arrays
+                        indicating which cells to mark.
+        """
+        self.subdomain = self._mark_entities(marking_dict, self.get_tdim())
+
+    def get_num_facets_local(self):
+        """
+        Returns the number of facets in the local mesh partition.
+        """
+        return self.msh.topology.index_map(self.get_tdim()-1).size_local
+    
+    def get_mean_boundary_normal(self, boundary_id):
+        """
+        Calculate the mean normal vector of a given boundary.
+        Parameters
+        ------------
+            boundary_id (int): The id of the boundary for which to compute the mean normal.
+        Returns
+        ------------
+            np.ndarray: A unit vector representing the mean outward normal of the boundary.
+        """
+
+        n = self.get_facet_normal()
+        ds = ufl.Measure('ds', domain=self.msh, subdomain_data=self.boundary)
+        
+
+        local_normal_array = []
+        for i in range(self.get_gdim()):
+            form_i = dolfinx.fem.form(n[i] * ds(boundary_id))
+            assemble_i = dolfinx.fem.assemble_scalar(form_i)
+            local_normal_array.append(assemble_i)
+
+        local_normal_array = np.array(local_normal_array)
+
+    
+        glabal_normal_array = self.msh.comm.allreduce(local_normal_array, op=MPI.SUM)
+
+
+        norm = np.linalg.norm(glabal_normal_array, 2)
+        
+        normal_array = glabal_normal_array / norm
+
+        return normal_array
+    
+    def get_boundary_centroid(self, boundary_id):
+        """
+        Calculate the centroid of a given boundary.
+        Parameters
+        ------------
+            boundary_id (int): The id of the boundary for which to compute the centroid.
+        Returns
+        ------------
+            np.ndarray: A point representing the centroid of the boundary.
+        """
+        
+        # Get the facets of the boundary with the given id
+        boundary_facets = self.boundary.find(boundary_id)
+        facet_midpoints = []
+        x = self.msh.geometry.x
+
+        # Loop through each facet and compute the midpoint
+        for facet in boundary_facets:
+            facet_vertices = self.msh.topology.connectivity(self.get_fdim(), 0).links(facet)
+            facet_coords = x[facet_vertices]
+            facet_midpoints.append(np.mean(facet_coords, axis=0))
+
+        # Gather midpoints from all processes
+        if len(facet_midpoints) > 0:
+            midpoints_local = np.array(facet_midpoints)
+        else:
+            midpoints_local = np.empty((0, 3))
+
+        all_midpoints = MPI.COMM_WORLD.allgather(midpoints_local)
+        centroid = None
+
+        # If root process, compute the centroid
+        if  MPI.COMM_WORLD.rank == 0:
+            # Concatenate all midpoints from all processes
+            all_midpoints_flat = np.concatenate(all_midpoints)
+            
+            # Compute the mean to get the centroid
+            if len(all_midpoints_flat) > 0:
+                centroid = np.mean(all_midpoints_flat, axis=0)
+
+        # Broadcast the result to all processes
+        centroid =  np.array(MPI.COMM_WORLD.bcast(centroid, root=0))
+        
         return centroid
-
-
-    def write(self, mesh_file):
+    
+    def get_boundary_area(self, boundary_id):
         """
-        Writes the mesh into either pvd or h5 format.
-
-        If `mesh_file` ends with "pvd", writes to a ParaView VTU file.
-        If `mesh_file` ends with "h5", writes to an HDF5 file.
-
-        :param mesh_file: The path to the output file.
-        :type mesh_file: str
-
-        :raises ValueError: If `mesh_file` has an unsupported extension.
-
-        :Example:
-
-        Writing mesh to ParaView VTU format::
-
-            mesh.write("output.pvd")
-
-        Writing mesh to HDF5 format::
-
-            mesh.write("output.h5")
+        Calculate the area of a given boundary.
+        Parameters
+        ------------
+            boundary_id (int): The id of the boundary for which to compute the area.
+        Returns
+        ------------
+            float: The area of the boundary.
         """
-        if mesh_file.endswith('pvd'):
-            fe.File(mesh_file) << self.mesh
-            fe.File(mesh_file[:-4]+'_boundary.pvd') << self.boundary
-        elif mesh_file.endswith('h5'):
-            hdf = h5_init_output_file(mesh_file, mesh=self.mesh, boundaries=self.boundary)
-            hdf.close()
+        one = dolfinx.fem.Constant(self.msh, PETSc.ScalarType(1.0))
+        ds = ufl.Measure('ds', domain=self.msh, subdomain_data=self.boundary)
+        form = dolfinx.fem.form(one * ds(boundary_id))
+        area = dolfinx.fem.assemble_scalar(form)
 
-    def flat_boundary_normal(self, boundary_id):
+        # Sum the area across all processes
+        area = self.msh.comm.allreduce(area, op=MPI.SUM)
 
+        return area
+
+    def get_mean_cell_diameter(self):
         """
-        Return inwards boundary normal associated with the boundary_id
-        NOTE that this function assumes that your face boundary is flat, i.e.,
-        all facets on the boundary has the same normal direction
+        Get mean cell diameter.
+        Returns
+        ---------
+            float: the average length of the cell diameters within the mesh.
         """
+        
+        cell_diameter = self.get_cell_diameter()
+        integrated_cell_diameter = dolfinx.fem.assemble_scalar(dolfinx.fem.form(cell_diameter * ufl.dx))
+        volume = dolfinx.fem.assemble_scalar(dolfinx.fem.form(dolfinx.fem.Constant(self.msh, dolfinx.default_scalar_type(1.0)) * ufl.dx))
+        mean_cell_diameter = integrated_cell_diameter / volume
+        return mean_cell_diameter
 
-        if len(self._flat_boundary_normals) == 0:
-            self._build_flat_boundary_normals()
-        return self._flat_boundary_normals[boundary_id]
-
-    def _build_flat_boundary_normals(self):
-
-        # Init connectivity data for the boundary
-        fe.FunctionSpace(self.mesh, 'CG', 1)
-
-        # Build search ids
-        unique_ids = list(np.unique(self.boundary.array()))
-
-        # Gather all search ids
-        all_unique_ids = self.comm.allgather(unique_ids)
-        exclude_ids = [0] # 0 is usually the interior facets, so we exclude it
-        search_ids_set = set()
-        for r in range(self.comm.size):
-            for i in all_unique_ids[r]:
-                if i not in exclude_ids:
-                    search_ids_set.add(i)
-
-        # Init normal boundary dicts
-        bnd_normal_dict = {}
-        for bnd_id in search_ids_set:
-            bnd_normal_dict[bnd_id] = None
-
-        # Search for normals on each boundary
-        while unique_ids:
-
-            # Boundary id to search
-            bnd_id = unique_ids.pop()
-
-            # If this unique id is not in the search ids, continue
-            if bnd_id not in search_ids_set:
-                continue
-
-            # Build boundary id dictionary
-            for facet in fe.facets(self.fenics_mesh()):
-
-                # Early exit for non exterior facets
-                if not facet.exterior():
-                    continue
-
-                # Assign normal
-                if self.boundary.array()[facet.index()] == bnd_id:
-                    bnd_normal_dict[bnd_id] = -1*facet.normal()[:]
-                    break
-
-        # Gather boundaries
-        all_bnd_dict = self.comm.allgather(bnd_normal_dict)
-        global_bnd_normal_dict = {}
-        for bnd_dict in all_bnd_dict:
-            for bnd_id in bnd_dict:
-                if bnd_dict[bnd_id] is not None:
-                    global_bnd_normal_dict[bnd_id] = bnd_dict[bnd_id]
-        self._flat_boundary_normals = global_bnd_normal_dict
-
-    def facet(self, i):
-        return fe.Facet(self.fenics_mesh(), i)
-
-    def cell(self, i):
-        return fe.Cell(self.fenics_mesh(), i)
-
-    def avg_cell_diameter(self):
-        hs = [c.h() for c in fe.cells(self.fenics_mesh())] 
-        h_sum = np.sum(hs)
-        num_cell = len(hs)
-        h_sum = self.comm.allgather(h_sum)
-        num_cell = self.comm.allgather(num_cell)
-        h_avg = np.sum(h_sum)/np.sum(num_cell)
-        return h_avg
-
-
+    
+    
 

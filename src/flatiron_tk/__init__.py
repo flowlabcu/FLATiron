@@ -1,6 +1,8 @@
-from .physics import *
+from .fem import *
 from .functions import *
+from .io import *
 from .mesh import *
 from .solver import *
-from .io import *
-from .info import *
+from .physics import *
+
+

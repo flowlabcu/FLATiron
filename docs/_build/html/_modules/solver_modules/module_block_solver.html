@@ -1,0 +1,442 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Block Solver &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Convergence Monitor" href="module_convergence_monitor.html" />
+    <link rel="prev" title="Solver Modules" href="../toc_solver_modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../toc_solver_modules.html">Solver Modules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Block Solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.solver.block_solver.BlockNonLinearSolver"><code class="docutils literal notranslate"><span class="pre">BlockNonLinearSolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.solver.block_solver.BlockSplitNode"><code class="docutils literal notranslate"><span class="pre">BlockSplitNode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.solver.block_solver.BlockSplitTree"><code class="docutils literal notranslate"><span class="pre">BlockSplitTree</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="module_convergence_monitor.html">Convergence Monitor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_non_linear_problem.html">Non-linear Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_non_linear_solver.html">Non-linear Solver</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../toc_modules.html">FLATiron Modules</a></li>
+          <li class="breadcrumb-item"><a href="../toc_solver_modules.html">Solver Modules</a></li>
+      <li class="breadcrumb-item active">Block Solver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_modules/solver_modules/module_block_solver.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="block-solver">
+<h1>Block Solver<a class="headerlink" href="#block-solver" title="Link to this heading"></a></h1>
+<p>This function builds a block preconditioner P for ksp solve of matrix A:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Let</span> <span class="n">ksp</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="n">means</span> <span class="n">a</span> <span class="n">Krylov</span> <span class="n">solve</span> <span class="n">of</span> <span class="n">matrix</span> <span class="n">A</span> <span class="k">with</span> <span class="n">preconditioner</span> <span class="n">P</span>
+
+<span class="n">Define</span> <span class="n">a</span> <span class="n">block</span> <span class="n">matrix</span> <span class="n">system</span> <span class="n">A</span> <span class="k">as</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="p">[</span> <span class="n">A00</span><span class="p">,</span> <span class="n">A01</span>
+          <span class="n">A10</span><span class="p">,</span> <span class="n">A11</span> <span class="p">]</span>
+
+<span class="n">Composite</span> <span class="nb">type</span> <span class="n">options</span> <span class="n">are</span><span class="p">:</span>
+
+    <span class="n">additive</span><span class="p">:</span> <span class="n">P</span> <span class="o">=</span> <span class="p">[</span><span class="n">ksp</span><span class="p">(</span><span class="n">A00</span><span class="p">,</span><span class="n">Ap00</span><span class="p">),</span> <span class="mi">0</span>
+                   <span class="mi">0</span>            <span class="p">,</span> <span class="n">ksp</span><span class="p">(</span><span class="n">A11</span><span class="p">,</span><span class="n">Ap11</span><span class="p">)]</span>
+
+    <span class="n">multiplicative</span><span class="p">:</span> <span class="n">P</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">L</span>
+        <span class="n">where</span> <span class="n">J</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="mi">0</span>
+                   <span class="mi">0</span><span class="p">,</span> <span class="n">ksp</span><span class="p">(</span><span class="n">A11</span><span class="p">,</span><span class="n">Ap11</span><span class="p">)]</span>
+
+              <span class="n">K</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>    <span class="o">+</span>   <span class="p">[</span> <span class="n">I</span>  <span class="p">,</span> <span class="mi">0</span>     <span class="o">*</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="mi">0</span>        <span class="p">(</span><span class="n">see</span> <span class="n">PETSc</span><span class="s1">&#39;s doc page for details here)</span>
+                   <span class="mi">0</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>        <span class="o">-</span><span class="n">A10</span><span class="p">,</span> <span class="o">-</span><span class="n">A11</span><span class="p">]</span>   <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+              <span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="n">ksp</span><span class="p">(</span><span class="n">A00</span><span class="p">,</span><span class="n">Ap00</span><span class="p">),</span> <span class="mi">0</span>
+                   <span class="mi">0</span>            <span class="p">,</span> <span class="n">I</span><span class="p">]</span>
+
+    <span class="n">symmetric_multiplicative</span><span class="p">:</span> <span class="p">(</span><span class="n">see</span> <span class="n">PETSc</span><span class="s1">&#39;s doc page. This is too big)</span>
+
+    <span class="n">schur</span><span class="p">:</span> <span class="p">(</span><span class="n">schur</span> <span class="n">complement</span> <span class="n">decomposition</span><span class="p">,</span> <span class="n">see</span> <span class="n">doc</span> <span class="n">page</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py class" id="module-flatiron_tk.solver.block_solver">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockNonLinearSolver">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.solver.block_solver.</span></span><span class="sig-name descname"><span class="pre">BlockNonLinearSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_split_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#flatiron_tk.solver.block_solver.BlockSplitTree" title="flatiron_tk.solver.block_solver.BlockSplitTree"><span class="pre">BlockSplitTree</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockNonLinearSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockNonLinearSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver" title="flatiron_tk.solver.non_linear_solver.NonLinearSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonLinearSolver</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockNonLinearSolver.default_set_ksp0">
+<span class="sig-name descname"><span class="pre">default_set_ksp0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ksp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockNonLinearSolver.default_set_ksp0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockNonLinearSolver.default_set_ksp0" title="Link to this definition"></a></dt>
+<dd><p>Default KSP setup function for the root block in the block split tree.
+This is a placeholder and can be customized as needed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockNonLinearSolver.default_set_ksp1">
+<span class="sig-name descname"><span class="pre">default_set_ksp1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ksp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockNonLinearSolver.default_set_ksp1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockNonLinearSolver.default_set_ksp1" title="Link to this definition"></a></dt>
+<dd><p>Default KSP setup function for the first block in the block split tree.
+This is a placeholder and can be customized as needed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockNonLinearSolver.init_ksp">
+<span class="sig-name descname"><span class="pre">init_ksp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockNonLinearSolver.init_ksp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockNonLinearSolver.init_ksp" title="Link to this definition"></a></dt>
+<dd><p>Override the init_ksp method to set up the KSP solver
+according to the block split tree configuration.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.solver.block_solver.</span></span><span class="sig-name descname"><span class="pre">BlockSplitNode</span></span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A node in the block split tree for managing block preconditioners.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.get_field_tags">
+<span class="sig-name descname"><span class="pre">get_field_tags</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.get_field_tags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.get_field_tags" title="Link to this definition"></a></dt>
+<dd><p>Get the field tags associated with this node.</p>
+<section id="returns">
+<h2>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>tuple: A tuple of field tags.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.get_ksp">
+<span class="sig-name descname"><span class="pre">get_ksp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.get_ksp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.get_ksp" title="Link to this definition"></a></dt>
+<dd><p>Get the KSP (Krylov Subspace Solver) associated with this node.</p>
+<section id="id1">
+<h2>Returns:<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>PETSc.KSP: The KSP object for this node.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.get_node_tag">
+<span class="sig-name descname"><span class="pre">get_node_tag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.get_node_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.get_node_tag" title="Link to this definition"></a></dt>
+<dd><p>Get the tag of this node, which is a string concatenation of field tags.</p>
+<section id="id2">
+<h2>Returns:<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>str: The node tag.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.insert_node">
+<span class="sig-name descname"><span class="pre">insert_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.insert_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.insert_node" title="Link to this definition"></a></dt>
+<dd><p>Insert a child node at the specified position (‘left’ or ‘right’).</p>
+<section id="parameters">
+<h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>node (BlockSplitNode): The node to insert.
+position (str): The position to insert the node (‘left’ or ‘right’).</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.is_root">
+<span class="sig-name descname"><span class="pre">is_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.is_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.is_root" title="Link to this definition"></a></dt>
+<dd><p>Check if this node is the root node.</p>
+<section id="id3">
+<h2>Returns:<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>bool: True if this node is the root, False otherwise.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.set_IS">
+<span class="sig-name descname"><span class="pre">set_IS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.set_IS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.set_IS" title="Link to this definition"></a></dt>
+<dd><p>Set the PETSc Index Set for this node.</p>
+<section id="id4">
+<h2>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>IS (PETSc.IS): The Index Set to set.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.set_as_root">
+<span class="sig-name descname"><span class="pre">set_as_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.set_as_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.set_as_root" title="Link to this definition"></a></dt>
+<dd><p>Set this node as the root node of the block split tree.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.set_field_tags">
+<span class="sig-name descname"><span class="pre">set_field_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.set_field_tags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.set_field_tags" title="Link to this definition"></a></dt>
+<dd><p>Set the field names for this node. Each field name is equivalent to the
+tag of a PhysicsProblem in the flatiron_tk framework</p>
+<section id="id5">
+<h2>Parameters:<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>fields (Iterable[str]): An iterable of field tags (physics tags) to set.</p>
+</div></blockquote>
+</section>
+<section id="sets">
+<h2>Sets:<a class="headerlink" href="#sets" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>_field_tags (tuple): A tuple of field names.
+_node_tag (str): A string that concatenates the field names with an underscore.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.set_ksp">
+<span class="sig-name descname"><span class="pre">set_ksp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ksp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.set_ksp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.set_ksp" title="Link to this definition"></a></dt>
+<dd><p>Set the KSP (Krylov Subspace Solver) for this node.</p>
+<section id="id6">
+<h2>Parameters:<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>ksp (PETSc.KSP): The KSP object to set.
+_IS (Optional[PETSc.IS]): Optional PETSc Index Set for the node.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitNode.set_root_function_space">
+<span class="sig-name descname"><span class="pre">set_root_function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitNode.set_root_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitNode.set_root_function_space" title="Link to this definition"></a></dt>
+<dd><p>Set the root function space for this node.</p>
+<section id="id7">
+<h2>Parameters:<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>V (dolfinx.fem.FunctionSpace): The function space to set as the root.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitTree">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.solver.block_solver.</span></span><span class="sig-name descname"><span class="pre">BlockSplitTree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitTree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitTree" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to manage a block split tree for building block preconditioners.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>PhysicsProblem</strong><strong>)</strong> (<em>physics</em>)</p></li>
+<li><p><strong>Iterable</strong><strong>[</strong><strong>dict</strong><strong>]</strong><strong>)</strong> (<em>splits</em><em> (</em><em>dict or</em>) – <p>splits. Each dictionary should have the following keys:</p>
+<ul>
+<li><p>’fields’: A list of two lists, each containing field tags to be grouped together.</p></li>
+<li><dl class="simple">
+<dt>’composite_type’: The type of composite preconditioner to use (‘additive’, ‘multiplicative’,</dt><dd><p>’symmetric_multiplicative’, ‘schur’, ‘special’).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>’schur_fact_type’ (optional): The Schur factorization type if ‘composite_type’ is ‘schur’</dt><dd><p>(‘diag’, ‘full’, ‘lower’, ‘upper’).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>’schur_pre_type’ (optional): The Schur preconditioner type if ‘composite_type’ is ‘schur’</dt><dd><p>(‘a11’, ‘full’, ‘self’, ‘selfp’, ‘user’).</p>
+</dd>
+</dl>
+</li>
+<li><p>’ksp0_set_function’ (optional): A function to set up the KSP for the first block.</p></li>
+<li><p>’ksp1_set_function’ (optional): A function to set up the KSP for the second block.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitTree.build_block_split_pc">
+<span class="sig-name descname"><span class="pre">build_block_split_pc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blocks_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is0_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is1_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">composite_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'additive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schur_fact_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schur_pre_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'a11'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitTree.build_block_split_pc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitTree.build_block_split_pc" title="Link to this definition"></a></dt>
+<dd><p>Build the block split preconditioner for the given blocks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>Iterable</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>)</strong> (<em>blocks_1</em>)</p></li>
+<li><p><strong>(</strong><strong>Iterable</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>)</strong></p></li>
+<li><p><strong>(</strong><strong>tuple</strong><strong>)</strong> (<em>is1_data</em>)</p></li>
+<li><p><strong>(</strong><strong>tuple</strong><strong>)</strong></p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>schur_pre_type</em>) – Options: ‘additive’, ‘multiplicative’, ‘symmetric_multiplicative’,
+‘schur’, ‘special’. Default is ‘additive’.</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> – is ‘schur’. Options: ‘diag’, ‘full’, ‘lower’, ‘upper’. Default is ‘full’.</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> – is ‘schur’. Options: ‘a11’, ‘full’, ‘self’, ‘selfp’, ‘user’. Default is ‘a11’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>PETSc.KSP</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The KSP object for the block split preconditioner.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitTree.get_block_split_index_set">
+<span class="sig-name descname"><span class="pre">get_block_split_index_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dofs0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dofs1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitTree.get_block_split_index_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitTree.get_block_split_index_set" title="Link to this definition"></a></dt>
+<dd><p>Get the PETSc Index Set (IS) for the block split.</p>
+<section id="id8">
+<h2>Parameters:<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>node (BlockSplitNode): The node for which to get the IS.
+dofs0 (np.ndarray): DOFs for the first block.
+dofs1 (np.ndarray): DOFs for the second block.</p>
+</div></blockquote>
+</section>
+<section id="id9">
+<h2>Returns:<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>PETSc.IS: The Index Set for the block split.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitTree.set_child_node_ksps">
+<span class="sig-name descname"><span class="pre">set_child_node_ksps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blocks_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is0_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is1_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ksp0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ksp1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitTree.set_child_node_ksps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitTree.set_child_node_ksps" title="Link to this definition"></a></dt>
+<dd><p>Set the KSPs for the child nodes of the block split.
+:param blocks_0 (Iterable[str]):
+:type blocks_0 (Iterable[str]): The first set of blocks (field tags).
+:param blocks_1 (Iterable[str]):
+:type blocks_1 (Iterable[str]): The second set of blocks (field tags).
+:param is0_data (tuple):
+:type is0_data (tuple): A tuple containing the name and PETSc Index Set for the first block.
+:param is1_data (tuple):
+:type is1_data (tuple): A tuple containing the name and PETSc Index Set for the second block.
+:param ksp0 (PETSc.KSP):
+:type ksp0 (PETSc.KSP): The KSP for the first block.
+:param ksp1 (PETSc.KSP):
+:type ksp1 (PETSc.KSP): The KSP for the second block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.block_solver.BlockSplitTree.split_IS">
+<span class="sig-name descname"><span class="pre">split_IS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blocks_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/block_solver.html#BlockSplitTree.split_IS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.block_solver.BlockSplitTree.split_IS" title="Link to this definition"></a></dt>
+<dd><p>Split the blocks into two sets and create a PETSc Index Set (IS) for each.</p>
+<section id="id10">
+<h2>Parameters:<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>blocks_0 (Iterable[str]): The first set of blocks (field tags).
+blocks_1 (Iterable[str]): The second set of blocks (field tags).</p>
+</div></blockquote>
+</section>
+<section id="id11">
+<h2>Returns:<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>tuple: A tuple containing two PETSc Index Sets (IS) for the blocks.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../toc_solver_modules.html" class="btn btn-neutral float-left" title="Solver Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_convergence_monitor.html" class="btn btn-neutral float-right" title="Convergence Monitor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

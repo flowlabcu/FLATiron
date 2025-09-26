@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scalar-Transport &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Stokes" href="module_stokes.html" />
+    <link rel="prev" title="Multiphysics Problem" href="module_multiphysics_problem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="module_physics_problem.html">Physics Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_multiphysics_problem.html">Multiphysics Problem</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Scalar-Transport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-flatiron_tk.physics.steady_scalar_transport">Steady Scalar-Transport</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-flatiron_tk.physics.transient_scalar_transport">Transient Scalar-Transport</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../toc_modules.html">FLATiron Modules</a></li>
+          <li class="breadcrumb-item"><a href="../toc_physics_modules.html">Physics Modules</a></li>
+      <li class="breadcrumb-item active">Scalar-Transport</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modules/physics_modules/module_scalar_transport.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="scalar-transport">
+<h1>Scalar-Transport<a class="headerlink" href="#scalar-transport" title="Link to this heading"></a></h1>
+<section id="module-flatiron_tk.physics.steady_scalar_transport">
+<span id="steady-scalar-transport"></span><h2>Steady Scalar-Transport<a class="headerlink" href="#module-flatiron_tk.physics.steady_scalar_transport" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.steady_scalar_transport.</span></span><span class="sig-name descname"><span class="pre">SteadyScalarTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'u'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem" title="flatiron_tk.physics.physics_problem.PhysicsProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicsProblem</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.add_edge_stab">
+<span class="sig-name descname"><span class="pre">add_edge_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.add_edge_stab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.add_edge_stab" title="Link to this definition"></a></dt>
+<dd><p>Adds edge stabilization to the weak form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gamma</strong> (<em>The edge stabilization parameter.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shakib'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.add_stab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.add_stab" title="Link to this definition"></a></dt>
+<dd><p>Adds the stabilization term to the weak form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tau_type</strong> (<em>The type</em><em> of </em><em>stabilization constant to use. Options are 'shakib'</em><em>,</em><em>'su'</em><em>, or </em><em>'codina'.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.build_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.build_function_space" title="Link to this definition"></a></dt>
+<dd><p>Build the function space for the steady scalar transport problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>Arguments to be passed to the parent class method.</em>)</p></li>
+<li><p><strong>**kwargs</strong> (<em>Keyword arguments to be passed to the parent class method.</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.flux">
+<span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.flux" title="Link to this definition"></a></dt>
+<dd><p>Computes the flux of the problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>q</strong> (<em>The flux vector</em>)</p>
+</dd>
+</dl>
+<p>Advection_Matrix + Diffusion_Matrix - Reaction_Matrix - Flux_Term = 0 =&gt; we subtract the form</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_advection_velocity">
+<span class="sig-name descname"><span class="pre">get_advection_velocity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.get_advection_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_advection_velocity" title="Link to this definition"></a></dt>
+<dd><p>Get the advection velocity for the steady scalar transport problem.</p>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>The advection velocity function.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_diffusivity">
+<span class="sig-name descname"><span class="pre">get_diffusivity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.get_diffusivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_diffusivity" title="Link to this definition"></a></dt>
+<dd><p>Get the diffusivity for the steady scalar transport problem.</p>
+<section id="id1">
+<h3>Returns:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>The diffusivity function.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_edge_stab">
+<span class="sig-name descname"><span class="pre">get_edge_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.get_edge_stab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_edge_stab" title="Link to this definition"></a></dt>
+<dd><p>Computes the edge stabilization term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gamma</strong> (<em>The edge stabilization parameter.</em>)</p></li>
+<li><p><strong>c</strong> (<em>The solution function.</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<section id="id2">
+<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>J: The edge stabilization term.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_reaction">
+<span class="sig-name descname"><span class="pre">get_reaction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.get_reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_reaction" title="Link to this definition"></a></dt>
+<dd><p>Get the reaction for the steady scalar transport problem.</p>
+<section id="id3">
+<h3>Returns:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>The reaction function.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_residual">
+<span class="sig-name descname"><span class="pre">get_residual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.get_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.get_residual" title="Link to this definition"></a></dt>
+<dd><p>Computes the residual of the problem.</p>
+<section id="id4">
+<h3>Returns:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>residual: The residual of the problem as a fenicsx form</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_advection_velocity">
+<span class="sig-name descname"><span class="pre">set_advection_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.set_advection_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_advection_velocity" title="Link to this definition"></a></dt>
+<dd><p>Set the advection velocity for the steady scalar transport problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> (<em>The advection velocity function.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_diffusivity">
+<span class="sig-name descname"><span class="pre">set_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.set_diffusivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_diffusivity" title="Link to this definition"></a></dt>
+<dd><p>Set the diffusivity for the steady scalar transport problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>D</strong> (<em>The diffusivity function.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_reaction">
+<span class="sig-name descname"><span class="pre">set_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.set_reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_reaction" title="Link to this definition"></a></dt>
+<dd><p>Set the reaction for the steady scalar transport problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>R</strong> (<em>The reaction function.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.set_weak_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.set_weak_form" title="Link to this definition"></a></dt>
+<dd><p>Set the weak form for the steady scalar transport problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stab</strong> (<em>Whether to include stabilization terms.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.stabilization_constant">
+<span class="sig-name descname"><span class="pre">stabilization_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/steady_scalar_transport.html#SteadyScalarTransport.stabilization_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport.stabilization_constant" title="Link to this definition"></a></dt>
+<dd><p>Computes the stabilization constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tau_type</strong> (<em>The type</em><em> of </em><em>stabilization constant to use. Options are 'shakib'</em><em>,</em><em>'su'</em><em>, or </em><em>'codina'.</em>)</p>
+</dd>
+</dl>
+<section id="id5">
+<h3>Returns:<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>tau: The stabilization constant.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-flatiron_tk.physics.transient_scalar_transport">
+<span id="transient-scalar-transport"></span><h2>Transient Scalar-Transport<a class="headerlink" href="#module-flatiron_tk.physics.transient_scalar_transport" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.transient_scalar_transport.</span></span><span class="sig-name descname"><span class="pre">TransientScalarTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport" title="flatiron_tk.physics.steady_scalar_transport.SteadyScalarTransport"><code class="xref py py-class docutils literal notranslate"><span class="pre">SteadyScalarTransport</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.add_stab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.add_stab" title="Link to this definition"></a></dt>
+<dd><p>Add stabilization term to the weak form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.build_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.build_function_space" title="Link to this definition"></a></dt>
+<dd><p>Build the function space for the transient scalar transport problem.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.get_residual">
+<span class="sig-name descname"><span class="pre">get_residual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.get_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.get_residual" title="Link to this definition"></a></dt>
+<dd><p>Compute the residual for the transient scalar transport problem.</p>
+<section id="id6">
+<h3>Returns:<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>The residual expression for the transient scalar transport equations.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_advection_velocity">
+<span class="sig-name descname"><span class="pre">set_advection_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">un</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_advection_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_advection_velocity" title="Link to this definition"></a></dt>
+<dd><p>Set the advection velocity for the transient scalar transport problem.</p>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>u0: The advection velocity at the previous time step.
+un: The advection velocity at the current time step.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_diffusivity">
+<span class="sig-name descname"><span class="pre">set_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_diffusivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_diffusivity" title="Link to this definition"></a></dt>
+<dd><p>Set the diffusivity for the transient scalar transport problem.</p>
+<section id="id7">
+<h3>Parameters:<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>D0: The diffusivity at the previous time step.
+Dn: The diffusivity at the current time step.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_initial_condition">
+<span class="sig-name descname"><span class="pre">set_initial_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_initial_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_initial_condition" title="Link to this definition"></a></dt>
+<dd><p>Set the initial condition for the problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u0</strong> (<em>dolfinx.fem.Function</em>) – The initial condition function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_midpoint_theta">
+<span class="sig-name descname"><span class="pre">set_midpoint_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_midpoint_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_midpoint_theta" title="Link to this definition"></a></dt>
+<dd><p>Set the theta parameter for the implicit-explicit scheme.</p>
+<section id="id8">
+<h3>Parameters:<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>theta: The theta parameter.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_reaction">
+<span class="sig-name descname"><span class="pre">set_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_reaction" title="Link to this definition"></a></dt>
+<dd><p>Set the reaction term for the transient scalar transport problem.</p>
+<section id="id9">
+<h3>Parameters:<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>R0: The reaction term at the previous time step.
+Rn: The reaction term at the current time step.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_time_step_size">
+<span class="sig-name descname"><span class="pre">set_time_step_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_time_step_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_time_step_size" title="Link to this definition"></a></dt>
+<dd><p>Set the time step size for the transient scalar transport problem.</p>
+<section id="id10">
+<h3>Parameters:<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>dt: The time step size.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_weak_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.set_weak_form" title="Link to this definition"></a></dt>
+<dd><p>Set weak formulation as:
+dc/dt + mid(advection) - mid(diffusion) - mid(reaction) == 0</p>
+<p>for a mid point type method
+where mid(f) = theta*f1 + (1-theta)*f0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stab</strong> (<em>A boolean indicating whether to include stabilization terms in the weak form.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.stabilization_constant">
+<span class="sig-name descname"><span class="pre">stabilization_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.stabilization_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.stabilization_constant" title="Link to this definition"></a></dt>
+<dd><p>tau from Donea’s book Remark 5.8</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.update_previous_solution">
+<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.update_previous_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_scalar_transport.TransientScalarTransport.update_previous_solution" title="Link to this definition"></a></dt>
+<dd><p>Update the previous solution with the current solution.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="module_multiphysics_problem.html" class="btn btn-neutral float-left" title="Multiphysics Problem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_stokes.html" class="btn btn-neutral float-right" title="Stokes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

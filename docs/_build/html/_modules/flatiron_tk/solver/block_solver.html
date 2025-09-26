@@ -1,0 +1,715 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.solver.block_solver &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.solver.block_solver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.solver.block_solver</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceMonitor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearSolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This function builds a block preconditioner P for ksp solve of matrix A.</span>
+
+<span class="sd">Let ksp(A, P) means a Krylov solve of matrix A with preconditioner P</span>
+
+<span class="sd">Define a block matrix system A as</span>
+
+<span class="sd">    A = [ A00, A01</span>
+<span class="sd">          A10, A11 ]</span>
+
+<span class="sd">Composite type options are:</span>
+
+<span class="sd">    additive: P = [ksp(A00,Ap00), 0</span>
+<span class="sd">                   0            , ksp(A11,Ap11)]</span>
+
+<span class="sd">    multiplicative: P = J.K.L</span>
+<span class="sd">        where J = [I, 0</span>
+<span class="sd">                   0, ksp(A11,Ap11)]</span>
+
+<span class="sd">              K = [0, 0    +   [ I  , 0     *[I, 0        (see PETSc&#39;s doc page for details here)</span>
+<span class="sd">                   0, I]        -A10, -A11]   0, 0]</span>
+
+<span class="sd">              L = [ksp(A00,Ap00), 0</span>
+<span class="sd">                   0            , I]</span>
+
+<span class="sd">    symmetric_multiplicative: (see PETSc&#39;s doc page. This is too big)</span>
+
+<span class="sd">    schur: (schur complement decomposition, see doc page)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_container</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utility function to check if an object is a container.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ------------</span>
+<span class="sd">        obj: The object to check.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">    ------------ </span>
+<span class="sd">        bool: True if the object is a container (like a list, tuple, set),</span>
+<span class="sd">              False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BlockSplitNode">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockSplitNode</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A node in the block split tree for managing block preconditioners.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Default the node to not be a root node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_root</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left_node</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_node</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_node</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">pass</span>
+    
+<div class="viewcode-block" id="BlockSplitNode.set_root_function_space">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.set_root_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_root_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the root function space for this node.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            V (dolfinx.fem.FunctionSpace): The function space to set as the root.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_function_space</span> <span class="o">=</span> <span class="n">V</span></div>
+
+
+<div class="viewcode-block" id="BlockSplitNode.set_field_tags">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.set_field_tags">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_field_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the field names for this node. Each field name is equivalent to the</span>
+<span class="sd">        tag of a PhysicsProblem in the flatiron_tk framework</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            fields (Iterable[str]): An iterable of field tags (physics tags) to set.</span>
+
+<span class="sd">        Sets: </span>
+<span class="sd">        ------------</span>
+<span class="sd">            _field_tags (tuple): A tuple of field names.</span>
+<span class="sd">            _node_tag (str): A string that concatenates the field names with an underscore.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_field_tags</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_node_tag</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_field_tags</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockSplitNode.set_as_root">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.set_as_root">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_as_root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set this node as the root node of the block split tree.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_root</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="BlockSplitNode.set_ksp">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.set_ksp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_ksp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the KSP (Krylov Subspace Solver) for this node.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            ksp (PETSc.KSP): The KSP object to set.</span>
+<span class="sd">            _IS (Optional[PETSc.IS]): Optional PETSc Index Set for the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ksp</span> <span class="o">=</span> <span class="n">ksp</span></div>
+
+
+<div class="viewcode-block" id="BlockSplitNode.set_IS">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.set_IS">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_IS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">IS</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the PETSc Index Set for this node.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            IS (PETSc.IS): The Index Set to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_IS</span> <span class="o">=</span> <span class="n">IS</span></div>
+
+
+<div class="viewcode-block" id="BlockSplitNode.insert_node">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.insert_node">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">insert_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child_node</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert a child node at the specified position (&#39;left&#39; or &#39;right&#39;).</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            node (BlockSplitNode): The node to insert.</span>
+<span class="sd">            position (str): The position to insert the node (&#39;left&#39; or &#39;right&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span>
+            <span class="c1"># Ensure the node is not already set</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Left node already set.&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">left_node</span> <span class="o">=</span> <span class="n">child_node</span>
+            
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span>
+            <span class="c1"># Ensure the node is not already set</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Right node already set.&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">right_node</span> <span class="o">=</span> <span class="n">child_node</span></div>
+
+            
+    <span class="c1"># ---- Getters ---- #</span>
+<div class="viewcode-block" id="BlockSplitNode.is_root">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.is_root">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if this node is the root node.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            bool: True if this node is the root, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_root</span></div>
+
+    
+<div class="viewcode-block" id="BlockSplitNode.get_field_tags">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.get_field_tags">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_field_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the field tags associated with this node.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            tuple: A tuple of field tags.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_tags</span></div>
+
+    
+<div class="viewcode-block" id="BlockSplitNode.get_ksp">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.get_ksp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ksp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the KSP (Krylov Subspace Solver) associated with this node.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            PETSc.KSP: The KSP object for this node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ksp</span></div>
+
+        
+<div class="viewcode-block" id="BlockSplitNode.get_node_tag">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitNode.get_node_tag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the tag of this node, which is a string concatenation of field tags.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            str: The node tag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_tag</span></div>
+</div>
+
+    
+<div class="viewcode-block" id="BlockSplitTree">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitTree">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockSplitTree</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to manage a block split tree for building block preconditioners.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">        physics (PhysicsProblem): The physics problem containing field tags and function spaces.</span>
+<span class="sd">        splits (dict or Iterable[dict]): A dictionary or an iterable of dictionaries defining the block</span>
+<span class="sd">            splits. Each dictionary should have the following keys:</span>
+
+<span class="sd">            - &#39;fields&#39;: A list of two lists, each containing field tags to be grouped together.</span>
+<span class="sd">            - &#39;composite_type&#39;: The type of composite preconditioner to use (&#39;additive&#39;, &#39;multiplicative&#39;,</span>
+<span class="sd">                &#39;symmetric_multiplicative&#39;, &#39;schur&#39;, &#39;special&#39;).</span>
+<span class="sd">            - &#39;schur_fact_type&#39; (optional): The Schur factorization type if &#39;composite_type&#39; is &#39;schur&#39;</span>
+<span class="sd">                (&#39;diag&#39;, &#39;full&#39;, &#39;lower&#39;, &#39;upper&#39;).</span>
+<span class="sd">            - &#39;schur_pre_type&#39; (optional): The Schur preconditioner type if &#39;composite_type&#39; is &#39;schur&#39;</span>
+<span class="sd">                (&#39;a11&#39;, &#39;full&#39;, &#39;self&#39;, &#39;selfp&#39;, &#39;user&#39;).</span>
+<span class="sd">            - &#39;ksp0_set_function&#39; (optional): A function to set up the KSP for the first block.</span>
+<span class="sd">            - &#39;ksp1_set_function&#39; (optional): A function to set up the KSP for the second block.    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics</span><span class="p">,</span> <span class="n">splits</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">physics</span> <span class="o">=</span> <span class="n">physics</span>
+
+        <span class="c1"># Set the root node of the tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">BlockSplitNode</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">set_as_root</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">set_field_tags</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">physics</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">set_root_function_space</span><span class="p">(</span><span class="n">physics</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">())</span>
+
+        <span class="c1"># Set the dictionary mapping field tags to nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">get_field_tags</span><span class="p">():</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">}</span>
+        
+        <span class="c1"># Store the splits as a list of dictionaries. </span>
+        <span class="c1"># If a single split is provided, convert it to a list</span>
+        <span class="c1"># If a list or other iterable is provided, use it directly</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">splits</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">splits</span> <span class="o">=</span> <span class="p">[</span><span class="n">splits</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">splits</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">splits</span> <span class="o">=</span> <span class="n">splits</span>
+        <span class="k">else</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Splits must be a dictionary or an iterable of dictionaries.&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Set the supported PETSc blocksplit dictionaries. Separate method for clarity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_PETSc_fieldsplit_dictionary</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_PETSc_fieldsplit_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the PETSc fieldsplit dictionary for the block split tree.</span>
+
+<span class="sd">        Supported composite types:</span>
+<span class="sd">        </span>
+<span class="sd">        - &#39;additive&#39;</span>
+<span class="sd">        - &#39;multiplicative&#39;</span>
+<span class="sd">        - &#39;symmetric_multiplicative&#39;</span>
+<span class="sd">        - &#39;schur&#39;</span>
+<span class="sd">        - &#39;special&#39;</span>
+
+<span class="sd">        Supported schur factorization types:</span>
+<span class="sd">        </span>
+<span class="sd">        - &#39;diag&#39;</span>
+<span class="sd">        - &#39;full&#39;</span>
+<span class="sd">        - &#39;lower&#39;</span>
+<span class="sd">        - &#39;upper&#39;</span>
+
+<span class="sd">        Supported schur preconditioner types:</span>
+<span class="sd">        </span>
+<span class="sd">        - &#39;a11&#39;</span>
+<span class="sd">        - &#39;full&#39;</span>
+<span class="sd">        - &#39;self&#39;</span>
+<span class="sd">        - &#39;selfp&#39;</span>
+<span class="sd">        - &#39;user&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># block split composite type. This tells you what the final</span>
+        <span class="c1"># preconditioner look like</span>
+        <span class="c1"># See https://petsc.org/release/manual/ksp/#sec-block-matrices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span><span class="p">[</span><span class="s1">&#39;additive&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">CompositeType</span><span class="o">.</span><span class="n">ADDITIVE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span><span class="p">[</span><span class="s1">&#39;multiplicative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">CompositeType</span><span class="o">.</span><span class="n">MULTIPLICATIVE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span><span class="p">[</span><span class="s1">&#39;schur&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">CompositeType</span><span class="o">.</span><span class="n">SCHUR</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span><span class="p">[</span><span class="s1">&#39;special&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">CompositeType</span><span class="o">.</span><span class="n">SPECIAL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span><span class="p">[</span><span class="s1">&#39;symmetric_multiplicative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">CompositeType</span><span class="o">.</span><span class="n">SYMMETRIC_MULTIPLICATIVE</span>
+
+        <span class="c1"># Schur complement factorization type</span>
+        <span class="c1"># If composite_type is SCHUR, this tells you</span>
+        <span class="c1"># what the final preconditioner involving the schur complement</span>
+        <span class="c1"># look like.</span>
+        <span class="c1"># See: https://petsc.org/release/manualpages/PC/PCFieldSplitSetSchurPre/</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_fact_type_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_fact_type_dict</span><span class="p">[</span><span class="s1">&#39;diag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurFactType</span><span class="o">.</span><span class="n">DIAG</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_fact_type_dict</span><span class="p">[</span><span class="s1">&#39;full&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurFactType</span><span class="o">.</span><span class="n">FULL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_fact_type_dict</span><span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurFactType</span><span class="o">.</span><span class="n">LOWER</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_fact_type_dict</span><span class="p">[</span><span class="s1">&#39;upper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurFactType</span><span class="o">.</span><span class="n">UPPER</span>
+
+        <span class="c1"># Schur complement preconditioner type</span>
+        <span class="c1"># Preconditioner for the schur complement block</span>
+        <span class="c1"># See https://petsc.org/release/manualpages/PC/PCFieldSplitSetSchurPre/</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span><span class="p">[</span><span class="s1">&#39;a11&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurPreType</span><span class="o">.</span><span class="n">A11</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span><span class="p">[</span><span class="s1">&#39;full&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurPreType</span><span class="o">.</span><span class="n">FULL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span><span class="p">[</span><span class="s1">&#39;self&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurPreType</span><span class="o">.</span><span class="n">SELF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span><span class="p">[</span><span class="s1">&#39;selfp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurPreType</span><span class="o">.</span><span class="n">SELFP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">SchurPreType</span><span class="o">.</span><span class="n">USER</span>
+
+<div class="viewcode-block" id="BlockSplitTree.split_IS">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitTree.split_IS">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">split_IS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks_0</span><span class="p">,</span> <span class="n">blocks_1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split the blocks into two sets and create a PETSc Index Set (IS) for each.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            blocks_0 (Iterable[str]): The first set of blocks (field tags).</span>
+<span class="sd">            blocks_1 (Iterable[str]): The second set of blocks (field tags).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            tuple: A tuple containing two PETSc Index Sets (IS) for the blocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_blocks_0</span><span class="p">,</span> <span class="n">_blocks_1</span> <span class="o">=</span> <span class="n">blocks_0</span><span class="p">,</span> <span class="n">blocks_1</span>
+        <span class="c1"># Ensure blocks are iterable</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">):</span>
+            <span class="n">_blocks_0</span> <span class="o">=</span> <span class="p">[</span><span class="n">_blocks_0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">):</span>
+            <span class="n">_blocks_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">_blocks_1</span><span class="p">]</span>
+
+        <span class="c1"># Make sure all blocks in the parent node are in the child nodes </span>
+        <span class="n">parent_blocks</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">)))</span>        
+        <span class="k">assert</span> <span class="n">parent_blocks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span>
+        <span class="n">parent_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">[</span><span class="n">parent_blocks</span><span class="p">]</span>
+
+        <span class="c1"># Set the block names as a combination of the field tags</span>
+        <span class="n">blocks_0_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">))</span>
+        <span class="n">blocks_1_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">))</span>
+
+        <span class="c1"># Create a new node for the split (left)</span>
+        <span class="n">left_node</span> <span class="o">=</span> <span class="n">BlockSplitNode</span><span class="p">()</span>
+        <span class="n">left_node</span><span class="o">.</span><span class="n">set_field_tags</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">)</span>
+        <span class="n">parent_node</span><span class="o">.</span><span class="n">insert_node</span><span class="p">(</span><span class="n">left_node</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">[</span><span class="n">left_node</span><span class="o">.</span><span class="n">get_field_tags</span><span class="p">()]</span> <span class="o">=</span> <span class="n">left_node</span>
+
+        <span class="c1"># Create a new node for the split (right)</span>
+        <span class="n">right_node</span> <span class="o">=</span> <span class="n">BlockSplitNode</span><span class="p">()</span>
+        <span class="n">right_node</span><span class="o">.</span><span class="n">set_field_tags</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">)</span>
+        <span class="n">parent_node</span><span class="o">.</span><span class="n">insert_node</span><span class="p">(</span><span class="n">right_node</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">[</span><span class="n">right_node</span><span class="o">.</span><span class="n">get_field_tags</span><span class="p">()]</span> <span class="o">=</span> <span class="n">right_node</span>
+
+        <span class="c1"># Build the PETSc Index Sets (IS) for the blocks</span>
+        <span class="n">dofs0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">get_global_dofs</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">root_function_space</span><span class="p">,</span>
+            <span class="n">parent_node</span><span class="o">.</span><span class="n">left_node</span><span class="o">.</span><span class="n">get_field_tags</span><span class="p">(),</span> 
+            <span class="n">sort</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        
+        <span class="n">dofs1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">get_global_dofs</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">root_function_space</span><span class="p">,</span>
+            <span class="n">parent_node</span><span class="o">.</span><span class="n">right_node</span><span class="o">.</span><span class="n">get_field_tags</span><span class="p">(),</span> 
+            <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">is0</span><span class="p">,</span> <span class="n">is1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_split_index_set</span><span class="p">(</span><span class="n">parent_node</span><span class="p">,</span> <span class="n">dofs0</span><span class="p">,</span> <span class="n">dofs1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">blocks_0_name</span><span class="p">,</span> <span class="n">is0</span><span class="p">],</span> <span class="p">[</span><span class="n">blocks_1_name</span><span class="p">,</span> <span class="n">is1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BlockSplitTree.build_block_split_pc">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitTree.build_block_split_pc">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_block_split_pc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks_0</span><span class="p">,</span> <span class="n">blocks_1</span><span class="p">,</span> 
+                             <span class="n">is0_data</span><span class="p">,</span> <span class="n">is1_data</span><span class="p">,</span> 
+                             <span class="n">composite_type</span><span class="o">=</span><span class="s1">&#39;additive&#39;</span><span class="p">,</span>
+                             <span class="n">schur_fact_type</span><span class="o">=</span><span class="s1">&#39;full&#39;</span><span class="p">,</span>
+                             <span class="n">schur_pre_type</span><span class="o">=</span><span class="s1">&#39;a11&#39;</span><span class="p">):</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the block split preconditioner for the given blocks.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ------------</span>
+<span class="sd">            blocks_0 (Iterable[str]): The first set of blocks (field tags).</span>
+<span class="sd">            blocks_1 (Iterable[str]): The second set of blocks (field tags).</span>
+<span class="sd">            is0_data (tuple): A tuple containing the name and PETSc Index Set for the first block.</span>
+<span class="sd">            is1_data (tuple): A tuple containing the name and PETSc Index Set for the second block.</span>
+<span class="sd">            composite_type (str): The type of composite preconditioner to use.</span>
+
+<span class="sd">                Options: &#39;additive&#39;, &#39;multiplicative&#39;, &#39;symmetric_multiplicative&#39;,</span>
+<span class="sd">                &#39;schur&#39;, &#39;special&#39;. Default is &#39;additive&#39;.</span>
+<span class="sd">            </span>
+<span class="sd">            schur_fact_type (str): The Schur factorization type to use if composite_type</span>
+<span class="sd">                is &#39;schur&#39;. Options: &#39;diag&#39;, &#39;full&#39;, &#39;lower&#39;, &#39;upper&#39;. Default is &#39;full&#39;.</span>
+<span class="sd">            </span>
+<span class="sd">            schur_pre_type (str): The Schur preconditioner type to use if composite_type</span>
+<span class="sd">                is &#39;schur&#39;. Options: &#39;a11&#39;, &#39;full&#39;, &#39;self&#39;, &#39;selfp&#39;, &#39;user&#39;. Default is &#39;a11&#39;. </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ------------</span>
+<span class="sd">            PETSc.KSP: The KSP object for the block split preconditioner.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_blocks_0</span><span class="p">,</span> <span class="n">_blocks_1</span> <span class="o">=</span> <span class="n">blocks_0</span><span class="p">,</span> <span class="n">blocks_1</span>
+        <span class="c1"># Ensure blocks are iterable</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">):</span>
+            <span class="n">_blocks_0</span> <span class="o">=</span> <span class="p">[</span><span class="n">_blocks_0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">):</span>
+            <span class="n">_blocks_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">_blocks_1</span><span class="p">]</span>
+
+        <span class="c1"># Make sure all blocks in the parent node are in the child nodes </span>
+        <span class="n">parent_blocks</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">)))</span>
+        <span class="k">assert</span> <span class="n">parent_blocks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span>
+        <span class="n">parent_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">[</span><span class="n">parent_blocks</span><span class="p">]</span>
+
+        <span class="c1"># Get the KSP from the parent node and set the preconditioner to fieldsplit</span>
+        <span class="n">parent_ksp</span> <span class="o">=</span> <span class="n">parent_node</span><span class="o">.</span><span class="n">get_ksp</span><span class="p">()</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">parent_ksp</span><span class="o">.</span><span class="n">pc</span>
+        <span class="n">pc</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">FIELDSPLIT</span><span class="p">)</span>
+        <span class="n">pc</span><span class="o">.</span><span class="n">setFieldSplitIS</span><span class="p">(</span><span class="n">is0_data</span><span class="p">,</span> <span class="n">is1_data</span><span class="p">)</span>
+
+        <span class="c1"># Ensure the composite type is valid</span>
+        <span class="k">assert</span> <span class="n">composite_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span>
+        <span class="n">comp_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_composite_type_dict</span><span class="p">[</span><span class="n">composite_type</span><span class="p">]</span>
+        <span class="n">pc</span><span class="o">.</span><span class="n">setFieldSplitType</span><span class="p">(</span><span class="n">comp_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">composite_type</span> <span class="o">==</span> <span class="s1">&#39;schur&#39;</span><span class="p">:</span>
+            <span class="c1"># If the composite type is &#39;schur&#39;, set the Schur factorization type</span>
+            <span class="k">assert</span> <span class="n">schur_pre_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span>
+            <span class="n">pre_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schur_pre_type_dict</span><span class="p">[</span><span class="n">schur_pre_type</span><span class="p">]</span>
+            <span class="n">pc</span><span class="o">.</span><span class="n">setFieldSplitSchurPreType</span><span class="p">(</span><span class="n">pre_type</span><span class="p">)</span>
+
+            <span class="k">assert</span> <span class="n">schur_fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schur_fact_type_dict</span>
+            <span class="n">fact_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schur_fact_type_dict</span><span class="p">[</span><span class="n">schur_fact_type</span><span class="p">]</span>
+            <span class="n">pc</span><span class="o">.</span><span class="n">setFieldSplitSchurFactType</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>
+
+        <span class="n">parent_ksp</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">pc</span><span class="o">.</span><span class="n">getFieldSplitSubKSP</span><span class="p">()</span></div>
+
+         
+<div class="viewcode-block" id="BlockSplitTree.get_block_split_index_set">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitTree.get_block_split_index_set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_block_split_index_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dofs0</span><span class="p">,</span> <span class="n">dofs1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the PETSc Index Set (IS) for the block split.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            node (BlockSplitNode): The node for which to get the IS.</span>
+<span class="sd">            dofs0 (np.ndarray): DOFs for the first block.</span>
+<span class="sd">            dofs1 (np.ndarray): DOFs for the second block.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            PETSc.IS: The Index Set for the block split.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">comm</span>
+
+        <span class="c1"># Root node: dofs are already monolithic global indices (owned)</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+            <span class="n">is0</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">IS</span><span class="p">()</span><span class="o">.</span><span class="n">createGeneral</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">dofs0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
+            <span class="n">is1</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">IS</span><span class="p">()</span><span class="o">.</span><span class="n">createGeneral</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">dofs1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">is0</span><span class="p">,</span> <span class="n">is1</span>
+        
+        <span class="c1"># If the node is not the root, create separate IS for each block</span>
+        <span class="c1"># Grab the communicator from the physics mesh</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">comm</span>
+
+        <span class="c1"># Sort the DOFs, find the length of the arrays</span>
+        <span class="n">num_dofs0</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dofs0</span><span class="p">)</span>
+        <span class="n">num_dofs1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dofs1</span><span class="p">)</span>
+        <span class="n">num_dofs_sub</span> <span class="o">=</span> <span class="n">num_dofs0</span> <span class="o">+</span> <span class="n">num_dofs1</span>
+
+        <span class="n">node_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">dofs0</span><span class="p">,</span> <span class="n">dofs1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">node_dofs_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">node_dofs</span><span class="p">)</span>
+
+        <span class="c1"># Find the offset for parallel DOFs</span>
+        <span class="n">sub_ids_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">node_dofs_sorted</span> <span class="o">&lt;</span> <span class="n">num_dofs0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">sub_ids_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">node_dofs_sorted</span> <span class="o">&gt;=</span> <span class="n">num_dofs0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="n">num_dofs_sub</span><span class="p">))[</span><span class="n">comm</span><span class="o">.</span><span class="n">rank</span><span class="p">]</span>
+
+        <span class="n">sub_ids_0</span> <span class="o">+=</span> <span class="n">offset</span>
+        <span class="n">sub_ids_1</span> <span class="o">+=</span> <span class="n">offset</span>
+
+        <span class="c1"># Create the PETSc Index Sets for the sub-blocks</span>
+        <span class="n">is0</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">IS</span><span class="p">()</span><span class="o">.</span><span class="n">createGeneral</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sub_ids_0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+        <span class="n">is1</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">IS</span><span class="p">()</span><span class="o">.</span><span class="n">createGeneral</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sub_ids_1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">is0</span><span class="p">,</span> <span class="n">is1</span></div>
+
+    
+<div class="viewcode-block" id="BlockSplitTree.set_child_node_ksps">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockSplitTree.set_child_node_ksps">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_child_node_ksps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks_0</span><span class="p">,</span> <span class="n">blocks_1</span><span class="p">,</span> <span class="n">is0_data</span><span class="p">,</span> <span class="n">is1_data</span><span class="p">,</span> <span class="n">ksp0</span><span class="p">,</span> <span class="n">ksp1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the KSPs for the child nodes of the block split.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ------------</span>
+<span class="sd">            blocks_0 (Iterable[str]): The first set of blocks (field tags).</span>
+<span class="sd">            blocks_1 (Iterable[str]): The second set of blocks (field tags).</span>
+<span class="sd">            is0_data (tuple): A tuple containing the name and PETSc Index Set for the first block.</span>
+<span class="sd">            is1_data (tuple): A tuple containing the name and PETSc Index Set for the second block.</span>
+<span class="sd">            ksp0 (PETSc.KSP): The KSP for the first block.</span>
+<span class="sd">            ksp1 (PETSc.KSP): The KSP for the second block.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ------------</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_blocks_0</span><span class="p">,</span> <span class="n">_blocks_1</span> <span class="o">=</span> <span class="n">blocks_0</span><span class="p">,</span> <span class="n">blocks_1</span>
+        <span class="c1"># Ensure blocks are iterable</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">):</span>
+            <span class="n">_blocks_0</span> <span class="o">=</span> <span class="p">[</span><span class="n">_blocks_0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_container</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">):</span>
+            <span class="n">_blocks_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">_blocks_1</span><span class="p">]</span>
+
+        <span class="c1"># Make sure all blocks in the parent node are in the child nodes </span>
+        <span class="n">parent_blocks</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_blocks_0</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">_blocks_1</span><span class="p">)))</span>
+        <span class="k">assert</span> <span class="n">parent_blocks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span>
+        <span class="n">parent_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_dict</span><span class="p">[</span><span class="n">parent_blocks</span><span class="p">]</span>
+
+        <span class="c1"># Insert the KSPs into the child nodes</span>
+        <span class="n">parent_node</span><span class="o">.</span><span class="n">left_node</span><span class="o">.</span><span class="n">set_ksp</span><span class="p">(</span><span class="n">ksp0</span><span class="p">)</span>
+        <span class="n">parent_node</span><span class="o">.</span><span class="n">right_node</span><span class="o">.</span><span class="n">set_ksp</span><span class="p">(</span><span class="n">ksp1</span><span class="p">)</span>
+        <span class="n">parent_node</span><span class="o">.</span><span class="n">left_node</span><span class="o">.</span><span class="n">set_IS</span><span class="p">(</span><span class="n">is0_data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">parent_node</span><span class="o">.</span><span class="n">right_node</span><span class="o">.</span><span class="n">set_IS</span><span class="p">(</span><span class="n">is1_data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+</div>
+
+        
+<div class="viewcode-block" id="BlockNonLinearSolver">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockNonLinearSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockNonLinearSolver</span><span class="p">(</span><span class="n">NonLinearSolver</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_split_tree</span><span class="p">:</span> <span class="n">BlockSplitTree</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_block_split_tree</span> <span class="o">=</span> <span class="n">block_split_tree</span>    
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+
+<div class="viewcode-block" id="BlockNonLinearSolver.init_ksp">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockNonLinearSolver.init_ksp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_ksp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override the init_ksp method to set up the KSP solver</span>
+<span class="sd">        according to the block split tree configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksp_is_initialized</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksp_is_initialized</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Get PETSc Krylov solver object and set the outer KSP function; </span>
+        <span class="c1"># Set the root node&#39;s KSP to the outer KSP</span>
+        <span class="n">ksp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">krylov_solver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_ksp_set_func</span><span class="p">(</span><span class="n">ksp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_block_split_tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">set_ksp</span><span class="p">(</span><span class="n">ksp</span><span class="p">)</span>
+
+        <span class="c1"># Assemble matrix to define matrix size for PETSc KSP fieldsplit</span>
+        <span class="n">jac_form</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">jacobian</span><span class="p">)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">assemble_matrix</span><span class="p">(</span><span class="n">jac_form</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">assemble</span><span class="p">()</span>
+        <span class="n">ksp</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+        <span class="c1"># Preallocate b with the right layout</span>
+        <span class="n">res_form</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">weak_form</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">create_vector</span><span class="p">(</span><span class="n">res_form</span><span class="p">)</span>
+
+        <span class="c1"># For each split, built the block split preconditioner</span>
+        <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block_split_tree</span><span class="o">.</span><span class="n">splits</span><span class="p">:</span>
+            <span class="n">blocks</span> <span class="o">=</span> <span class="n">split</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">)</span>
+            <span class="c1"># Initialize sub KSPs for the blocks with default set functions (override at the end)</span>
+            <span class="n">ksp0_set_function</span> <span class="o">=</span> <span class="n">split</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;ksp0_set_function&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_set_ksp0</span><span class="p">)</span>
+            <span class="n">ksp1_set_function</span> <span class="o">=</span> <span class="n">split</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;ksp1_set_function&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_set_ksp1</span><span class="p">)</span>
+
+            <span class="c1"># Get the Index Set (IS) data (block_name, IS) for each block;</span>
+            <span class="c1"># Assemble the sub KSPs for each block;</span>
+            <span class="c1"># Pass block fields, IS data, and ksp objects to the child nodes</span>
+            <span class="n">is0_data</span><span class="p">,</span> <span class="n">is1_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block_split_tree</span><span class="o">.</span><span class="n">split_IS</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blocks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">ksp0</span><span class="p">,</span> <span class="n">ksp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block_split_tree</span><span class="o">.</span><span class="n">build_block_split_pc</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blocks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">is0_data</span><span class="p">,</span> <span class="n">is1_data</span><span class="p">,</span> <span class="o">**</span><span class="n">split</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_block_split_tree</span><span class="o">.</span><span class="n">set_child_node_ksps</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blocks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">is0_data</span><span class="p">,</span> <span class="n">is1_data</span><span class="p">,</span> <span class="n">ksp0</span><span class="p">,</span> <span class="n">ksp1</span><span class="p">)</span>
+
+            <span class="c1"># Override the default KSP setup functions for the child nodes</span>
+            <span class="n">ksp0_set_function</span><span class="p">(</span><span class="n">ksp0</span><span class="p">)</span>
+            <span class="n">ksp1_set_function</span><span class="p">(</span><span class="n">ksp1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockNonLinearSolver.default_set_ksp0">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockNonLinearSolver.default_set_ksp0">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_set_ksp0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default KSP setup function for the root block in the block split tree.</span>
+<span class="sd">        This is a placeholder and can be customized as needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_set_ksp</span><span class="p">(</span><span class="n">ksp</span><span class="p">)</span>
+        <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s1">&#39;ksp0&#39;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="BlockNonLinearSolver.default_set_ksp1">
+<a class="viewcode-back" href="../../solver_modules/module_block_solver.html#flatiron_tk.solver.block_solver.BlockNonLinearSolver.default_set_ksp1">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_set_ksp1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default KSP setup function for the first block in the block split tree.</span>
+<span class="sd">        This is a placeholder and can be customized as needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_set_ksp</span><span class="p">(</span><span class="n">ksp</span><span class="p">)</span>
+        <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s1">&#39;ksp1&#39;</span><span class="p">))</span></div>
+</div>
+
+            
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

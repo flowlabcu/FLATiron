@@ -1,0 +1,17 @@
+====================================
+Installation
+====================================
+
+To install FLATiron, you must have Python 3.8 or higher installed on your system. It is recommended to use a virtual environment to manage dependencies.
+
+The following libraries are required:
+    - dolfinx 0.9.0: You can find instructions for installing `dolfinx` on their `official website <https://fenicsproject.org/download/>`_.
+    - adios4dolfinx: You can find instructions for installing `adios4dolfinx` on their `GitHub repository <https://github.com/jorgensd/adios4dolfinx/tree/main>`_.
+    - GMSH: You can find instructions for installing `GMSH` on their `official website <https://gmsh.info/#Download>`_.
+
+Once you have installed the required libraries, you can install FLATiron using pip. 
+Download the source code for FLATiron, navigate into the FLATiron directory and run the following command:
+
+.. code-block:: bash
+
+    pip install .

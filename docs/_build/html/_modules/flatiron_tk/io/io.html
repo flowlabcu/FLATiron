@@ -1,0 +1,189 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.io.io &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.io.io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.io.io</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+
+<div class="viewcode-block" id="read_mesh">
+<a class="viewcode-back" href="../../module_io.html#flatiron_tk.io.io.read_mesh">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_mesh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Read a mesh from a file with dolfinx.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        mesh_file : str, Path to the mesh file.</span>
+<span class="sd">        gdim : int, Geometric dimension of the mesh. Default is None.</span>
+<span class="sd">        comm : MPI communicator. Default is MPI.COMM_WORLD.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mesh : dolfinx.mesh.Mesh, The mesh object.</span>
+<span class="sd">        subdomain : dolfinx.mesh.MeshTags, The subdomain tags.</span>
+<span class="sd">        boundary : dolfinx.mesh.MeshTags, The boundary tags.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">mesh_file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.msh&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_read_gmsh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
+    
+    <span class="k">elif</span> <span class="n">mesh_file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xdmf&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_read_xdmf</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
+    
+    <span class="k">elif</span> <span class="n">mesh_file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.h5&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;.h5 no longer supported. Use .xdmf instead.&#39;</span><span class="p">)</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported mesh file format: </span><span class="si">{</span><span class="n">mesh_file</span><span class="si">}</span><span class="s2">. Supported formats are .msh and .xdmf.&quot;</span><span class="p">)</span></div>
+
+    
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_gmsh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>  
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Read a mesh from a GMSH file with dolfinx.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        mesh_file : str, Path to the mesh file.</span>
+<span class="sd">        gdim : int, Geometric dimension of the mesh. Default is None.</span>
+<span class="sd">        comm : MPI communicator. Default is MPI.COMM_WORLD.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mesh : dolfinx.mesh.Mesh, The mesh object.</span>
+<span class="sd">        subdomain : dolfinx.mesh.MeshTags, The subdomain tags.</span>
+<span class="sd">        boundary : dolfinx.mesh.MeshTags, The boundary tags.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># If the geometric dimension is given, we return exactly the read in mesh</span>
+    <span class="k">if</span> <span class="n">gdim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gmshio</span><span class="o">.</span><span class="n">read_from_msh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">)</span>
+    
+    <span class="c1"># If the geometric dimension is not given, we read the mesh and attempt to guess the</span>
+    <span class="c1"># geometric dimension from the mesh file</span>
+
+    <span class="p">(</span><span class="n">_mesh</span><span class="p">,</span> <span class="n">_subdomain</span><span class="p">,</span> <span class="n">_boundary</span><span class="p">)</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gmshio</span><span class="o">.</span><span class="n">read_from_msh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">comm</span><span class="p">)</span>
+
+    <span class="c1"># If the topological dimension is 3, the gdim is also 3</span>
+    <span class="n">tdim</span> <span class="o">=</span> <span class="n">_mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span>
+    <span class="k">if</span> <span class="n">tdim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_mesh</span><span class="p">,</span> <span class="n">_subdomain</span><span class="p">,</span> <span class="n">_boundary</span><span class="p">)</span>
+    
+    <span class="c1"># If the topological dimension is 2, assume the user wants gdim = tdim </span>
+    <span class="k">return</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gmshio</span><span class="o">.</span><span class="n">read_from_msh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">tdim</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_xdmf</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Read a mesh from a XDMF file with dolfinx.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        mesh_file : str, Path to the mesh file.</span>
+<span class="sd">        comm : MPI communicator. Default is MPI.COMM_WORLD.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mesh : dolfinx.mesh.Mesh, The mesh object.</span>
+<span class="sd">        subdomain : dolfinx.mesh.MeshTags, The subdomain tags.</span>
+<span class="sd">        boundary : dolfinx.mesh.MeshTags, The boundary tags.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">XDMFFile</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span> <span class="n">mesh_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read_mesh</span><span class="p">()</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+        <span class="n">subdomain</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read_meshtags</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s1">&#39;cell_tags&#39;</span><span class="p">)</span>
+        <span class="n">boundary</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read_meshtags</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s1">&#39;facet_tags&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">subdomain</span><span class="p">,</span> <span class="n">boundary</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

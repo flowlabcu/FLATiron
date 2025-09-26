@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo: Using the Block Solver for the Navier-Stokes Equations &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Demo: Using the Block Solver for the Navier-Stokes Equations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_demo/demo_block_solver_gp_nse.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="demo-using-the-block-solver-for-the-navier-stokes-equations">
+<h1>Demo: Using the Block Solver for the Navier-Stokes Equations<a class="headerlink" href="#demo-using-the-block-solver-for-the-navier-stokes-equations" title="Link to this heading"></a></h1>
+<p>This example demonstrates how to use the block solver capabilities in FLATiron to solve the incompressible Navier-Stokes equations. Here, we
+will split the velocity and pressure fields into separate blocks and solve them using a block preconditioner. Since this demo
+is intended to illustrate the block solver, we will point the reader to <a class="reference internal" href="demo_transient_navier_stokes.html"><span class="doc">&lt;no title&gt;</span></a> for documentation on
+the set-up of the NSE problem.</p>
+<section id="setting-up-the-problem">
+<h2>Setting Up the Problem<a class="headerlink" href="#setting-up-the-problem" title="Link to this heading"></a></h2>
+<p>Set up the Navier-Stokes problem as in <a class="reference internal" href="demo_transient_navier_stokes.html"><span class="doc">&lt;no title&gt;</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransientNavierStokes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockNonLinearSolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockSplitTree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceMonitor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+
+<span class="c1"># Define boundary condition functions</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">no_slip</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">zero_pressure</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">inlet_velocity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">)</span>
+    <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">values</span>
+
+<span class="c1"># Create the Mesh object by reading the mesh from file</span>
+<span class="n">mesh_file</span> <span class="o">=</span> <span class="s1">&#39;../mesh/bfs.msh&#39;</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">mesh_file</span><span class="o">=</span><span class="n">mesh_file</span><span class="p">)</span>
+
+<span class="c1"># Create the TransientNavierStokes object</span>
+<span class="n">nse</span> <span class="o">=</span> <span class="n">TransientNavierStokes</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span>
+
+<span class="c1"># Set physical parameters</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_time_step_size</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_midpoint_theta</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_dynamic_viscosity</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+
+<span class="c1"># Add stabilization</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_weak_form</span><span class="p">(</span><span class="n">stab</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Get function spaces to build boundary conditions</span>
+<span class="n">V_u</span> <span class="o">=</span> <span class="n">nse</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collapse</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">V_p</span> <span class="o">=</span> <span class="n">nse</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collapse</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Create functions for boundary conditions</span>
+<span class="n">inlet_v</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_u</span><span class="p">)</span>
+
+<span class="c1"># At each time step:</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">inlet_v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">inlet_velocity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+<span class="n">zero_p</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_p</span><span class="p">)</span>
+<span class="n">zero_p</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">zero_pressure</span><span class="p">)</span>
+
+<span class="n">zero_v</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_u</span><span class="p">)</span>
+<span class="n">zero_v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">no_slip</span><span class="p">)</span>
+
+<span class="c1"># Define boundary conditions dictionary</span>
+<span class="n">u_bcs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">7</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">inlet_v</span><span class="p">},</span>
+        <span class="mi">8</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">zero_v</span><span class="p">},</span>
+        <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">zero_v</span><span class="p">},</span>
+        <span class="p">}</span>
+
+<span class="n">p_bcs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">9</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">zero_p</span><span class="p">},</span>
+        <span class="p">}</span>
+
+<span class="n">bc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">u_bcs</span><span class="p">,</span>
+        <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">p_bcs</span><span class="p">}</span>
+
+<span class="n">nse</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">(</span><span class="n">bc_dict</span><span class="p">)</span>
+
+<span class="c1"># Set the output writer</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_writer</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;xdmf&#39;</span><span class="p">)</span>
+
+<span class="c1"># Define the problem</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">NonLinearProblem</span><span class="p">(</span><span class="n">nse</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We will now set up the block solver. We first need to define the block structure of our problem.
+In this case, we have two blocks: one for the velocity field and one for the pressure field. We set the preconditioner type and
+options for each block using a function called <cite>set_ksp_&lt;split_name&gt;</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># U block preconditioner parameters</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_ksp_u</span><span class="p">(</span><span class="n">ksp</span><span class="p">):</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">FGMRES</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s2">&quot;|----KSPU&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setTolerances</span><span class="p">(</span><span class="n">max_it</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">JACOBI</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+
+<span class="c1"># P block preconditioner parameters</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_ksp_p</span><span class="p">(</span><span class="n">ksp</span><span class="p">):</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">FGMRES</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s2">&quot;|--------KSPP&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setTolerances</span><span class="p">(</span><span class="n">max_it</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">HYPRE</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">setHYPREType</span><span class="p">(</span><span class="s2">&quot;boomeramg&quot;</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+
+<span class="c1"># Outer solver parameters</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_outer_ksp</span><span class="p">(</span><span class="n">ksp</span><span class="p">):</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">FGMRES</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setGMRESRestart</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setTolerances</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-100</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s2">&quot;Outer ksp&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We then define the block structure using <cite>BlockSplitTree</cite> and a dictionary that maps each block to its corresponding function in the
+Navier-Stokes problem.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the block structure</span>
+<span class="n">split</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;composite_type&#39;</span><span class="p">:</span> <span class="s1">&#39;schur&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;schur_fact_type&#39;</span><span class="p">:</span> <span class="s1">&#39;full&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;schur_pre_type&#39;</span><span class="p">:</span> <span class="s1">&#39;a11&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ksp0_set_function&#39;</span><span class="p">:</span> <span class="n">set_ksp_u</span><span class="p">,</span>
+        <span class="s1">&#39;ksp1_set_function&#39;</span><span class="p">:</span> <span class="n">set_ksp_p</span>
+        <span class="p">}</span>
+
+<span class="c1"># Create the Block Solver</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">BlockSplitTree</span><span class="p">(</span><span class="n">nse</span><span class="p">,</span> <span class="n">splits</span><span class="o">=</span><span class="n">split</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we create the <cite>BlockNonLinearSolver</cite> object, passing in the tree structure, the communicator, and the outer solver parameters.</p>
+<p>Now we can solver the Navier-Stokes equations using the block solver as normal.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mf">0.50</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Solving at time t = </span><span class="si">{</span><span class="n">t</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Set the inlet velocity for the current time step</span>
+    <span class="n">inlet_v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">inlet_velocity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+
+    <span class="c1"># Solve the problem</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+
+    <span class="n">nse</span><span class="o">.</span><span class="n">update_previous_solution</span><span class="p">()</span>
+    <span class="n">nse</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">time_stamp</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Update time</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
+</pre></div>
+</div>
+</section>
+<section id="full-script">
+<h2>Full Script<a class="headerlink" href="#full-script" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransientNavierStokes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockNonLinearSolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockSplitTree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceMonitor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+
+<span class="c1"># Define boundary condition functions</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">no_slip</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">zero_pressure</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">inlet_velocity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">)</span>
+    <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">values</span>
+
+<span class="c1"># Create the Mesh object by reading the mesh from file</span>
+<span class="n">mesh_file</span> <span class="o">=</span> <span class="s1">&#39;../mesh/bfs.msh&#39;</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">mesh_file</span><span class="o">=</span><span class="n">mesh_file</span><span class="p">)</span>
+
+<span class="c1"># Create the TransientNavierStokes object</span>
+<span class="n">nse</span> <span class="o">=</span> <span class="n">TransientNavierStokes</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span>
+
+<span class="c1"># Set physical parameters</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_time_step_size</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_midpoint_theta</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_dynamic_viscosity</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+
+<span class="c1"># Add stabilization</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_weak_form</span><span class="p">(</span><span class="n">stab</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Get function spaces to build boundary conditions</span>
+<span class="n">V_u</span> <span class="o">=</span> <span class="n">nse</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collapse</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">V_p</span> <span class="o">=</span> <span class="n">nse</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collapse</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Create functions for boundary conditions</span>
+<span class="n">inlet_v</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_u</span><span class="p">)</span>
+
+<span class="c1"># At each time step:</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">inlet_v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">inlet_velocity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+<span class="n">zero_p</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_p</span><span class="p">)</span>
+<span class="n">zero_p</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">zero_pressure</span><span class="p">)</span>
+
+<span class="n">zero_v</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_u</span><span class="p">)</span>
+<span class="n">zero_v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">no_slip</span><span class="p">)</span>
+
+<span class="c1"># Define boundary conditions dictionary</span>
+<span class="n">u_bcs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">7</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">inlet_v</span><span class="p">},</span>
+        <span class="mi">8</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">zero_v</span><span class="p">},</span>
+        <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">zero_v</span><span class="p">},</span>
+        <span class="p">}</span>
+
+<span class="n">p_bcs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">9</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">zero_p</span><span class="p">},</span>
+        <span class="p">}</span>
+
+<span class="n">bc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">u_bcs</span><span class="p">,</span>
+        <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">p_bcs</span><span class="p">}</span>
+
+<span class="n">nse</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">(</span><span class="n">bc_dict</span><span class="p">)</span>
+
+<span class="c1"># Set the output writer</span>
+<span class="n">nse</span><span class="o">.</span><span class="n">set_writer</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;xdmf&#39;</span><span class="p">)</span>
+
+<span class="c1"># Define the problem</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">NonLinearProblem</span><span class="p">(</span><span class="n">nse</span><span class="p">)</span>
+
+<span class="c1"># Set up Block Solver</span>
+<span class="c1"># U block preconditioner parameters</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_ksp_u</span><span class="p">(</span><span class="n">ksp</span><span class="p">):</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">FGMRES</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s2">&quot;|----KSPU&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setTolerances</span><span class="p">(</span><span class="n">max_it</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">JACOBI</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+
+<span class="c1"># P block preconditioner parameters</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_ksp_p</span><span class="p">(</span><span class="n">ksp</span><span class="p">):</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">FGMRES</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s2">&quot;|--------KSPP&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setTolerances</span><span class="p">(</span><span class="n">max_it</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">PC</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">HYPRE</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">setHYPREType</span><span class="p">(</span><span class="s2">&quot;boomeramg&quot;</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+
+<span class="c1"># Outer solver parameters</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_outer_ksp</span><span class="p">(</span><span class="n">ksp</span><span class="p">):</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">FGMRES</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setGMRESRestart</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setTolerances</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-100</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s2">&quot;Outer ksp&quot;</span><span class="p">))</span>
+
+<span class="c1"># Define the block structure</span>
+<span class="n">split</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;composite_type&#39;</span><span class="p">:</span> <span class="s1">&#39;schur&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;schur_fact_type&#39;</span><span class="p">:</span> <span class="s1">&#39;full&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;schur_pre_type&#39;</span><span class="p">:</span> <span class="s1">&#39;a11&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ksp0_set_function&#39;</span><span class="p">:</span> <span class="n">set_ksp_u</span><span class="p">,</span>
+        <span class="s1">&#39;ksp1_set_function&#39;</span><span class="p">:</span> <span class="n">set_ksp_p</span>
+        <span class="p">}</span>
+
+<span class="c1"># Create the Block Tree structure</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">BlockSplitTree</span><span class="p">(</span><span class="n">nse</span><span class="p">,</span> <span class="n">splits</span><span class="o">=</span><span class="n">split</span><span class="p">)</span>
+
+<span class="c1"># Create the Block Nonlinear Solver</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">BlockNonLinearSolver</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="n">problem</span><span class="p">,</span> <span class="n">outer_ksp_set_function</span><span class="o">=</span><span class="n">set_outer_ksp</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mf">10.0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Solving at time t = </span><span class="si">{</span><span class="n">t</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Set the inlet velocity for the current time step</span>
+    <span class="n">inlet_v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">inlet_velocity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+
+    <span class="c1"># Solve the problem</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+
+    <span class="n">nse</span><span class="o">.</span><span class="n">update_previous_solution</span><span class="p">()</span>
+    <span class="n">nse</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">time_stamp</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Update time</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

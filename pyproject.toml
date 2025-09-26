@@ -4,27 +4,60 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flatiron_tk"
-version = "1.0.0"
-description = "FLow And Transport Finite element (Fe for iron) Suite"
-authors = [{ name="Chayut Teeraratkul", email="chayut.teeraratkul@colorado.edu" }]
-readme = "README.md"
-license = { file = "LICENSE.txt" }
-dependencies = []
+version = "0.1.0"
+description = "FLOWLab internal research and development version of dolfinx FLow and Transport using Finite Elements (FLATFe) package."
+readme = "README.rst"
+authors = [
+  {name = "Nick Rovito", email = "niro3177@colorado.edu"}
+]
+maintainers = [
+  {name = "Nick Rovito", email = "niro3177@colorado.edu"}
+]
+classifiers = [
+
+]
+license = {text = "GNU General Public License v3"}
+dependencies = [
+  "typer"
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage",  # testing
+    "mypy",  # linting
+    "pytest",  # testing
+    "ruff"  # linting
+]
+
+[project.urls]
+
+bugs = "https://github.com/njrovito/flatiron_tk/issues"
+changelog = "https://github.com/njrovito/flatiron_tk/blob/master/changelog.md"
+homepage = "https://github.com/njrovito/flatiron_tk"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = [
-    "flatiron_tk", 
-    "flatiron_tk.physics", 
-    "flatiron_tk.functions", 
-    "flatiron_tk.mesh",
-    "flatiron_tk.solver",
-    "flatiron_tk.io",
-    "flatiron_tk.info"]
 
-# [tool.setuptools.packages.find]
-# include ["flatiron_tk*"]
+[tool.setuptools.package-data]
+"*" = ["*.*"]
 
-# [tool.setuptools.packages.find]
-# where = ["src"]
-# include = ["mylib*"]
+
+
+
+# Mypy
+# ----
+
+[tool.mypy]
+files = "."
+
+# Use strict defaults
+strict = true
+warn_unreachable = true
+warn_no_return = true
+
+[[tool.mypy.overrides]]
+# Don't require test functions to include types
+module = "tests.*"
+allow_untyped_defs = true
+disable_error_code = "attr-defined"
+

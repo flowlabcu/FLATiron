@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo: Transient Advection-Diffusion-Reaction Problem &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Demo: Transient Navier-Stokes" href="demo_transient_navier_stokes.html" />
+    <link rel="prev" title="Demo: Steady Stokes with External Body Force" href="demo_steady_stokes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../toc_demos.html">FLATiron Demos</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="demo_adios4dolfinx.html">Demo: Using ADIOS4DOLFINx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_block_solver_nse.html">Demo: Using the Block Solver for the Navier-Stokes Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_block_solver_gp.html">Demo: Using the Block Solver with Nested Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_functions.html">Demo: Using the Functions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_scalar_transport_edge_stab.html">Demo: Advection-Diffusion-Reaction with Jump (Edge) Stabilization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_steady_adr.html">Demo: Steady Advection-Diffusion-Reaction Equation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_steady_multiphysics.html">Demo: Steady Multiphysics Simulation (Coupled Diffusion Reaction)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_steady_navier_stokes.html">Demo: Steady Navier-Stokes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_steady_stokes.html">Demo: Steady Stokes with External Body Force</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Demo: Transient Advection-Diffusion-Reaction Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-definition">Problem definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#full-script">Full Script</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="demo_transient_navier_stokes.html">Demo: Transient Navier-Stokes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../toc_demos.html">FLATiron Demos</a></li>
+      <li class="breadcrumb-item active">Demo: Transient Advection-Diffusion-Reaction Problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_demo/demo_transient_adr.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="demo-transient-advection-diffusion-reaction-problem">
+<h1>Demo: Transient Advection-Diffusion-Reaction Problem<a class="headerlink" href="#demo-transient-advection-diffusion-reaction-problem" title="Link to this heading"></a></h1>
+<p>This demo demonstrates how to solve a 1D transient Advection-Diffusion-Reaction problem.
+The full source code can be found in <strong>demo/demo_transient_adr/demo_transient_adr_1D.py</strong>.</p>
+<p>The following problem was taken from Problem 1 in this <a class="reference external" href="https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/CE047p0241">paper</a></p>
+<section id="problem-definition">
+<h2>Problem definition<a class="headerlink" href="#problem-definition" title="Link to this heading"></a></h2>
+<p>The strong form:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial c}{\partial t} + u \frac{\partial c}{\partial c} = D \frac{\partial^2 c}{\partial x^2}\]</div>
+<p>In this demo, we solve a transport of a Gaussian pulse under a time-varying advection velocity <span class="math notranslate nohighlight">\(u(t)\)</span> and a fixed diffusivity <span class="math notranslate nohighlight">\(D\)</span>. The analytical solution of this problem is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}c(x,t) = \frac{\sigma_0}{\sigma}exp\left(-\frac{(x-\bar{x})^2}{2\sigma^2}\right) \\\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\begin{split}\sigma^2 = \sigma_0^2 +2Dt \\\end{split}\\\begin{split}\bar{x} = x_0 + \int_0^t u(\tau) d\tau \\\end{split}\end{aligned}\end{align} \]</div>
+<p>and <span class="math notranslate nohighlight">\(\sigma_0\)</span> and <span class="math notranslate nohighlight">\(x_0\)</span> are constant initial Gaussian standard deviation and center respectively.
+From the analytical solution, one can devise the initial condition by simply substituting <span class="math notranslate nohighlight">\(t=0\)</span> in the above expressions.</p>
+<p>In the <a class="reference external" href="https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/CE047p0241">paper</a>, the boundary
+condition is <span class="math notranslate nohighlight">\(c(x,t) \rightarrow 0\)</span> as <span class="math notranslate nohighlight">\(|x| \rightarrow \infty\)</span>. To approximate this boundary
+condition in a finite domain, we will set <span class="math notranslate nohighlight">\(c(x,t)=0\)</span> at both boundary points, and ensure that the
+Gaussian pulse is sufficiently far enough from both boundaries.</p>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<p>We first import relevant libraries and define a mesh using the LineMesh object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.animation</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">animation</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransientScalarTransport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearSolver</span>
+
+<span class="c1"># Create a Line Mesh</span>
+<span class="n">num_elements</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">h</span> <span class="o">=</span> <span class="mi">12800</span> <span class="o">/</span> <span class="n">num_elements</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">LineMesh</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12800</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we define several functions for the exact solution of the problem. Note
+that we will use the exact solution to create the initial condition for our numerical setup.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Functions for the exact solution</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_x_bar</span><span class="p">(</span><span class="n">a_a</span><span class="p">,</span> <span class="n">a_b</span><span class="p">,</span> <span class="n">a_t</span><span class="p">):</span>
+    <span class="n">x_bar</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_a</span> <span class="o">-</span> <span class="n">a_a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a_b</span> <span class="o">*</span> <span class="n">a_t</span><span class="p">))</span> <span class="o">/</span> <span class="n">a_b</span>
+    <span class="k">return</span> <span class="n">x_bar</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_sigma</span><span class="p">(</span><span class="n">a_sigma_0</span><span class="p">,</span> <span class="n">a_D</span><span class="p">,</span> <span class="n">a_t</span><span class="p">):</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a_sigma_0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a_D</span> <span class="o">*</span> <span class="n">a_t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sigma</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_c_exact</span><span class="p">(</span><span class="n">a_x</span><span class="p">,</span> <span class="n">a_a</span><span class="p">,</span> <span class="n">a_b</span><span class="p">,</span> <span class="n">a_t</span><span class="p">,</span> <span class="n">a_D</span><span class="p">,</span> <span class="n">a_sigma_0</span><span class="p">):</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">get_sigma</span><span class="p">(</span><span class="n">a_sigma_0</span><span class="p">,</span> <span class="n">a_D</span><span class="p">,</span> <span class="n">a_t</span><span class="p">)</span>
+    <span class="n">x_bar</span> <span class="o">=</span> <span class="n">get_x_bar</span><span class="p">(</span><span class="n">a_a</span><span class="p">,</span> <span class="n">a_b</span><span class="p">,</span> <span class="n">a_t</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_sigma_0</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">a_x</span> <span class="o">-</span> <span class="n">x_bar</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">c</span>
+</pre></div>
+</div>
+<p>Next, we define the relevant physics. In this case, it is the <code class="docutils literal notranslate"><span class="pre">TransientScalarTransport</span></code> physics. We will integrate this problem in
+time using <span class="math notranslate nohighlight">\(\Delta t = 96\)</span> similar to the problem in the benchmark <a class="reference external" href="https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/CE047p0241">paper</a>.
+It is noted that this method integrates the problem using the Crank-Nicolson midpoint algorithm.
+Please see <a class="reference internal" href="../_modules/physics_modules/module_scalar_transport.html"><span class="doc">Transient Scalar Transport Physics</span></a> for the time discretization details.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define problem</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">96</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">9600</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+<span class="n">stp</span> <span class="o">=</span> <span class="n">TransientScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">)</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">stp</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Next, we define the advection, diffusion, and reaction terms. We use <cite>dlfinx.fem.Expression</cite> to interpolate the time-varying advection velocity.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set diffusivity</span>
+<span class="n">diffusivity</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">diffusivity</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">)</span>
+
+<span class="c1"># Create a function for the advection velocity</span>
+<span class="n">u0</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">un</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">u0</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;u0&#39;</span>
+<span class="n">un</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;un&#39;</span>
+
+<span class="c1"># Interpoate a ufl expression for the advection velocity</span>
+<span class="n">u_expr</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">)</span>
+<span class="n">interpolation_points</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()</span>
+<span class="n">u0</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">u_expr</span><span class="p">,</span> <span class="n">interpolation_points</span><span class="p">))</span>
+<span class="n">un</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">u_expr</span><span class="p">,</span> <span class="n">interpolation_points</span><span class="p">))</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">un</span><span class="p">)</span>
+
+<span class="c1"># Set reaction term</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We then set the weak form of the problem, and define the initial and boundary conditions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set weak form and stabilization</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_weak_form</span><span class="p">()</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">add_stab</span><span class="p">()</span>
+
+<span class="c1"># Set intial condition</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span>
+<span class="n">t_0</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">sigma_0</span> <span class="o">=</span> <span class="mi">264</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">get_sigma</span><span class="p">(</span><span class="n">sigma_0</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">t_0</span><span class="p">)</span>
+<span class="n">x_bar</span> <span class="o">=</span> <span class="n">get_x_bar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t_0</span><span class="p">)</span>
+<span class="n">c0</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">c0_expr</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma_0</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_bar</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">c0</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">c0_expr</span><span class="p">,</span> <span class="n">interpolation_points</span><span class="p">))</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_initial_condition</span><span class="p">(</span><span class="n">c0</span><span class="p">)</span>
+
+<span class="c1"># Set boundary conditions</span>
+<span class="n">bc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)},</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)}}</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">(</span><span class="n">bc_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we create a nonlinear solver to solve the problem at each time step.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up the solver</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">NonLinearProblem</span><span class="p">(</span><span class="n">stp</span><span class="p">)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">NonLinearSolver</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">)</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_writer</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;xdmf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>At each time step, the time-marching problem is solved by first updating the time-varying advection velocity.
+The scalar transport problem is then solved, and the solution is updated using the <code class="docutils literal notranslate"><span class="pre">update_previous_solution()</span></code> method within
+the <code class="docutils literal notranslate"><span class="pre">TransientScalarTransport</span></code> class.
+Finally, the solution for the current time step is written using <code class="docutils literal notranslate"><span class="pre">stp.write(time_stamp=t)</span></code> and visualized with <cite>matplotlib</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up the time-stepping</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">t_0</span>
+<span class="n">u_vals</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">t_vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Create an array for the x values to plot the solutions against</span>
+<span class="n">x_plt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12800</span><span class="p">,</span> <span class="n">num_elements</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Create lists to hold the numerical and exact solutions at each time step</span>
+<span class="n">c_vals_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">sol_exact_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">time_vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">8000</span><span class="p">:</span>
+    <span class="c1"># Update advection velocity</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">t</span> <span class="c1"># Update ufl time expression</span>
+    <span class="n">u0</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span> <span class="n">interpolation_points</span><span class="p">))</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">dt</span>
+    <span class="n">un</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span> <span class="n">interpolation_points</span><span class="p">))</span>
+
+    <span class="c1"># Solve the current time step</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+    <span class="n">stp</span><span class="o">.</span><span class="n">update_previous_solution</span><span class="p">()</span>
+
+    <span class="c1"># Write the solution</span>
+    <span class="n">stp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">time_stamp</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Plot the numerical and exact solutions</span>
+    <span class="n">sol_exact</span> <span class="o">=</span> <span class="n">get_c_exact</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">sigma_0</span><span class="p">)</span>
+    <span class="n">c_vals</span> <span class="o">=</span> <span class="n">stp</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span>
+
+    <span class="n">c_vals</span> <span class="o">=</span> <span class="n">stp</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sol_exact</span> <span class="o">=</span> <span class="n">get_c_exact</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">sigma_0</span><span class="p">)</span>
+
+    <span class="n">c_vals_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c_vals</span><span class="p">)</span>
+    <span class="n">sol_exact_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sol_exact</span><span class="p">)</span>
+    <span class="n">time_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Step forward in time</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
+</pre></div>
+</div>
+<p>Plotting:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the evolution of the solution over time using matplotlib animation</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">line_num</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Numerical&#39;</span><span class="p">)</span>
+<span class="n">line_exact</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Exact&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12800</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+    <span class="n">line_num</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">c_vals_list</span><span class="p">[</span><span class="n">frame</span><span class="p">])</span>
+    <span class="n">line_exact</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">sol_exact_list</span><span class="p">[</span><span class="n">frame</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;t = </span><span class="si">{</span><span class="n">time_vals</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">line_num</span><span class="p">,</span> <span class="n">line_exact</span>
+
+<span class="n">ani</span> <span class="o">=</span> <span class="n">animation</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">update</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">time_vals</span><span class="p">),</span> <span class="n">blit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">ani</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;solution_evolution.mp4&#39;</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="s1">&#39;ffmpeg&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="full-script">
+<h2>Full Script<a class="headerlink" href="#full-script" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Demo for 1D transient convection-diffusion equation on an interval [0,12800]</span>
+<span class="sd">with no reactions</span>
+<span class="sd">dc/dt = D*d^2c/dx^2 - u*dc/dx - f</span>
+
+<span class="sd">The following problem was taken from &quot;Problem 1&quot; from &quot;Benchmarks for the Transport Equation:</span>
+<span class="sd">The Convection_Diffusion Forum and Beyond&quot; by Baptista and Adams, 1995</span>
+
+<span class="sd">D = 2</span>
+<span class="sd">f = 0</span>
+<span class="sd">u = 1.5*sin(2*pi*t/9600)</span>
+<span class="sd">The Gaussian Source Solution is:</span>
+<span class="sd">c(x,t) = sigma_0/sigma * exp(-(x-x_bar)^2 / 2*sigma^2)</span>
+<span class="sd">sigma^2 = sigma_0^2 + 2*D*t</span>
+<span class="sd">x_bar = x_0 + int(u(T)dT) from 0 to T</span>
+
+<span class="sd">This demo demonstrates how to do a transient convection-diffusion problem in flatiron_tk</span>
+
+<span class="sd">Author: njrovito</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.animation</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">animation</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransientScalarTransport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearSolver</span>
+
+<span class="c1"># Functions for the exact solution</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_x_bar</span><span class="p">(</span><span class="n">a_a</span><span class="p">,</span> <span class="n">a_b</span><span class="p">,</span> <span class="n">a_t</span><span class="p">):</span>
+    <span class="n">x_bar</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_a</span> <span class="o">-</span> <span class="n">a_a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a_b</span> <span class="o">*</span> <span class="n">a_t</span><span class="p">))</span> <span class="o">/</span> <span class="n">a_b</span>
+    <span class="k">return</span> <span class="n">x_bar</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_sigma</span><span class="p">(</span><span class="n">a_sigma_0</span><span class="p">,</span> <span class="n">a_D</span><span class="p">,</span> <span class="n">a_t</span><span class="p">):</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a_sigma_0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a_D</span> <span class="o">*</span> <span class="n">a_t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sigma</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_c_exact</span><span class="p">(</span><span class="n">a_x</span><span class="p">,</span> <span class="n">a_a</span><span class="p">,</span> <span class="n">a_b</span><span class="p">,</span> <span class="n">a_t</span><span class="p">,</span> <span class="n">a_D</span><span class="p">,</span> <span class="n">a_sigma_0</span><span class="p">):</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">get_sigma</span><span class="p">(</span><span class="n">a_sigma_0</span><span class="p">,</span> <span class="n">a_D</span><span class="p">,</span> <span class="n">a_t</span><span class="p">)</span>
+    <span class="n">x_bar</span> <span class="o">=</span> <span class="n">get_x_bar</span><span class="p">(</span><span class="n">a_a</span><span class="p">,</span> <span class="n">a_b</span><span class="p">,</span> <span class="n">a_t</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_sigma_0</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">a_x</span> <span class="o">-</span> <span class="n">x_bar</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">c</span>
+
+<span class="c1"># Create a Line Mesh</span>
+<span class="n">num_elements</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">h</span> <span class="o">=</span> <span class="mi">12800</span> <span class="o">/</span> <span class="n">num_elements</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">LineMesh</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12800</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+<span class="c1"># Define problem</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">96</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">9600</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+<span class="n">stp</span> <span class="o">=</span> <span class="n">TransientScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">)</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">stp</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">()</span>
+
+<span class="c1"># Set diffusivity</span>
+<span class="n">diffusivity</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">diffusivity</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">)</span>
+
+<span class="c1"># Create a function for the advection velocity</span>
+<span class="n">u0</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">un</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">u0</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;u0&#39;</span>
+<span class="n">un</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;un&#39;</span>
+
+<span class="c1"># Interpoate a ufl expression for the advection velocity</span>
+<span class="n">u_expr</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">)</span>
+<span class="n">interpolation_points</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()</span>
+<span class="n">u0</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">u_expr</span><span class="p">,</span> <span class="n">interpolation_points</span><span class="p">))</span>
+<span class="n">un</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">u_expr</span><span class="p">,</span> <span class="n">interpolation_points</span><span class="p">))</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">un</span><span class="p">)</span>
+
+<span class="c1"># Set reaction term</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+<span class="c1"># Set weak form and stabilization</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_weak_form</span><span class="p">()</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">add_stab</span><span class="p">()</span>
+
+<span class="c1"># Set intial condition</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span>
+<span class="n">t_0</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">sigma_0</span> <span class="o">=</span> <span class="mi">264</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">get_sigma</span><span class="p">(</span><span class="n">sigma_0</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">t_0</span><span class="p">)</span>
+<span class="n">x_bar</span> <span class="o">=</span> <span class="n">get_x_bar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t_0</span><span class="p">)</span>
+<span class="n">c0</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">c0_expr</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma_0</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_bar</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">c0</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">c0_expr</span><span class="p">,</span> <span class="n">interpolation_points</span><span class="p">))</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_initial_condition</span><span class="p">(</span><span class="n">c0</span><span class="p">)</span>
+
+<span class="c1"># Set boundary conditions</span>
+<span class="n">bc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)},</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)}}</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">(</span><span class="n">bc_dict</span><span class="p">)</span>
+
+<span class="c1"># Set up the solver</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">NonLinearProblem</span><span class="p">(</span><span class="n">stp</span><span class="p">)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">NonLinearSolver</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">)</span>
+<span class="n">stp</span><span class="o">.</span><span class="n">set_writer</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;xdmf&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set up the time-stepping</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">t_0</span>
+<span class="n">u_vals</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">t_vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Create an array for the x values to plot the solutions against</span>
+<span class="n">x_plt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12800</span><span class="p">,</span> <span class="n">num_elements</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Create lists to hold the numerical and exact solutions at each time step</span>
+<span class="n">c_vals_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">sol_exact_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">time_vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">8000</span><span class="p">:</span>
+    <span class="c1"># Update advection velocity</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">t</span> <span class="c1"># Update ufl time expression</span>
+    <span class="n">u0</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span> <span class="n">interpolation_points</span><span class="p">))</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">dt</span>
+    <span class="n">un</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Expression</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">),</span> <span class="n">interpolation_points</span><span class="p">))</span>
+
+    <span class="c1"># Solve the current time step</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+    <span class="n">stp</span><span class="o">.</span><span class="n">update_previous_solution</span><span class="p">()</span>
+
+    <span class="c1"># Write the solution</span>
+    <span class="n">stp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">time_stamp</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Plot the numerical and exact solutions</span>
+    <span class="n">sol_exact</span> <span class="o">=</span> <span class="n">get_c_exact</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">sigma_0</span><span class="p">)</span>
+    <span class="n">c_vals</span> <span class="o">=</span> <span class="n">stp</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span>
+
+    <span class="n">c_vals</span> <span class="o">=</span> <span class="n">stp</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sol_exact</span> <span class="o">=</span> <span class="n">get_c_exact</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">diffusivity</span><span class="p">,</span> <span class="n">sigma_0</span><span class="p">)</span>
+
+    <span class="n">c_vals_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c_vals</span><span class="p">)</span>
+    <span class="n">sol_exact_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sol_exact</span><span class="p">)</span>
+    <span class="n">time_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Step forward in time</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
+
+
+<span class="c1"># Plot the evolution of the solution over time using matplotlib animation</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">line_num</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Numerical&#39;</span><span class="p">)</span>
+<span class="n">line_exact</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Exact&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12800</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+    <span class="n">line_num</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">c_vals_list</span><span class="p">[</span><span class="n">frame</span><span class="p">])</span>
+    <span class="n">line_exact</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">x_plt</span><span class="p">,</span> <span class="n">sol_exact_list</span><span class="p">[</span><span class="n">frame</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;t = </span><span class="si">{</span><span class="n">time_vals</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">line_num</span><span class="p">,</span> <span class="n">line_exact</span>
+
+<span class="n">ani</span> <span class="o">=</span> <span class="n">animation</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">update</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">time_vals</span><span class="p">),</span> <span class="n">blit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">ani</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;solution_evolution.mp4&#39;</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="s1">&#39;ffmpeg&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="demo_steady_stokes.html" class="btn btn-neutral float-left" title="Demo: Steady Stokes with External Body Force" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="demo_transient_navier_stokes.html" class="btn btn-neutral float-right" title="Demo: Transient Navier-Stokes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

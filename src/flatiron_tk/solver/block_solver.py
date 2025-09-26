@@ -1,18 +1,10 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import sys
-import time
-import copy
-import os
-
-# ------------------------------------------------------- #
+import dolfinx
 
 from collections.abc import Iterable
-from ..info.messages import import_PETSc
-PETSc = import_PETSc()
-# from petsc4py import PETSc
-from .convergence_monitor import ConvergenceMonitor
-from .non_linear_problem import NonLinearSolver
+from flatiron_tk.solver import ConvergenceMonitor
+from flatiron_tk.solver import NonLinearSolver
+from petsc4py import PETSc
 
 
 """
@@ -46,98 +38,218 @@ Composite type options are:
 """
 
 def _is_container(obj):
+    """
+    Utility function to check if an object is a container.
+
+    Parameters:
+    ------------
+        obj: The object to check.
+    
+    Returns:
+    ------------ 
+        bool: True if the object is a container (like a list, tuple, set),
+              False otherwise.
+    """
     return isinstance(obj, Iterable) and not isinstance(obj, (str, bytes))
 
-
-class FieldSplitNode():
-
-    def __init__(self, left=None, right=None):
-
-        self.left = left
-        self.right = right
-        self.parent = None
+class BlockSplitNode():
+    """
+    A node in the block split tree for managing block preconditioners.
+    """
+    def __init__(self):
+        # Default the node to not be a root node
         self._is_root = False
-        self._fields = set()
-        self.tag = ''
-        self._ksp = None
-        self._monitor = None
+        self.left_node = None
+        self.right_node = None
+        self.parent_node = None
+        pass
+    
+    def set_root_function_space(self, V):
+        """
+        Set the root function space for this node.
+        
+        Parameters:
+        ------------
+            V (dolfinx.fem.FunctionSpace): The function space to set as the root.
+        """
+        self.root_function_space = V
 
-    def sorted_fields(self):
-        _fields = copy.deepcopy(list(self.fields()))
-        _fields.sort()
-        return tuple(_fields)
+    def set_field_tags(self, fields):
+        """
+        Set the field names for this node. Each field name is equivalent to the
+        tag of a PhysicsProblem in the flatiron_tk framework
 
-    def set_ksp(self, ksp, _is=None):
-        self._ksp = ksp
-        if _is is not None:
-            self._is = _is
+        Parameters:
+        ------------
+            fields (Iterable[str]): An iterable of field tags (physics tags) to set.
 
-    def ksp(self):
-        return self._ksp
-
-    def set_fields(self, fields):
-        self._fields = fields
-        self.tag = '_'.join(fields)
-
-    def fields(self):
-        '''
-        Return true if this node contains every input fields exactly
-        '''
-        return self._fields
-
-    def _set_monitor(self, monitor):
-        self._monitor = monitor
-
-    def monitor(self):
-        return self._monitor
-
-    def _insert_overwrite(self, child_node, left_or_right):
-        assert (left_or_right == 'left' or left_or_right == 'right')
-        if left_or_right == 'left':
-            self.left = child_node
-        else:
-            self.right = child_node
-        child_node.parent = self
-
-    def insert(self, node):
-        assert (self.left is None or self.right is None)
-        if self.left is None:
-            self._insert_overwrite(node, 'left')
-        else:
-            self._insert_overwrite(node, 'right')
-
-    def is_root(self):
-        return self._is_root
+        Sets: 
+        ------------
+            _field_tags (tuple): A tuple of field names.
+            _node_tag (str): A string that concatenates the field names with an underscore.
+        """
+        
+        self._field_tags = tuple(sorted(fields))
+        self._node_tag = '_'.join(self._field_tags)
 
     def set_as_root(self):
+        """
+        Set this node as the root node of the block split tree.
+        """
         self._is_root = True
 
-class FieldSplitTree():
+    def set_ksp(self, ksp):
+        """
+        Set the KSP (Krylov Subspace Solver) for this node.
 
+        Parameters:
+        ------------
+            ksp (PETSc.KSP): The KSP object to set.
+            _IS (Optional[PETSc.IS]): Optional PETSc Index Set for the node.
+        """
+        self._ksp = ksp
+
+    def set_IS(self, IS):
+        """
+        Set the PETSc Index Set for this node.
+
+        Parameters:
+        ------------
+            IS (PETSc.IS): The Index Set to set.
+        """
+        self._IS = IS
+
+    def insert_node(self, child_node, position):
+        """
+        Insert a child node at the specified position ('left' or 'right').
+
+        Parameters:
+        ------------
+            node (BlockSplitNode): The node to insert.
+            position (str): The position to insert the node ('left' or 'right').
+        """
+        if position == 'left':
+            # Ensure the node is not already set
+            assert self.left_node is None, "Left node already set."
+            self.left_node = child_node
+            
+        elif position == 'right':
+            # Ensure the node is not already set
+            assert self.right_node is None, "Right node already set."
+            self.right_node = child_node
+            
+    # ---- Getters ---- #
+    def is_root(self):
+        """
+        Check if this node is the root node.
+        
+        Returns:
+        ------------
+            bool: True if this node is the root, False otherwise.
+        """
+        return self._is_root
+    
+    def get_field_tags(self):
+        """
+        Get the field tags associated with this node.
+        
+        Returns:
+        ------------
+            tuple: A tuple of field tags.
+        """
+        return self._field_tags
+    
+    def get_ksp(self):
+        """
+        Get the KSP (Krylov Subspace Solver) associated with this node.
+        
+        Returns:
+        ------------
+            PETSc.KSP: The KSP object for this node.
+        """
+        return self._ksp
+        
+    def get_node_tag(self):
+        """
+        Get the tag of this node, which is a string concatenation of field tags.
+        
+        Returns:
+        ------------
+            str: The node tag.
+        """
+        return self._node_tag
+    
+class BlockSplitTree():
+    """
+    A class to manage a block split tree for building block preconditioners.
+
+    Parameters
+    ------------
+        physics (PhysicsProblem): The physics problem containing field tags and function spaces.
+        splits (dict or Iterable[dict]): A dictionary or an iterable of dictionaries defining the block
+            splits. Each dictionary should have the following keys:
+
+            - 'fields': A list of two lists, each containing field tags to be grouped together.
+            - 'composite_type': The type of composite preconditioner to use ('additive', 'multiplicative',
+                'symmetric_multiplicative', 'schur', 'special').
+            - 'schur_fact_type' (optional): The Schur factorization type if 'composite_type' is 'schur'
+                ('diag', 'full', 'lower', 'upper').
+            - 'schur_pre_type' (optional): The Schur preconditioner type if 'composite_type' is 'schur'
+                ('a11', 'full', 'self', 'selfp', 'user').
+            - 'ksp0_set_function' (optional): A function to set up the KSP for the first block.
+            - 'ksp1_set_function' (optional): A function to set up the KSP for the second block.    
+    """
     def __init__(self, physics, splits):
-
         self.physics = physics
-        self.root = FieldSplitNode()
-        self.root.set_fields(list(physics.tag.keys()))
+
+        # Set the root node of the tree
+        self.root = BlockSplitNode()
         self.root.set_as_root()
-        self.node_dict = {}
-        self.node_dict[self.root.sorted_fields()] = self.root
+        self.root.set_field_tags(list(physics.tag.keys()))
+        self.root.set_root_function_space(physics.get_function_space())
 
-        # Store the splits as a list of dicts
-        # I have this if else here to handle the
-        # case where we have a single split, so
-        # the user can just supply the split dict
-        if isinstance(splits, dict):
-            self.splits = [splits]
-        else:
-            self.splits = splits
+        # Set the dictionary mapping field tags to nodes
+        self.node_dict = {self.root.get_field_tags(): self.root}
+        
+        # Store the splits as a list of dictionaries. 
+        # If a single split is provided, convert it to a list
+        # If a list or other iterable is provided, use it directly
+        if isinstance(splits, dict): self.splits = [splits]
+        elif _is_container(splits): self.splits = splits
+        else: raise ValueError("Splits must be a dictionary or an iterable of dictionaries.")
+        
+        # Set the supported PETSc blocksplit dictionaries. Separate method for clarity
+        self._set_PETSc_fieldsplit_dictionary()
+    
+    def _set_PETSc_fieldsplit_dictionary(self):
+        """
+        Set the PETSc fieldsplit dictionary for the block split tree.
 
-        # Build dictionary for PETSc fieldsplit inputs
-        # NOTE: This step can probably be automated for each dict,
-        # but I am doing it explicitly here so it's easy to
-        # see what's going on.
+        Supported composite types:
+        
+        - 'additive'
+        - 'multiplicative'
+        - 'symmetric_multiplicative'
+        - 'schur'
+        - 'special'
 
-        # Field split composite type. This tells you what the final
+        Supported schur factorization types:
+        
+        - 'diag'
+        - 'full'
+        - 'lower'
+        - 'upper'
+
+        Supported schur preconditioner types:
+        
+        - 'a11'
+        - 'full'
+        - 'self'
+        - 'selfp'
+        - 'user'
+        """
+
+        # block split composite type. This tells you what the final
         # preconditioner look like
         # See https://petsc.org/release/manual/ksp/#sec-block-matrices
         self._composite_type_dict = {}
@@ -168,236 +280,273 @@ class FieldSplitTree():
         self._schur_pre_type_dict['selfp'] = PETSc.PC.SchurPreType.SELFP
         self._schur_pre_type_dict['user'] = PETSc.PC.SchurPreType.USER
 
-    def set_root_ksp(self, root_ksp):
-        self.root.set_ksp(root_ksp)
-
-    # def split(self, node, fields_0, fields_1, **split_settings):
-    def split(self, fields_0, fields_1, **split_settings):
-
+    def split_IS(self, blocks_0, blocks_1):
         """
-        **split_settings:
-             composite_type
-             schur_pre_type
-             schur_fact_type
+        Split the blocks into two sets and create a PETSc Index Set (IS) for each.
+        
+        Parameters:
+        ------------
+            blocks_0 (Iterable[str]): The first set of blocks (field tags).
+            blocks_1 (Iterable[str]): The second set of blocks (field tags).
+
+        Returns:
+        ------------
+            tuple: A tuple containing two PETSc Index Sets (IS) for the blocks.
         """
+        _blocks_0, _blocks_1 = blocks_0, blocks_1
+        # Ensure blocks are iterable
+        if not _is_container(_blocks_0):
+            _blocks_0 = [_blocks_0]
+        if not _is_container(_blocks_1):
+            _blocks_1 = [_blocks_1]
 
-        # Make the input a list for consistent implementation of this function
-        _fields_0, _fields_1 = fields_0, fields_1
-        if not _is_container(_fields_0):
-            _fields_0 = [_fields_0]
-        if not _is_container(_fields_1):
-            _fields_1 = [_fields_1]
+        # Make sure all blocks in the parent node are in the child nodes 
+        parent_blocks = tuple(sorted(list(_blocks_0) + list(_blocks_1)))        
+        assert parent_blocks in self.node_dict
+        parent_node = self.node_dict[parent_blocks]
 
-        # Make sure all fields in the parent node are present in field_0 and field_1
-        parent_fields = list(_fields_0) + list(_fields_1)
-        parent_fields.sort()
-        parent_fields = tuple(parent_fields)
-        assert parent_fields in self.node_dict
-        parent_node = self.node_dict[parent_fields]
-        # assert(set(node.fields()) == set(all_fields))
+        # Set the block names as a combination of the field tags
+        blocks_0_name = '_'.join(list(_blocks_0))
+        blocks_1_name = '_'.join(list(_blocks_1))
 
+        # Create a new node for the split (left)
+        left_node = BlockSplitNode()
+        left_node.set_field_tags(_blocks_0)
+        parent_node.insert_node(left_node, 'left')
+        self.node_dict[left_node.get_field_tags()] = left_node
 
-        # Get fieldsplit name as a combination of the supplied fields
-        # delimited by `_`
-        field_0_name = '_'.join(list(_fields_0))
-        field_1_name = '_'.join(list(_fields_1))
+        # Create a new node for the split (right)
+        right_node = BlockSplitNode()
+        right_node.set_field_tags(_blocks_1)
+        parent_node.insert_node(right_node, 'right')
+        self.node_dict[right_node.get_field_tags()] = right_node
 
-        # Set left and right node
-        lnode = FieldSplitNode()
-        lnode.set_fields(_fields_0)
-        parent_node.insert(lnode)
-        self.node_dict[lnode.sorted_fields()] = lnode
+        # Build the PETSc Index Sets (IS) for the blocks
+        dofs0 = self.physics.get_global_dofs(
+            self.root.root_function_space,
+            parent_node.left_node.get_field_tags(), 
+            sort=False
+        )
+        
+        dofs1 = self.physics.get_global_dofs(
+            self.root.root_function_space,
+            parent_node.right_node.get_field_tags(), 
+            sort=False)
 
-        rnode = FieldSplitNode()
-        rnode.set_fields(_fields_1)
-        parent_node.insert(rnode)
-        self.node_dict[rnode.sorted_fields()] = rnode
+        is0, is1 = self.get_block_split_index_set(parent_node, dofs0, dofs1)
 
-        # Finally build the fieldsplit index set
-        dofs0 = self.physics.get_dofs(parent_node.left.fields(), sort=False)
-        dofs1 = self.physics.get_dofs(parent_node.right.fields(), sort=False)
-        is0, is1 = self.get_fieldsplit_IS(parent_node, dofs0, dofs1)
-        ksp0, ksp1 = self._build_fieldsplit_pc(parent_node.ksp(),
-                                               is0, field_0_name,
-                                               is1, field_1_name,
-                                               **split_settings)
-        parent_node.left.set_ksp(ksp0, is0)
-        parent_node.right.set_ksp(ksp1, is1)
-        return ksp0, ksp1
+        return [blocks_0_name, is0], [blocks_1_name, is1]
 
-    def get_fieldsplit_IS(self, node, dofs0, dofs1):
-
-        """
-        Get index set for dofs0 and dofs1 relative to the current node.
-        """
-
-        if node.is_root():
-            is0 = PETSc.IS().createGeneral(dofs0).sort()
-            is1 = PETSc.IS().createGeneral(dofs1).sort()
-            return is0, is1
-
-        comm = self.physics.mesh.comm
-        ndofs0 = len(dofs0)
-        ndofs1 = len(dofs1)
-        node_dofs = np.array(dofs0+dofs1, dtype=np.int32)
-        sorted_ids = np.argsort(node_dofs)
-
-        sub_ids_0 = np.where(sorted_ids<ndofs0)[0].astype(np.int32)
-        sub_ids_1 = np.where(sorted_ids>=ndofs0)[0].astype(np.int32)
-        ndofs_sub = ndofs0 + ndofs1
-        offset = np.cumsum([0]+comm.allgather(ndofs_sub))[comm.rank]
-
-        sub_ids_0 += offset
-        sub_ids_1 += offset
-        is0 = PETSc.IS().createGeneral(sub_ids_0).sort()
-        is1 = PETSc.IS().createGeneral(sub_ids_1).sort()
-
-        return is0, is1
-
-    def _build_fieldsplit_pc(self, outer_ksp,
-                             is0, is0_name,
-                             is1, is1_name,
+    def build_block_split_pc(self, blocks_0, blocks_1, 
+                             is0_data, is1_data, 
                              composite_type='additive',
-                             schur_pre_type='a11',
-                             schur_fact_type='full'):
-
+                             schur_fact_type='full',
+                             schur_pre_type='a11'):
+        
         """
-        Here I am explicitly building a petsc dictionary
-        """
+        Build the block split preconditioner for the given blocks.
+        
+        Parameters
+        ------------
+            blocks_0 (Iterable[str]): The first set of blocks (field tags).
+            blocks_1 (Iterable[str]): The second set of blocks (field tags).
+            is0_data (tuple): A tuple containing the name and PETSc Index Set for the first block.
+            is1_data (tuple): A tuple containing the name and PETSc Index Set for the second block.
+            composite_type (str): The type of composite preconditioner to use.
 
-        # Build fieldsplit preconditioner with the supplied index set
-        pc = outer_ksp.pc
+                Options: 'additive', 'multiplicative', 'symmetric_multiplicative',
+                'schur', 'special'. Default is 'additive'.
+            
+            schur_fact_type (str): The Schur factorization type to use if composite_type
+                is 'schur'. Options: 'diag', 'full', 'lower', 'upper'. Default is 'full'.
+            
+            schur_pre_type (str): The Schur preconditioner type to use if composite_type
+                is 'schur'. Options: 'a11', 'full', 'self', 'selfp', 'user'. Default is 'a11'. 
+        
+        Returns
+        ------------
+            PETSc.KSP: The KSP object for the block split preconditioner.
+        """
+        _blocks_0, _blocks_1 = blocks_0, blocks_1
+        # Ensure blocks are iterable
+        if not _is_container(_blocks_0):
+            _blocks_0 = [_blocks_0]
+        if not _is_container(_blocks_1):
+            _blocks_1 = [_blocks_1]
+
+        # Make sure all blocks in the parent node are in the child nodes 
+        parent_blocks = tuple(sorted(list(_blocks_0) + list(_blocks_1)))
+        assert parent_blocks in self.node_dict
+        parent_node = self.node_dict[parent_blocks]
+
+        # Get the KSP from the parent node and set the preconditioner to fieldsplit
+        parent_ksp = parent_node.get_ksp()
+        pc = parent_ksp.pc
         pc.setType(PETSc.PC.Type.FIELDSPLIT)
-        pc.setFieldSplitIS([is0_name, is0], [is1_name, is1])
+        pc.setFieldSplitIS(is0_data, is1_data)
 
-        # Set composite type
+        # Ensure the composite type is valid
         assert composite_type in self._composite_type_dict
         comp_type = self._composite_type_dict[composite_type]
         pc.setFieldSplitType(comp_type)
 
-        # If composite type is schur, set schur complement settings
         if composite_type == 'schur':
-
-            # Set schur preconditioner type
+            # If the composite type is 'schur', set the Schur factorization type
             assert schur_pre_type in self._schur_pre_type_dict
             pre_type = self._schur_pre_type_dict[schur_pre_type]
             pc.setFieldSplitSchurPreType(pre_type)
 
-            # Set factorization type
             assert schur_fact_type in self._schur_fact_type_dict
             fact_type = self._schur_fact_type_dict[schur_fact_type]
             pc.setFieldSplitSchurFactType(fact_type)
 
-        outer_ksp.setUp()
-
+        parent_ksp.setUp()
         return pc.getFieldSplitSubKSP()
+         
+    def get_block_split_index_set(self, node, dofs0, dofs1):
+        """
+        Get the PETSc Index Set (IS) for the block split.
 
+        Parameters:
+        ------------
+            node (BlockSplitNode): The node for which to get the IS.
+            dofs0 (np.ndarray): DOFs for the first block.
+            dofs1 (np.ndarray): DOFs for the second block.
+
+        Returns:
+        ------------
+            PETSc.IS: The Index Set for the block split.
+        """
+        comm = self.physics.mesh.comm
+
+        # Root node: dofs are already monolithic global indices (owned)
+        if node.is_root():
+            is0 = PETSc.IS().createGeneral(np.sort(dofs0).astype(np.int32), comm=comm)
+            is1 = PETSc.IS().createGeneral(np.sort(dofs1).astype(np.int32), comm=comm)
+            return is0, is1
+        
+        # If the node is not the root, create separate IS for each block
+        # Grab the communicator from the physics mesh
+        comm = self.physics.mesh.comm
+
+        # Sort the DOFs, find the length of the arrays
+        num_dofs0 = len(dofs0)
+        num_dofs1 = len(dofs1)
+        num_dofs_sub = num_dofs0 + num_dofs1
+
+        node_dofs = np.concatenate((dofs0, dofs1)).astype(np.int32)
+        node_dofs_sorted = np.sort(node_dofs)
+
+        # Find the offset for parallel DOFs
+        sub_ids_0 = np.where(node_dofs_sorted < num_dofs0)[0].astype(np.int32)
+        sub_ids_1 = np.where(node_dofs_sorted >= num_dofs0)[0].astype(np.int32)
+        offset = np.cumsum([0] + comm.allgather(num_dofs_sub))[comm.rank]
+
+        sub_ids_0 += offset
+        sub_ids_1 += offset
+
+        # Create the PETSc Index Sets for the sub-blocks
+        is0 = PETSc.IS().createGeneral(np.sort(sub_ids_0).astype(np.int32))
+        is1 = PETSc.IS().createGeneral(np.sort(sub_ids_1).astype(np.int32))
+
+        return is0, is1
+    
+    def set_child_node_ksps(self, blocks_0, blocks_1, is0_data, is1_data, ksp0, ksp1):
+        """
+        Set the KSPs for the child nodes of the block split.
+        Parameters
+        ------------
+            blocks_0 (Iterable[str]): The first set of blocks (field tags).
+            blocks_1 (Iterable[str]): The second set of blocks (field tags).
+            is0_data (tuple): A tuple containing the name and PETSc Index Set for the first block.
+            is1_data (tuple): A tuple containing the name and PETSc Index Set for the second block.
+            ksp0 (PETSc.KSP): The KSP for the first block.
+            ksp1 (PETSc.KSP): The KSP for the second block.
+        
+        Returns
+        ------------
+            None
+        """
+        _blocks_0, _blocks_1 = blocks_0, blocks_1
+        # Ensure blocks are iterable
+        if not _is_container(_blocks_0):
+            _blocks_0 = [_blocks_0]
+        if not _is_container(_blocks_1):
+            _blocks_1 = [_blocks_1]
+
+        # Make sure all blocks in the parent node are in the child nodes 
+        parent_blocks = tuple(sorted(list(_blocks_0) + list(_blocks_1)))
+        assert parent_blocks in self.node_dict
+        parent_node = self.node_dict[parent_blocks]
+
+        # Insert the KSPs into the child nodes
+        parent_node.left_node.set_ksp(ksp0)
+        parent_node.right_node.set_ksp(ksp1)
+        parent_node.left_node.set_IS(is0_data[1])
+        parent_node.right_node.set_IS(is1_data[1])
+        
 class BlockNonLinearSolver(NonLinearSolver):
-
-    def __init__(self, fieldsplit_tree, *args, **kwargs):
-        self._fs_tree = fieldsplit_tree
-        super().__init__(*args, **kwargs)
+    def __init__(self, block_split_tree: BlockSplitTree, *args, **kwargs):
+        self._block_split_tree = block_split_tree    
+        super().__init__(*args, **kwargs) 
 
     def init_ksp(self):
+        """
+        Override the init_ksp method to set up the KSP solver
+        according to the block split tree configuration.
+        """
+        if self.ksp_is_initialized:
+            return
+        
+        self.ksp_is_initialized = True
 
-        # Set the outer ksp solver
-        ksp = self.linear_solver().ksp()
+        # Get PETSc Krylov solver object and set the outer KSP function; 
+        # Set the root node's KSP to the outer KSP
+        ksp = self.krylov_solver
         self._outer_ksp_set_func(ksp)
+        self._block_split_tree.root.set_ksp(ksp)
 
-        # Set inner solvers
-        # By default I define set_ksp0 and set_ksp1 
-        # here to rename the monitor
-        self._fs_tree.root.set_ksp(ksp)
-        for split in self._fs_tree.splits:
-            fields = split.pop('fields')
+        # Assemble matrix to define matrix size for PETSc KSP fieldsplit
+        jac_form = dolfinx.fem.form(self.problem.jacobian)
+        A = dolfinx.fem.petsc.assemble_matrix(jac_form, bcs=self.problem.physics.dirichlet_bcs)
+        A.assemble()
+        ksp.setOperators(A)
+
+        # Preallocate b with the right layout
+        res_form = dolfinx.fem.form(self.problem.weak_form)
+        self._b = dolfinx.fem.petsc.create_vector(res_form)
+
+        # For each split, built the block split preconditioner
+        for split in self._block_split_tree.splits:
+            blocks = split.pop('fields')
+            # Initialize sub KSPs for the blocks with default set functions (override at the end)
             ksp0_set_function = split.pop('ksp0_set_function', self.default_set_ksp0)
             ksp1_set_function = split.pop('ksp1_set_function', self.default_set_ksp1)
-            ksp0, ksp1 = self._fs_tree.split(fields[0], fields[1], **split)
+
+            # Get the Index Set (IS) data (block_name, IS) for each block;
+            # Assemble the sub KSPs for each block;
+            # Pass block fields, IS data, and ksp objects to the child nodes
+            is0_data, is1_data = self._block_split_tree.split_IS(blocks[0], blocks[1])
+            ksp0, ksp1 = self._block_split_tree.build_block_split_pc(blocks[0], blocks[1], is0_data, is1_data, **split)
+            self._block_split_tree.set_child_node_ksps(blocks[0], blocks[1], is0_data, is1_data, ksp0, ksp1)
+
+            # Override the default KSP setup functions for the child nodes
             ksp0_set_function(ksp0)
             ksp1_set_function(ksp1)
-        ksp.setUp()
 
     def default_set_ksp0(self, ksp):
+        """
+        Default KSP setup function for the root block in the block split tree.
+        This is a placeholder and can be customized as needed.
+        """
         super().default_set_ksp(ksp)
         ksp.setMonitor(ConvergenceMonitor('ksp0'))
 
     def default_set_ksp1(self, ksp):
+        """
+        Default KSP setup function for the first block in the block split tree.
+        This is a placeholder and can be customized as needed.
+        """
         super().default_set_ksp(ksp)
         ksp.setMonitor(ConvergenceMonitor('ksp1'))
-
-def main():
-
-    from flatiron_tk.physics import PhysicsProblem, MultiPhysicsProblem
-    from flatiron_tk.mesh import LineMesh
-    from flatiron_tk.solver import NonLinearProblem, NonLinearSolver
-    import fenics as fe
-
-    class GalerkinProjection(PhysicsProblem):
-        '''
-        GalerkinProjection field_value = b
-        '''
-        def set_element(self, element_family, element_degree, dim):
-            self.element = fe.VectorElement(element_family, self.mesh.mesh.ufl_cell(), element_degree, dim=dim)
-            self.element_family = element_family
-            self.element_degree = element_degree
-
-        def set_projection_value(self, projection_value):
-            self.set_external_function('b', projection_value)
-
-        def flux(self):
-            ''''''
-
-        def get_residue(self):
-            ''''''
-
-        def set_weak_form(self):
-            b = self.external_function('b')
-            u = self.solution_function()
-            w = self.test_function()
-            self.weak_form = fe.dot(u-b, w)*self.dx
-
-    def build_GP(tag, mesh, dim, val):
-        GP = GalerkinProjection(mesh, tag)
-        GP.set_element('CG', 1, dim)
-        GP.set_projection_value(fe.Constant(val))
-        return GP
-
-    mesh = LineMesh(0, 1, 1/10)
-    GP1 = build_GP('A', mesh, dim=2, val=[1,2])
-    GP2 = build_GP('B', mesh, dim=3, val=[3,4,5])
-    GP3 = build_GP('C', mesh, dim=4, val=[6,7,8,9])
-    GPs = [GP1, GP2, GP3]
-
-    physics = MultiPhysicsProblem(*GPs)
-    physics.set_element()
-    physics.build_function_space()
-    physics.set_weak_form()
-
-    tree = FieldSplitTree(physics)
-
-    split0 = {'fields': (('A','C'),'B'),
-              'composite_type': 'schur',
-              'schur_fact_type': 'full',
-              'schur_pre_type': 'a11'}
-
-    split1 = {'fields': ('A','C'),
-              'composite_type': 'schur',
-              'schur_fact_type': 'full',
-              'schur_pre_type': 'a11'}
-
-    splits = [split0, split1]
-
-
-
-    problem = NonLinearProblem(physics)
-    solver = BlockNonLinearSolver(tree, splits, fe.MPI.comm_world, problem, fe.PETScKrylovSolver())
-    solver.solve()
-    (A, B, C) = physics.solution.split(True)
-    print('A', A.vector()[:])
-    print('B', B.vector()[:])
-    print('C', C.vector()[:])
-
-if __name__ == '__main__':
-    main()
-
-
+            

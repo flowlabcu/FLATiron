@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo: Steady Multiphysics Simulation (Coupled Diffusion Reaction) &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Demo: Steady Navier-Stokes" href="demo_steady_navier_stokes.html" />
+    <link rel="prev" title="Demo: Steady Advection-Diffusion-Reaction Equation" href="demo_steady_adr.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../toc_demos.html">FLATiron Demos</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="demo_adios4dolfinx.html">Demo: Using ADIOS4DOLFINx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_block_solver_nse.html">Demo: Using the Block Solver for the Navier-Stokes Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_block_solver_gp.html">Demo: Using the Block Solver with Nested Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_functions.html">Demo: Using the Functions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_scalar_transport_edge_stab.html">Demo: Advection-Diffusion-Reaction with Jump (Edge) Stabilization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_steady_adr.html">Demo: Steady Advection-Diffusion-Reaction Equation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Demo: Steady Multiphysics Simulation (Coupled Diffusion Reaction)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-definition">Problem definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#full-script">Full Script</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="demo_steady_navier_stokes.html">Demo: Steady Navier-Stokes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_steady_stokes.html">Demo: Steady Stokes with External Body Force</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_transient_adr.html">Demo: Transient Advection-Diffusion-Reaction Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_transient_navier_stokes.html">Demo: Transient Navier-Stokes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../toc_demos.html">FLATiron Demos</a></li>
+      <li class="breadcrumb-item active">Demo: Steady Multiphysics Simulation (Coupled Diffusion Reaction)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_demo/demo_steady_multiphysics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="demo-steady-multiphysics-simulation-coupled-diffusion-reaction">
+<h1>Demo: Steady Multiphysics Simulation (Coupled Diffusion Reaction)<a class="headerlink" href="#demo-steady-multiphysics-simulation-coupled-diffusion-reaction" title="Link to this heading"></a></h1>
+<p>This demo code demonstrate how to solve a steady coupled Advection-Diffusion-Reaction problem with surface reaction terms at the boundary.
+This demo is used to demonstrate how to use the <cite>MultiphysicsProblem</cite> class in FLATiron.</p>
+<p>The source code can be found in <strong>demo/demo_steady_multiphysics/demo_steady_multiphysics.py</strong>.</p>
+<section id="problem-definition">
+<h2>Problem definition<a class="headerlink" href="#problem-definition" title="Link to this heading"></a></h2>
+<p>First we define the concentration of chemical species <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(B\)</span>, and <span class="math notranslate nohighlight">\(C\)</span>, for a 1D domain of length <span class="math notranslate nohighlight">\(L\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[D_A \frac{d^2A}{dx^2} - k_v A B = 0\]</div>
+<div class="math notranslate nohighlight">
+\[D_B \frac{d^2B}{dx^2} - 2k_v A B = 0\]</div>
+<div class="math notranslate nohighlight">
+\[D_C \frac{d^2C}{dx^2} + k_v A B = 0\]</div>
+<p>The left boundary conditions are as follows</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A(x=0) = C_0 \\
+B(x=0) = C_0 \\
+C(x=0) = 0 \\\end{split}\]</div>
+<p>And the surface reactions on the right boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{dA}{dx}(x=L) = - \frac{k_s}{D_A} A B \\
+\frac{dB}{dx}(x=L) = - \frac{2k_s}{D_B} A B \\
+\frac{dC}{dx}(x=L) = \frac{k_s}{D_C} A B \\\end{split}\]</div>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<p>Fist, we import code the relevant modules from flatiron_tk and the basic libraries and define the mesh and constants.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiphysicsProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">SteadyScalarTransport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearSolver</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Demo for a coupled diffusion reaction problem</span>
+<span class="sd">D_A \\frac{d^2A}{dx^2} - k_v A B = 0</span>
+<span class="sd">D_B \\frac{d^2B}{dx^2} - 2k_v A B = 0</span>
+<span class="sd">D_C \\frac{d^2C}{dx^2} + k_v A B = 0</span>
+
+<span class="sd">BC:</span>
+<span class="sd">A(x=0) = C0</span>
+<span class="sd">B(x=0) = C0</span>
+<span class="sd">C(x=0) = 0</span>
+
+<span class="sd">\\nabla A \\cdot \\hat{n} = -k_S A B  / D_A \\forall \\vec{x} \\in \\Gamma_B</span>
+<span class="sd">\\nabla B \\cdot \\hat{n} = -2K_S A B / D_B \\forall \\vec{x} \\in \\Gamma_B</span>
+<span class="sd">\\nabla C \\cdot \\hat{n} = K_s A B   / D_C \\forall \\vec{x} \\in \\Gamma_B</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># Create Mesh</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">RectMesh</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">64</span><span class="p">)</span>
+
+<span class="c1"># Define Constants</span>
+<span class="n">D_A</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span> <span class="n">D_B</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span> <span class="n">D_C</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">k_v</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="mf">0.01</span><span class="p">))</span>
+<span class="n">k_s</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">c0</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">u_mag</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="c1"># Create the velocity field</span>
+<span class="n">U</span> <span class="o">=</span> <span class="n">u_mag</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">U</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Next we define <code class="docutils literal notranslate"><span class="pre">SteadyScalarTransport</span></code> problems for all three species and set the appropriate tag to disambiguate them.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define Physics A, B, C</span>
+<span class="n">stp_A</span> <span class="o">=</span> <span class="n">SteadyScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">q_degree</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">D_A</span><span class="p">)</span>
+
+<span class="n">stp_B</span> <span class="o">=</span> <span class="n">SteadyScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">q_degree</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">D_B</span><span class="p">)</span>
+
+<span class="n">stp_C</span> <span class="o">=</span> <span class="n">SteadyScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">q_degree</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">D_C</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we build a <code class="docutils literal notranslate"><span class="pre">MultiPhysicsProblem</span></code> as a collection of the three <code class="docutils literal notranslate"><span class="pre">ScalarTransport</span></code> physics that we created.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build Multiphysics Problem</span>
+<span class="n">coupled_physics</span> <span class="o">=</span> <span class="n">MultiphysicsProblem</span><span class="p">(</span><span class="n">stp_A</span><span class="p">,</span> <span class="n">stp_B</span><span class="p">,</span> <span class="n">stp_C</span><span class="p">)</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_element</span><span class="p">()</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now, we will set the terms which couple the three equations together. This is done by first grabbing the solution
+function of from each species through the <code class="docutils literal notranslate"><span class="pre">get_solution_function()</span></code> method by supplying the appropriate tag for each species.
+Then we set reaction associated with each species’ equation through the <code class="docutils literal notranslate"><span class="pre">set_reaction()</span></code> function on the
+individual <code class="docutils literal notranslate"><span class="pre">SteadyScalarTransport</span></code> object. Finally, we finalize the volumetric weak formulation. We additionally add
+SUPG stabilization to each equation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">coupled_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">coupled_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">coupled_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="o">-</span><span class="n">k_v</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">k_v</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="n">k_v</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span><span class="p">)</span>
+
+<span class="c1"># Set weak form and stabilization</span>
+<span class="n">stp_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;stab&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_weak_form</span><span class="p">(</span><span class="n">stp_options</span><span class="p">,</span><span class="n">stp_options</span><span class="p">,</span><span class="n">stp_options</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we set the boundary conditions dictionary for each physics and create an overall dictionary with the species tag
+called <code class="docutils literal notranslate"><span class="pre">bc_dict</span></code> which we supply into the <code class="docutils literal notranslate"><span class="pre">coupled_physics</span></code> object. The format for the individual boundary condition dictionary
+has the same format as a single species transport problem. Here, we utilize the solution functions that we
+grabbed earlier to define the Neumann boundary condition. We can do this because Neumann boundary condition is
+simply an additional term in the weak formulation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 5 = left,</span>
+<span class="c1"># 8 = bottom</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span>
+<span class="n">A_bcs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="n">c0</span><span class="p">))},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;neumann&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">k_s</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">/</span><span class="n">D_A</span> <span class="o">*</span> <span class="n">n</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">B_bcs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="n">c0</span><span class="p">))},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;neumann&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">k_s</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">/</span><span class="n">D_B</span> <span class="o">*</span> <span class="n">n</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">C_bcs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;neumann&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">k_s</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">/</span><span class="n">D_C</span> <span class="o">*</span> <span class="n">n</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">bc_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="n">A_bcs</span><span class="p">,</span>
+    <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="n">B_bcs</span><span class="p">,</span>
+    <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">C_bcs</span>
+<span class="p">}</span>
+
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">(</span><span class="n">bc_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we create a nonlinear problem and solver to solve the coupled system.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set writers</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_writer</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;pvd&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set problem</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">NonLinearProblem</span><span class="p">(</span><span class="n">coupled_physics</span><span class="p">)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">NonLinearSolver</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">)</span>
+
+<span class="c1"># Solve and write</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code should give the following result:</p>
+<a class="reference internal image-reference" href="../_images/steady-reacting-flows.png"><img alt="../_images/steady-reacting-flows.png" class="align-center" src="../_images/steady-reacting-flows.png" style="width: 600px;" />
+</a>
+</section>
+<section id="full-script">
+<h2>Full Script<a class="headerlink" href="#full-script" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiphysicsProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">SteadyScalarTransport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearSolver</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Demo for a coupled diffusion reaction problem</span>
+<span class="sd">D_A \\frac{d^2A}{dx^2} - k_v A B = 0</span>
+<span class="sd">D_B \\frac{d^2B}{dx^2} - 2k_v A B = 0</span>
+<span class="sd">D_C \\frac{d^2C}{dx^2} + k_v A B = 0</span>
+
+<span class="sd">BC:</span>
+<span class="sd">A(x=0) = C0</span>
+<span class="sd">B(x=0) = C0</span>
+<span class="sd">C(x=0) = 0</span>
+
+<span class="sd">\\nabla A \\cdot \\hat{n} = -k_S A B  / D_A \\forall \\vec{x} \\in \\Gamma_B</span>
+<span class="sd">\\nabla B \\cdot \\hat{n} = -2K_S A B / D_B \\forall \\vec{x} \\in \\Gamma_B</span>
+<span class="sd">\\nabla C \\cdot \\hat{n} = K_s A B   / D_C \\forall \\vec{x} \\in \\Gamma_B</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># Create Mesh</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">RectMesh</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">64</span><span class="p">)</span>
+
+<span class="c1"># Define Constants</span>
+<span class="n">D_A</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span> <span class="n">D_B</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span> <span class="n">D_C</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">k_v</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="mf">0.01</span><span class="p">))</span>
+<span class="n">k_s</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">c0</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">u_mag</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="c1"># Create the velocity field</span>
+<span class="n">U</span> <span class="o">=</span> <span class="n">u_mag</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">U</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">])</span>
+
+<span class="c1"># Define Physics A, B, C</span>
+<span class="n">stp_A</span> <span class="o">=</span> <span class="n">SteadyScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">q_degree</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">D_A</span><span class="p">)</span>
+
+<span class="n">stp_B</span> <span class="o">=</span> <span class="n">SteadyScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">q_degree</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">D_B</span><span class="p">)</span>
+
+<span class="n">stp_C</span> <span class="o">=</span> <span class="n">SteadyScalarTransport</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">q_degree</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_advection_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">D_C</span><span class="p">)</span>
+
+<span class="c1"># Build Multiphysics Problem</span>
+<span class="n">coupled_physics</span> <span class="o">=</span> <span class="n">MultiphysicsProblem</span><span class="p">(</span><span class="n">stp_A</span><span class="p">,</span> <span class="n">stp_B</span><span class="p">,</span> <span class="n">stp_C</span><span class="p">)</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_element</span><span class="p">()</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">coupled_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">coupled_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">coupled_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+
+<span class="n">stp_A</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="o">-</span><span class="n">k_v</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span><span class="p">)</span>
+<span class="n">stp_B</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">k_v</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span><span class="p">)</span>
+<span class="n">stp_C</span><span class="o">.</span><span class="n">set_reaction</span><span class="p">(</span><span class="n">k_v</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span><span class="p">)</span>
+
+<span class="c1"># Set weak form and stabilization</span>
+<span class="n">stp_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;stab&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_weak_form</span><span class="p">(</span><span class="n">stp_options</span><span class="p">,</span><span class="n">stp_options</span><span class="p">,</span><span class="n">stp_options</span><span class="p">)</span>
+
+<span class="c1"># 5 = left,</span>
+<span class="c1"># 8 = bottom</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span>
+<span class="n">A_bcs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="n">c0</span><span class="p">))},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;neumann&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">k_s</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">/</span><span class="n">D_A</span> <span class="o">*</span> <span class="n">n</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">B_bcs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="n">c0</span><span class="p">))},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;neumann&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">k_s</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">/</span><span class="n">D_B</span> <span class="o">*</span> <span class="n">n</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">C_bcs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;neumann&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">k_s</span><span class="o">*</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">/</span><span class="n">D_C</span> <span class="o">*</span> <span class="n">n</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">bc_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="n">A_bcs</span><span class="p">,</span>
+    <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="n">B_bcs</span><span class="p">,</span>
+    <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">C_bcs</span>
+<span class="p">}</span>
+
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">(</span><span class="n">bc_dict</span><span class="p">)</span>
+
+<span class="c1"># Set writers</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">set_writer</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;pvd&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set problem</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">NonLinearProblem</span><span class="p">(</span><span class="n">coupled_physics</span><span class="p">)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">NonLinearSolver</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">)</span>
+
+<span class="c1"># Solve and write</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">coupled_physics</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="demo_steady_adr.html" class="btn btn-neutral float-left" title="Demo: Steady Advection-Diffusion-Reaction Equation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="demo_steady_navier_stokes.html" class="btn btn-neutral float-right" title="Demo: Steady Navier-Stokes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

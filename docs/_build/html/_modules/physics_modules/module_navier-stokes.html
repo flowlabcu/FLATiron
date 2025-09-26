@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Navier-Stokes &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Brinkman Navier-Stokes" href="module_porous_media.html" />
+    <link rel="prev" title="Stokes" href="module_stokes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="module_physics_problem.html">Physics Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_multiphysics_problem.html">Multiphysics Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_scalar_transport.html">Scalar-Transport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Navier-Stokes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-flatiron_tk.physics.steady_navier_stokes">Steady Navier-Stokes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-flatiron_tk.physics.transient_navier_stokes">Transient Navier-Stokes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../toc_solver_modules.html">Solver Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../toc_modules.html">FLATiron Modules</a></li>
+          <li class="breadcrumb-item"><a href="../toc_physics_modules.html">Physics Modules</a></li>
+      <li class="breadcrumb-item active">Navier-Stokes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_modules/physics_modules/module_navier-stokes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="navier-stokes">
+<h1>Navier-Stokes<a class="headerlink" href="#navier-stokes" title="Link to this heading"></a></h1>
+<section id="module-flatiron_tk.physics.steady_navier_stokes">
+<span id="steady-navier-stokes"></span><h2>Steady Navier-Stokes<a class="headerlink" href="#module-flatiron_tk.physics.steady_navier_stokes" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.steady_navier_stokes.</span></span><span class="sig-name descname"><span class="pre">SteadyNavierStokes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes" title="flatiron_tk.physics.steady_stokes.SteadyStokes"><code class="xref py py-class docutils literal notranslate"><span class="pre">SteadyStokes</span></code></a></p>
+<p>A class to represent the steady Navier-Stokes equations.
+This class extends the SteadyStokes class to include the convective term
+in the momentum equation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes.add_stab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.add_stab" title="Link to this definition"></a></dt>
+<dd><p>Add stabilization terms to the weak form for the steady Navier-Stokes problem.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.get_residual">
+<span class="sig-name descname"><span class="pre">get_residual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes.get_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.get_residual" title="Link to this definition"></a></dt>
+<dd><p>Compute the residual for the steady Navier-Stokes problem.</p>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>u: The velocity field.
+p: The pressure field.</p>
+</div></blockquote>
+</section>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>The residual of the steady Navier-Stokes equations.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.get_stab_constant">
+<span class="sig-name descname"><span class="pre">get_stab_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes.get_stab_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.get_stab_constant" title="Link to this definition"></a></dt>
+<dd><p>Compute the stabilization constants for the steady Navier-Stokes problem.</p>
+<section id="id1">
+<h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>u: The velocity field.
+h: The cell diameter.
+alpha: The SUPG stabilization parameter.
+beta: The PSPG stabilization parameter.</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>A tuple containing the SUPG and PSPG stabilization constants.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_density">
+<span class="sig-name descname"><span class="pre">set_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes.set_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_density" title="Link to this definition"></a></dt>
+<dd><p>Set the density for the Navier-Stokes problem.</p>
+<section id="id3">
+<h3>Parameters:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>rho: The density value.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_dynamic_viscosity">
+<span class="sig-name descname"><span class="pre">set_dynamic_viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes.set_dynamic_viscosity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_dynamic_viscosity" title="Link to this definition"></a></dt>
+<dd><p>Set the dynamic viscosity for the Navier-Stokes problem.</p>
+<section id="id4">
+<h3>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>mu: The dynamic viscosity value.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_initial_guess">
+<span class="sig-name descname"><span class="pre">set_initial_guess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_guess_u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_guess_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes.set_initial_guess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_initial_guess" title="Link to this definition"></a></dt>
+<dd><p>Set the initial guess for the steady Navier-Stokes problem.</p>
+<section id="id5">
+<h3>Parameters:<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>initial_guess_u: A user-defined initial guess for the velocity field. If None, a zero initial guess is used.
+initial_guess_p: A user-defined initial guess for the pressure field. If None, a zero initial guess is used.</p>
+</div></blockquote>
+</section>
+<section id="id6">
+<h3>Returns:<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/steady_navier_stokes.html#SteadyNavierStokes.set_weak_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_weak_form" title="Link to this definition"></a></dt>
+<dd><p>Set the weak form for the steady Navier-Stokes problem.</p>
+<section id="id7">
+<h3>Parameters:<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>stab: A boolean indicating whether to include stabilization terms in the weak form.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-flatiron_tk.physics.transient_navier_stokes">
+<span id="transient-navier-stokes"></span><h2>Transient Navier-Stokes<a class="headerlink" href="#module-flatiron_tk.physics.transient_navier_stokes" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.transient_navier_stokes.</span></span><span class="sig-name descname"><span class="pre">TransientNavierStokes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes" title="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes"><code class="xref py py-class docutils literal notranslate"><span class="pre">SteadyNavierStokes</span></code></a></p>
+<p>Transient scalar transport problem. Supers SteadyNavierStokes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<em>flatiron_tk.mesh</em>) – The mesh on which to solve the problem.</p></li>
+<li><p><strong>dt</strong> (<em>float</em>) – The time step size.</p></li>
+<li><p><strong>theta</strong> (<em>float</em><em>, </em><em>optional</em>) – The theta parameter for the implicit-explicit scheme. Default is 0.5.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.add_stab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.add_stab" title="Link to this definition"></a></dt>
+<dd><p>Add stabilization terms to the weak form for the steady Navier-Stokes problem.
+This method computes the SUPG and PSPG stabilization terms and adds them to the weak form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.build_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.build_function_space" title="Link to this definition"></a></dt>
+<dd><p>Build the function space for the transient Navier-Stokes problem.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.get_residual">
+<span class="sig-name descname"><span class="pre">get_residual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.get_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.get_residual" title="Link to this definition"></a></dt>
+<dd><p>Compute the residual for the transient Navier-Stokes problem.</p>
+<section id="id8">
+<h3>Returns:<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>The residual expression for the transient Navier-Stokes equations.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_initial_conditions">
+<span class="sig-name descname"><span class="pre">set_initial_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.set_initial_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_initial_conditions" title="Link to this definition"></a></dt>
+<dd><p>Set the initial conditions for the transient Navier-Stokes problem.</p>
+<section id="id9">
+<h3>Parameters:<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>u_init: dolfinx.fem.Function or dolfinx.fem.Expression</dt><dd><p>Initial velocity field</p>
+</dd>
+<dt>p_init: dolfinx.fem.Function or dolfinx.fem.Expression</dt><dd><p>Initial pressure field</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_midpoint_theta">
+<span class="sig-name descname"><span class="pre">set_midpoint_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.set_midpoint_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_midpoint_theta" title="Link to this definition"></a></dt>
+<dd><p>Set the theta parameter for the implicit-explicit scheme.</p>
+<section id="id10">
+<h3>Parameters:<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>theta: The theta parameter.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_time_step_size">
+<span class="sig-name descname"><span class="pre">set_time_step_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.set_time_step_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_time_step_size" title="Link to this definition"></a></dt>
+<dd><p>Set the time step size for the transient Navier-Stokes problem.</p>
+<section id="id11">
+<h3>Parameters:<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>dt: The time step size.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.set_weak_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.set_weak_form" title="Link to this definition"></a></dt>
+<dd><p>Set the weak form for the transient Navier-Stokes problem.</p>
+<section id="id12">
+<h3>Parameters:<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>stab: A boolean indicating whether to include stabilization terms in the weak form.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.update_previous_solution">
+<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_navier_stokes.html#TransientNavierStokes.update_previous_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes.update_previous_solution" title="Link to this definition"></a></dt>
+<dd><p>Update the previous solution with the current solution.
+This method copies the current solution to the previous solution for the next time step.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="module_stokes.html" class="btn btn-neutral float-left" title="Stokes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_porous_media.html" class="btn btn-neutral float-right" title="Brinkman Navier-Stokes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

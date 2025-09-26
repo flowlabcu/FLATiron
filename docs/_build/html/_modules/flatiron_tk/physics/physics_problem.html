@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.physics.physics_problem &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.physics.physics_problem</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.physics.physics_problem</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">adios4dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">basix</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span> 
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">boundary_conditions</span> <span class="k">as</span> <span class="n">bcs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.io</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_number</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if &#39;a&#39; is a number.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a : any</span>
+<span class="sd">        The input to check.   </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if &#39;a&#39; is a number, False otherwise.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_iterable_number</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if &#39;a&#39; is an iterable of numbers.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a : iterable</span>
+<span class="sd">        The input to check.   </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if &#39;a&#39; is an iterable of numbers, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Return false if not iterable</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="c1"># Check for strings (considered iterable, so we create a safeguard)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Check for numbers</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ai</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="k">for</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> 
+
+<div class="viewcode-block" id="PhysicsProblem">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhysicsProblem</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for defining physics problems using the finite element method.</span>
+<span class="sd">    This class provides a framework for setting up and solving physics problems on a given mesh.</span>
+<span class="sd">    It includes methods for defining the finite element, function space, weak form, boundary conditions,</span>
+<span class="sd">    and writing results to output files.</span>
+<span class="sd">    Inherited classes must implement the `set_weak_form` method to define the specific weak form of the problem.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh : flatiron_tk mesh object</span>
+<span class="sd">        The mesh object representing the computational domain.</span>
+<span class="sd">    tag : str, optional</span>
+<span class="sd">        Tag for the solution function (default is &#39;u&#39;).</span>
+<span class="sd">    q_degree : int, optional</span>
+<span class="sd">        Quadrature degree for the function space (default is 4).</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dirichlet_bcs : list</span>
+<span class="sd">        List to store Dirichlet boundary conditions.</span>
+<span class="sd">    mesh : flatiron_tk mesh object</span>
+<span class="sd">        The mesh object representing the computational domain.</span>
+<span class="sd">    number_of_steps_written : int</span>
+<span class="sd">        Counter for the number of steps written.</span>
+<span class="sd">    tag : str</span>
+<span class="sd">        Tag for the solution function.</span>
+<span class="sd">    q_degree : int</span>
+<span class="sd">        Quadrature degree for the function space.</span>
+<span class="sd">    dx : ufl.Measure</span>
+<span class="sd">        Volume differential (domain measure).</span>
+<span class="sd">    ds : ufl.Measure</span>
+<span class="sd">        Exterior surface differential.</span>
+<span class="sd">    dS : ufl.Measure</span>
+<span class="sd">        Interior surface differential.</span>
+<span class="sd">    external_function_dict : dict</span>
+<span class="sd">        Dictionary to hold constant physical properties as external functions.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="n">q_degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dirichlet_bcs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_steps_written</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span> <span class="o">=</span> <span class="n">q_degree</span>        
+
+        <span class="c1"># ---- Domain measures ---- #</span>
+        <span class="c1"># dx is the volume differential (or domain differential), dOmega</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;quadrature_degree&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span><span class="p">})</span>
+        <span class="c1"># ds is the EXTERIOR surface differential, dGamma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">subdomain_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">boundary</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;quadrature_degree&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span><span class="p">})</span>
+        <span class="c1"># dS is the INTERIOR surface differential, dGamma0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dS</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s1">&#39;dS&#39;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;quadrature_degree&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span><span class="p">})</span>
+        <span class="c1"># The constant physical properties will be held in the external function dictionary </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">external_function_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="PhysicsProblem.set_tag">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_tag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tag: The tag to assign to the solution function.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Setting tag: </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.to_dolfinx">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.to_dolfinx">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dolfinx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a to a dolfinx constant if a is a number or an iterable, otherwise return a.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a : number or iterable or ufl expression or dolfinx function/constant</span>
+<span class="sd">            The input to convert.   </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dolfinx.fem.Constant or ufl expression or dolfinx function/constant</span>
+<span class="sd">            The converted dolfinx constant or the original input if it was already a ufl expression or dolfinx function/constant.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the input is not a number, iterable, ufl expression, or dolfinx function/constant.   </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If &#39;a&#39; is a ufl expression, return it as is</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">Expr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">a</span>
+    
+        <span class="c1"># If &#39;a&#39; is a dolfinx function or constant, return it as is</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">a</span>
+        
+        <span class="c1"># If &#39;a&#39; is a number or an iterable of numbers, convert it to a dolfinx constant</span>
+        <span class="k">if</span> <span class="n">_is_number</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_is_iterable_number</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">a</span></div>
+
+        
+<div class="viewcode-block" id="PhysicsProblem.set_element">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_element">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_family</span><span class="p">,</span> <span class="n">element_degree</span><span class="p">,</span> <span class="n">element_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the finite element for the physics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        element_family : str</span>
+<span class="sd">            The family of the finite element (e.g., &quot;CG&quot;, &quot;DG&quot;).</span>
+<span class="sd">        element_degree : int</span>
+<span class="sd">            The degree of the finite element.</span>
+<span class="sd">        element_shape : str, optional</span>
+<span class="sd">            The shape of the finite element (e.g., &quot;scalar&quot;, &quot;vector&quot;). Default is None.</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set the dolfinx shape for vectors and tensors</span>
+        <span class="n">_shape</span> <span class="o">=</span> <span class="n">element_shape</span>
+        <span class="k">if</span> <span class="n">element_shape</span> <span class="o">==</span> <span class="s1">&#39;vector&#39;</span><span class="p">:</span>
+            <span class="n">_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_tdim</span><span class="p">(),</span> <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">element_shape</span> <span class="o">==</span> <span class="s1">&#39;tensor&#39;</span><span class="p">:</span>
+            <span class="n">_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_tdim</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_tdim</span><span class="p">())</span>
+
+        <span class="c1"># Set the dolfinx element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">basix</span><span class="o">.</span><span class="n">ufl</span><span class="o">.</span><span class="n">element</span><span class="p">(</span><span class="n">element_family</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">basix_cell</span><span class="p">(),</span> <span class="n">element_degree</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_family</span> <span class="o">=</span> <span class="n">element_family</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_degree</span> <span class="o">=</span> <span class="n">element_degree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span> <span class="o">=</span> <span class="n">_shape</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.set_quadrature_degree">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_quadrature_degree">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_quadrature_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_degree</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the quadrature degree for the physics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        q_degree : int</span>
+<span class="sd">            The quadrature degree to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span> <span class="o">=</span> <span class="n">q_degree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;quadrature_degree&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">subdomain_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">boundary</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;quadrature_degree&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dS</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s1">&#39;dS&#39;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;quadrature_degree&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_degree</span><span class="p">})</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.build_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.build_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the function space, test function, trial function, and solution function for the physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_function_space</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">functionspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">))</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_test_function</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_trial_function</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_solution_function</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">()))</span></div>
+
+
+    <span class="c1"># ---- Setters and Getters ---- #</span>
+<div class="viewcode-block" id="PhysicsProblem.set_external_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_external_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_external_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_name</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set an external function for the physics problem. </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function_name : str</span>
+<span class="sd">            The name of the external function.</span>
+<span class="sd">        function : number or iterable or ufl expression or dolfinx function/constant</span>
+<span class="sd">            The external function to set. Can be a number, an iterable of numbers, a ufl expression, or a dolfinx function/constant.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">external_function_dict</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dolfinx</span><span class="p">(</span><span class="n">function</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.set_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the function space for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        V : dolfinx.fem.FunctionSpace</span>
+<span class="sd">            The function space to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.set_test_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_test_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_test_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the test function for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_function : ufl.TestFunction</span>
+<span class="sd">            The test function to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_function</span> <span class="o">=</span> <span class="n">test_function</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.set_trial_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_trial_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_trial_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the trial function for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trial_function : ufl.TrialFunction</span>
+<span class="sd">            The trial function to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trial_function</span> <span class="o">=</span> <span class="n">trial_function</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.set_solution_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_solution_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_solution_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the solution function for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution_function : dolfinx.fem.Function</span>
+<span class="sd">            The solution function to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="n">solution_function</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.set_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_weak_form">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the weak form of the physics problem.</span>
+
+<span class="sd">        This is done in the inherited class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.flux">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the flux term for Neumann boundary conditions.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        h : number or iterable or ufl expression or dolfinx function/constant</span>
+<span class="sd">            The flux value. Can be a number, an iterable of numbers, a ufl expression, or a dolfinx function/constant.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.external_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.external_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">external_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get an external function by name.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function_name : str</span>
+<span class="sd">            The name of the external function to get.   </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dolfinx.fem.Constant or ufl expression or dolfinx function/constant</span>
+<span class="sd">            The external function associated with the given name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function_dict</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.get_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.get_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the function space for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem (default is None).</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dolfinx.fem.FunctionSpace</span>
+<span class="sd">            The function space of the physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.get_test_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.get_test_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_test_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the test function for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem (default is None).</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.TestFunction</span>
+<span class="sd">            The test function of the physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_function</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.get_trial_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.get_trial_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_trial_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the trial function for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem (default is None).</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.TrialFunction</span>
+<span class="sd">            The trial function of the physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial_function</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.get_solution_function">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.get_solution_function">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_solution_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physics_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the solution function for the physics problem.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        physics_tag : str, optional</span>
+<span class="sd">            The tag of the physics problem (default is None).       </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dolfinx.fem.Function</span>
+<span class="sd">            The solution function of the physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.get_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.get_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the weak form of the physics problem.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.Form</span>
+<span class="sd">            The weak form of the physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.jacobian">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.jacobian">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Jacobian of the weak form.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ufl.Form</span>
+<span class="sd">            The Jacobian of the weak form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_weak_form</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_trial_function</span><span class="p">())</span></div>
+
+    
+<div class="viewcode-block" id="PhysicsProblem.add_to_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.add_to_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_to_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a term to the weak form of the physics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        form : ufl.Form</span>
+<span class="sd">            The term to add to the weak form.</span>
+<span class="sd">        domain : ufl.Measure, optional</span>
+<span class="sd">            The domain to which the term applies (default is None, meaning the user has specified the domain in the form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span> <span class="o">+=</span> <span class="n">form</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span> <span class="o">+=</span> <span class="n">form</span> <span class="o">*</span> <span class="n">domain</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.get_residual">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.get_residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the residual of the weak form.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ---------</span>
+<span class="sd">        ufl.Form</span>
+<span class="sd">            The residual of the weak form.</span>
+<span class="sd">        </span>
+<span class="sd">        In this base class, this method is not implemented and should be overridden in derived classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+        
+<div class="viewcode-block" id="PhysicsProblem.set_bcs">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_bcs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bcs_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the boundary conditions for the physics problem.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bcs_dict : dict</span>
+<span class="sd">            A dictionary containing the boundary conditions. The keys are the boundary IDs, and the values are dictionaries with &#39;type&#39; and &#39;value&#39; keys.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an unsupported boundary condition type is provided.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">boundary_id</span> <span class="ow">in</span> <span class="n">bcs_dict</span><span class="p">:</span>
+            <span class="n">bc_data</span> <span class="o">=</span> <span class="n">bcs_dict</span><span class="p">[</span><span class="n">boundary_id</span><span class="p">]</span>            
+            <span class="n">bc_value</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span> <span class="k">if</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;zero&#39;</span> <span class="k">else</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">:</span>
+                <span class="n">bc</span> <span class="o">=</span> <span class="n">bcs</span><span class="o">.</span><span class="n">build_dirichlet_bc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">boundary_id</span><span class="p">,</span> <span class="n">bc_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bc</span><span class="p">)</span>
+ 
+            <span class="k">elif</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;neumann&#39;</span><span class="p">:</span>
+                <span class="n">flux_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">(</span><span class="n">bc_value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">flux_term</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">boundary_id</span><span class="p">))</span>
+            
+            <span class="c1"># Robin BCs are added to the weak form (same as Neumann). </span>
+            <span class="c1"># The user must define the flux method accordingly. </span>
+            <span class="k">elif</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;robin&#39;</span><span class="p">:</span>
+                <span class="n">flux_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">(</span><span class="n">bc_value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">flux_term</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">boundary_id</span><span class="p">))</span>
+            
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported boundary condition type: </span><span class="si">{</span><span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">. Supported types are &#39;dirichlet&#39; and &#39;neumann&#39;.&quot;</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PhysicsProblem.set_writer">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.set_writer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">file_format</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the file writer for the physics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_dir : str</span>
+<span class="sd">            The directory where the output files will be saved.</span>
+<span class="sd">        file_format : str</span>
+<span class="sd">            The file format for the output files. Supported formats are &#39;xdmf&#39;, &#39;pvd&#39;, and &#39;bp&#39;.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an unsupported file format is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;mkdir&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.xdmf&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">XDMFFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">XDMFFile</span><span class="o">.</span><span class="n">Encoding</span><span class="o">.</span><span class="n">HDF5</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span><span class="o">.</span><span class="n">write_mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">)</span> 
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.pvd&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">VTKFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.bp&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># ADIOS2 handles the function name in write method </span>
+            <span class="n">adios4dolfinx</span><span class="o">.</span><span class="n">write_mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">adios4dolfinx</span><span class="o">.</span><span class="n">adios2_helpers</span><span class="o">.</span><span class="n">adios2</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">Write</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported file format: </span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s1">. Supported formats are &quot;xdmf&quot; and &quot;pvd&quot;.&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Output file set to: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhysicsProblem.write">
+<a class="viewcode-back" href="../../physics_modules/module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_to_write</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the solution function to the output file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function_to_write : dolfinx.fem.Function, optional</span>
+<span class="sd">            The function to write to the output file. If None, the solution function is written (default is None).</span>
+<span class="sd">        </span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments. Supported keys:</span>
+
+<span class="sd">            time_stamp : float, optional</span>
+<span class="sd">                The time stamp to associate with the output (default is the number of steps written)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">time_stamp</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_stamp&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_steps_written</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_steps_written</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">function_to_write</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">function_to_write</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">()</span>
+        
+        <span class="n">function_to_write</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+        
+        <span class="c1"># XDMF expects time — default to 0.0 if steady</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.xdmf&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">time_stamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">time_stamp</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span><span class="o">.</span><span class="n">write_function</span><span class="p">(</span><span class="n">function_to_write</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">time_stamp</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.pvd&#39;</span><span class="p">:</span>                    
+            <span class="k">if</span> <span class="n">time_stamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Writing function </span><span class="si">{</span><span class="n">function_to_write</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> at time </span><span class="si">{</span><span class="n">time_stamp</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span><span class="o">.</span><span class="n">write_function</span><span class="p">(</span><span class="n">function_to_write</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">time_stamp</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span><span class="o">.</span><span class="n">write_function</span><span class="p">(</span><span class="n">function_to_write</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_fid</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.bp&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">time_stamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">time_stamp</span> <span class="o">=</span> <span class="mf">0.0</span>
+            
+            <span class="n">adios4dolfinx</span><span class="o">.</span><span class="n">write_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">,</span> <span class="n">function_to_write</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_stamp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">function_to_write</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> 
+                                                       <span class="n">mode</span><span class="o">=</span><span class="n">adios4dolfinx</span><span class="o">.</span><span class="n">adios2_helpers</span><span class="o">.</span><span class="n">adios2</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">Append</span><span class="p">)</span> </div>
+</div>
+
+          
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

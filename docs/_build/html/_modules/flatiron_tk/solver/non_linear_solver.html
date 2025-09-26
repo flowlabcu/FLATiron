@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.solver.non_linear_solver &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.solver.non_linear_solver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.solver.non_linear_solver</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.convergence_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceMonitor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">petsc</span> <span class="k">as</span> <span class="n">fem_petsc</span> <span class="c1"># Import fem.petsc for NonlinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.nls</span><span class="w"> </span><span class="kn">import</span> <span class="n">petsc</span> <span class="k">as</span> <span class="n">nls_petsc</span> <span class="c1"># Alias nls.petsc to avoid name collision</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+
+<div class="viewcode-block" id="NonLinearSolver">
+<a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NonLinearSolver</span><span class="p">(</span><span class="n">nls_petsc</span><span class="o">.</span><span class="n">NewtonSolver</span><span class="p">):</span> 
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper class around dolfinx.nls.petsc.NewtonSolver for solving</span>
+<span class="sd">    nonlinear PDE problems within the flatironx framework.</span>
+
+<span class="sd">    This class handles the setup of the nonlinear solver&#39;s convergence</span>
+<span class="sd">    criteria and provides a mechanism to customize the underlying</span>
+<span class="sd">    linear (KSP) solver&#39;s settings.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    --------------</span>
+<span class="sd">    comm (MPI.Comm): </span>
+<span class="sd">        The MPI communicator.</span>
+<span class="sd">    problem (dolfinx.fem.petsc.NonlinearProblem): </span>
+<span class="sd">        The nonlinear problem to solve.</span>
+<span class="sd">    **kwargs: </span>
+<span class="sd">        Arbitrary keyword arguments to configure the solver.</span>
+
+<span class="sd">        Common kwargs include:</span>
+<span class="sd">        </span>
+<span class="sd">            - atol (float): Absolute tolerance for the nonlinear solver.</span>
+<span class="sd">            - rtol (float): Relative tolerance for the nonlinear solver.</span>
+<span class="sd">            - report (bool): Whether to report convergence.</span>
+<span class="sd">            - relaxation_parameter (float): Relaxation parameter for Newton&#39;s method.</span>
+<span class="sd">            - max_it (int): Maximum number of nonlinear iterations.</span>
+<span class="sd">            - convergence_criterion (str): Convergence criterion (&quot;incremental&quot; or &quot;residual&quot;).</span>
+<span class="sd">            - outer_ksp_set_function (callable): A function to customize the KSP solver.</span>
+<span class="sd">                                                It should take one argument: the PETSc KSP object.</span>
+<span class="sd">            - post_ksp_setup_hook (callable): A hook function to run after KSP setup. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comm</span><span class="p">:</span> <span class="n">MPI</span><span class="o">.</span><span class="n">Comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">fem_petsc</span><span class="o">.</span><span class="n">NonlinearProblem</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mpi_comm</span> <span class="o">=</span> <span class="n">comm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem</span> <span class="o">=</span> <span class="n">problem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksp_is_initialized</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># Flag to ensure KSP setup is done once</span>
+
+        <span class="c1"># Determine the function to set KSP options.</span>
+        <span class="c1"># If &#39;outer_ksp_set_function&#39; is provided, use it; otherwise, use default_set_ksp.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_ksp_set_func</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;outer_ksp_set_function&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_set_ksp</span><span class="p">)</span>
+        
+        <span class="c1"># Initialize the base NewtonSolver class</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">)</span>
+
+        <span class="c1"># Set NewtonSolver&#39;s own properties from kwargs or defaults</span>
+        <span class="c1"># These attributes are set directly on the NonLinearSolver instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Atol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;atol&#39;</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">rtol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rtol&#39;</span><span class="p">,</span> <span class="mf">1e-7</span><span class="p">)</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;report&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_parameter</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;relaxation_parameter&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_it</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_it&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">convergence_criterion</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;convergence_criterion&#39;</span><span class="p">,</span> <span class="s2">&quot;incremental&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_ksp_setup_hook</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;post_ksp_setup_hook&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_ksp</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="NonLinearSolver.init_ksp">
+<a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver.init_ksp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_ksp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the KSP solver, sets matrix structure</span>
+<span class="sd">        and applies post-setup hooks like FieldSplit configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksp_is_initialized</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Outer KSP setup (basic type, tolerances)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_ksp_set_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">krylov_solver</span><span class="p">)</span>
+
+        <span class="c1"># Assemble matrix once to define sparsity structure</span>
+        <span class="n">jac_form</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">jacobian</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_A</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">assemble_matrix</span><span class="p">(</span><span class="n">jac_form</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">assemble</span><span class="p">()</span>
+
+        <span class="c1"># Preallocate b with the right layout</span>
+        <span class="n">res_form</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">weak_form</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">create_vector</span><span class="p">(</span><span class="n">res_form</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">krylov_solver</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">krylov_solver</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+
+        <span class="c1"># Call the post-setup hook for nested splits, IS definitions, etc.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_ksp_setup_hook</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_post_ksp_setup_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">krylov_solver</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksp_is_initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="NonLinearSolver.set_ksp_option">
+<a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver.set_ksp_option">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_ksp_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">:</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="p">,</span> <span class="n">keyword</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to set a PETSc KSP option using its option prefix.</span>
+<span class="sd">        This ensures options are specific to this KSP instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ------------</span>
+<span class="sd">        ksp (PETSc.KSP): </span>
+<span class="sd">            The KSP object.</span>
+<span class="sd">        keyword (str): </span>
+<span class="sd">            The PETSc option keyword (e.g., &quot;ksp_type&quot;, &quot;pc_type&quot;).</span>
+<span class="sd">        value: </span>
+<span class="sd">            The value for the option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">ksp</span><span class="o">.</span><span class="n">getOptionsPrefix</span><span class="p">()</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">Options</span><span class="p">()</span>
+        <span class="n">opts</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">keyword</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="NonLinearSolver.default_set_ksp">
+<a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver.default_set_ksp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_set_ksp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">:</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets default values for the KSP solver. This method is used if no</span>
+<span class="sd">        custom KSP setup function is provided by the user.</span>
+<span class="sd">        It uses `set_ksp_option` and `ksp.setFromOptions()` for consistency.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ksp (PETSc.KSP): </span>
+<span class="sd">            The KSP object to configure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set common robust defaults for linear solves in nonlinear problems</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_ksp_option</span><span class="p">(</span><span class="n">ksp</span><span class="p">,</span> <span class="s1">&#39;ksp_type&#39;</span><span class="p">,</span> <span class="s1">&#39;gmres&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_ksp_option</span><span class="p">(</span><span class="n">ksp</span><span class="p">,</span> <span class="s1">&#39;pc_type&#39;</span><span class="p">,</span> <span class="s1">&#39;lu&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_ksp_option</span><span class="p">(</span><span class="n">ksp</span><span class="p">,</span> <span class="s1">&#39;pc_factor_mat_solver_type&#39;</span><span class="p">,</span> <span class="s1">&#39;mumps&#39;</span><span class="p">)</span> <span class="c1"># Mumps is highly recommended for mixed problems</span>
+        
+        <span class="c1"># Set tolerances for the linear solver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_ksp_option</span><span class="p">(</span><span class="n">ksp</span><span class="p">,</span> <span class="s1">&#39;ksp_rtol&#39;</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_ksp_option</span><span class="p">(</span><span class="n">ksp</span><span class="p">,</span> <span class="s1">&#39;ksp_atol&#39;</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_ksp_option</span><span class="p">(</span><span class="n">ksp</span><span class="p">,</span> <span class="s1">&#39;ksp_max_it&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span> <span class="c1"># Max iterations for the linear solver</span>
+
+        <span class="c1"># Apply all options set via PETSc.Options()</span>
+        <span class="n">ksp</span><span class="o">.</span><span class="n">setFromOptions</span><span class="p">()</span>
+        
+        <span class="c1"># Set a monitor for the linear solver&#39;s convergence</span>
+        <span class="n">ksp</span><span class="o">.</span><span class="n">setMonitor</span><span class="p">(</span><span class="n">ConvergenceMonitor</span><span class="p">(</span><span class="s1">&#39;ksp&#39;</span><span class="p">))</span></div>
+
+
+    
+<div class="viewcode-block" id="NonLinearSolver.solve">
+<a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver.solve">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solves the nonlinear problem using the Newton method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Ensure KSP initialized (returns early if already done)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_ksp</span><span class="p">()</span>
+
+        <span class="c1"># Assemble matrix and RHS</span>
+        <span class="n">jac_form</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">jacobian</span><span class="p">)</span>
+        <span class="n">res_form</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">weak_form</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">zeroEntries</span><span class="p">()</span>  <span class="c1"># Clear previous entries</span>
+        <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">assemble_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">,</span> <span class="n">jac_form</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">assemble</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">.</span><span class="n">localForm</span><span class="p">()</span> <span class="k">as</span> <span class="n">b_local</span><span class="p">:</span>
+            <span class="n">b_local</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">assemble_vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">,</span> <span class="n">res_form</span><span class="p">)</span>
+        <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">apply_lifting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">,</span> <span class="p">[</span><span class="n">jac_form</span><span class="p">],</span> <span class="n">bcs</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">.</span><span class="n">ghostUpdate</span><span class="p">(</span><span class="n">addv</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">InsertMode</span><span class="o">.</span><span class="n">ADD</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">ScatterMode</span><span class="o">.</span><span class="n">REVERSE</span><span class="p">)</span>
+        <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">set_bc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="p">)</span>
+
+
+        <span class="c1"># Reattach new A matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">krylov_solver</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">)</span>
+
+        <span class="c1"># Call nonlinear solver</span>
+        <span class="n">num_iterations</span><span class="p">,</span> <span class="n">converged</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mpi_comm</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nonlinear solver converged in </span><span class="si">{</span><span class="n">num_iterations</span><span class="si">}</span><span class="s2"> iterations.&quot;</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">num_iterations</span><span class="p">,</span> <span class="n">converged</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

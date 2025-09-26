@@ -1,140 +1,149 @@
-from ..info.messages import import_fenics
-fe = import_fenics()
-
+import dolfinx
+import numpy as np
 
 from .mesh import Mesh
+from mpi4py import MPI
 
-class bnd():
-    pass
-
-if fe:
-
-    class bnd(fe.SubDomain):
-        '''
-        Define the boundary of a cartesian mesh such that x[d] == x_bnd
-        by defining the dimension and the point location at the
-        boundary
-        '''
-        def __init__(self, x_bnd, d, *args, **kwargs):
-            self.x_bnd = x_bnd
-            self.d = d
-            super().__init__(*args, **kwargs)
-
-        def inside(self, x, on_boundary):
-            # return on_boundary and fe.near( x[self.d], self.x_bnd )
-            return on_boundary and abs(x[self.d]-self.x_bnd) < 1e-8
-
-def _cart_mesh(comm, x0, x1, dx, *args):
-    '''
-    General function to create a cartesian mesh
-    bounded by point x0 and point x1
-    '''
-    # Generate number of elements in each dimension
-    assert( len(x0)==len(x1)==len(dx) )
-    dim = len(x0)
-    ne = [ int( (x1[i]-x0[i])/dx[i] ) for i in range(dim) ]
-
-    # Generate mesh
-    if dim == 1:
-        mesh = fe.IntervalMesh(comm, ne[0], x0[0], x1[0], *args)
-    elif dim == 2:
-        mesh = fe.RectangleMesh(comm, fe.Point(x0), fe.Point(x1), *ne , *args)
-    else:
-        mesh = fe.BoxMesh(comm, fe.Point(x0), fe.Point(x1), *ne , *args)
-
-    # Mark boundaries
-    boundary = fe.MeshFunction("size_t", mesh, mesh.topology().dim()-1)
-    boundary.set_all(0)
-    k = 1
-    for i,xi in enumerate(x0):
-        bnd(xi, i).mark(boundary, k)
-        k+=1
-    for i,xi in enumerate(x1):
-        bnd(xi, i).mark(boundary, k)
-        k+=1
-
-    return mesh, boundary
-
-class LineMesh(Mesh):
-    r"""
-    
-    Define an equally spaced line mesh within the interval :math:`x \in [x_0, x_1]` with spacing size :math:`dx`. 
-    
-    The boundares are marked with the following ids:
-
-        1: :math:`x = x_0`
-
-        2: :math:`x = x_1`
-
+def _cartesian_mesh(x0, x1, dx, comm, **kwargs):
     """
+    Parameters
+    ----------
+    x0 : array-like
+        Start point of the mesh (list or array of coordinates).
+    x1 : array-like
+        End point of the mesh (list or array of coordinates).
+    dx : array-like
+        Cell diameter in each dimension.
+    comm : MPI.Comm
+        MPI communicator, typically ``MPI.COMM_WORLD``.
+    cell_type : dolfinx.mesh.CellType, optional
+        Dolfinx cell type (e.g., triangle, tetrahedron). If not provided, defaults to triangle for 2D and tetrahedron for 3D.
+    Returns
+    -------
+    msh : dolfinx.mesh.Mesh
+        The created dolfinx mesh object.
+    Raises
+    ------
+    AssertionError
+        If ``x0``, ``x1``, and ``dx`` do not have the same length.
+    Notes
+    -----
+    - For 1D, creates an interval mesh.
+    - For 2D, creates a rectangle mesh (default cell type: triangle).
+    - For 3D, creates a box mesh (default cell type: tetrahedron).
+    """
+    
+    assert(len(x0) == len(x1)== len(dx)), "x0, x1, and dx must have the same length"
+    
+    dim = len(x0)
+    num_elements = [int((x1[i] - x0[i]) / dx[i]) for i in range(dim)]
+    cell_type = kwargs.pop('cell_type', None) 
 
-    def __init__(self, x0, x1, dx, comm=None):
+    if dim == 1:
+        msh = dolfinx.mesh.create_interval(comm, num_elements[0], np.array([x0[0], x1[0]]))
+    elif dim == 2:
+        if cell_type is None:
+            cell_type = dolfinx.mesh.CellType.triangle
+        msh = dolfinx.mesh.create_rectangle(comm, [x0, x1], num_elements, cell_type)
+    elif dim == 3:
+        if cell_type is None:
+            cell_type = dolfinx.mesh.CellType.tetrahedron
+        msh = dolfinx.mesh.create_box(comm, [x0, x1], n=num_elements, cell_type=cell_type)
+    
+    return msh
 
-        if comm is None:
-            comm = fe.MPI.comm_world
-        mesh, boundary = _cart_mesh(comm, [x0], [x1], [dx])
-        super().__init__(mesh=mesh, boundary=boundary)
+class CuboidMesh(Mesh):
+    """
+    Create a 3D cuboid mesh between (x0, y0, z0) and (x1, y1, z1) with a given element size.
+    Parameters:
+    -------------
+        x0: Start point of the mesh in the x-direction.
+        y0: Start point of the mesh in the y-direction.
+        z0: Start point of the mesh in the z-direction.
+        x1: End point of the mesh in the x-direction.
+        y1: End point of the mesh in the y-direction.
+        z1: End point of the mesh in the z-direction.
+        dx: Element size in each direction (can be a single float or a list/tuple of three floats).
+        comm: MPI communicator, default is MPI.COMM_WORLD.
+        **kwargs: Additional keyword arguments passed to dolfinx.mesh.create_box (e.g., cell_type).         
+    """
+    def __init__(self, x0, y0, z0, x1, y1, z1, dx, comm=MPI.COMM_WORLD, **kwargs):
+        
+        self.x0 = x0
+        self.x1 = x1
+
+        self.dx = dx
+        self.comm = comm
+
+        # Create the mesh
+        dx_lst = [dx for i in range(3)]
+        self.msh = _cartesian_mesh([x0, y0, z0], [x1,y1,z1], dx_lst, comm, **kwargs)
+
+        markings = {
+            1: lambda x: np.isclose(x[0], x0), 
+            2: lambda x: np.isclose(x[1], y0),
+            3: lambda x: np.isclose(x[2], z0),
+            4: lambda x: np.isclose(x[0], x1),
+            5: lambda x: np.isclose(x[1], y1),
+            6: lambda x: np.isclose(x[2], z1)
+        }
+
+        self.mark_boundary(markings)
 
 class RectMesh(Mesh):
-
-    r"""
-    
-    Define an equally spaced rectangular mesh (triangle elements) which spans :math:`x, y \in [x_0, x_1] \times [y_0, y_1]`
-    
-    The exterior boundary faces are marked with the following ids:
-
-        1: :math:`x = x_0`
-
-        2: :math:`y = y_0`
-
-        3: :math:`x = x_1`
-
-        4: :math:`y = y_1`
-
     """
-
-    def __init__(self, x0, y0, x1, y1, dx, comm=None, *args):
-        if comm is None:
-            comm = fe.MPI.comm_world
-        if isinstance(dx, int) or isinstance(dx, float):
-            dx_lst = [dx for i in range(2)]
-        else:
-            dx_lst = dx
-        mesh, boundary = _cart_mesh(comm, [x0,y0], [x1,y1], dx_lst, *args)
-        super().__init__(mesh=mesh, boundary=boundary)
-
-class BoxMesh(Mesh):
-
-    r"""
-
-    Define an equally spaced rectangular mesh (triangle elements) which spans :math:`x, y, z \in [x_0, x_1] \times [y_0, y_1] \times [z_0, z_1]`
-    
-    The exterior boundary faces are marked with the following ids:
-
-        1: :math:`x = x_0`
-
-        2: :math:`y = y_0`
-
-        3: :math:`z = z_0`
-
-        4: :math:`x = x_1`
-
-        5: :math:`y = y_1`
-
-        6: :math:`z = z_1`
-
-
+    Create a 2D rectangular mesh between (x0, y0) and (x1, y1) with a given element size.
+    Parameters:
+    -------------
+        x0: Start point of the mesh in the x-direction.
+        y0: Start point of the mesh in the y-direction.
+        x1: End point of the mesh in the x-direction.
+        y1: End point of the mesh in the y-direction.
+        dx: Element size in each direction (can be a single float or a list/tuple of two floats).
+        comm: MPI communicator, default is MPI.COMM_WORLD.
+        **kwargs: Additional keyword arguments passed to dolfinx.mesh.create_rectangle (e.g., cell_type).
     """
+    def __init__(self, x0, y0, x1, y1, dx, comm=MPI.COMM_WORLD, **kwargs):
+        self.comm = comm
 
-    def __init__(self, x0, y0, z0, x1, y1, z1, dx, comm=None, *args):
-
-        if comm is None:
-            comm = fe.MPI.comm_world
-
-        if isinstance(dx, int) or isinstance(dx, float):
-            dx_lst = [dx for i in range(3)]
+        # Create the mesh
+        if isinstance(dx, (list, tuple, np.ndarray)):
+            dx_lst = list(dx)
         else:
-            dx_lst = dx
-        mesh, boundary = _cart_mesh(comm, [x0,y0,z0], [x1,y1,z1], dx_lst, *args)
-        super().__init__(mesh=mesh, boundary=boundary)
+            dx_lst = [dx for _ in range(2)]
 
+        if dx_lst.__len__() != 2:
+            raise ValueError("dx_lst must be a list of length 2")
+
+        self.msh = _cartesian_mesh([x0, y0], [x1, y1], dx_lst, comm,  **kwargs)
+
+        markings = {
+            1: lambda x: np.isclose(x[0], x0), 
+            2: lambda x: np.isclose(x[1], y0),
+            3: lambda x: np.isclose(x[0], x1),
+            4: lambda x: np.isclose(x[1], y1)
+        }
+
+        self.mark_boundary(markings)
+
+class LineMesh(Mesh):
+    """
+    Create a 1D line mesh between x0 and x1 with a given element size.
+    Parameters:
+    -------------
+        x0: Start point of the mesh.
+        x1: End point of the mesh.
+        dx: Element size.
+        comm: MPI communicator, default is MPI.COMM_WORLD.
+        **kwargs: Additional keyword arguments passed to dolfinx.mesh.create_interval.
+    """
+    def __init__(self, x0, x1, dx, comm=MPI.COMM_WORLD, **kwargs):
+        self.comm = comm
+
+        # Create the mesh
+        self.msh = _cartesian_mesh([x0], [x1], [dx], comm, **kwargs)
+        markings = {
+            1: lambda x: np.isclose(x[0], x0),
+            2: lambda x: np.isclose(x[0], x1)
+        }
+        self.mark_boundary(markings)

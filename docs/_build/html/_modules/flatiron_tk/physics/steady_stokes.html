@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.physics.steady_stokes &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.physics.steady_stokes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.physics.steady_stokes</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span> 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span> 
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">boundary_conditions</span> <span class="k">as</span> <span class="n">bcs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiphysicsProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicsProblem</span>
+
+<div class="viewcode-block" id="Momentum">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Momentum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Momentum</span><span class="p">(</span><span class="n">PhysicsProblem</span><span class="p">):</span>
+<div class="viewcode-block" id="Momentum.set_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Momentum.set_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span></div>
+
+        
+<div class="viewcode-block" id="Momentum.flux">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Momentum.flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Momentum.get_residual">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Momentum.get_residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span></div>
+</div>
+
+
+<div class="viewcode-block" id="Continuity">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Continuity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Continuity</span><span class="p">(</span><span class="n">PhysicsProblem</span><span class="p">):</span>
+<div class="viewcode-block" id="Continuity.set_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Continuity.set_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span></div>
+
+        
+<div class="viewcode-block" id="Continuity.flux">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Continuity.flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Continuity.get_residual">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.Continuity.get_residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span></div>
+</div>
+
+
+<div class="viewcode-block" id="OnPoint">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.OnPoint">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OnPoint</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to define a point in space for applying boundary conditions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_location</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            point_location: The location of the point in space.</span>
+<span class="sd">            eps: The tolerance for finding the point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_location</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">point_location</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A method to check if a point is within the tolerance of the defined point location.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            x: The coordinates of the point to check.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            A boolean array indicating if the point is within the tolerance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">point_location</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span></div>
+
+    
+<div class="viewcode-block" id="SteadyStokes">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SteadyStokes</span><span class="p">(</span><span class="n">MultiphysicsProblem</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to represent the steady Stokes equations. Supers MultiphysicsProblem.</span>
+<span class="sd">        </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    -------------</span>
+<span class="sd">        mesh: The mesh to use for the problem.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">momentum</span> <span class="o">=</span> <span class="n">Momentum</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continuity</span> <span class="o">=</span> <span class="n">Continuity</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">momentum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuity</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;body_force&#39;</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> 
+                                                                      <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span>
+                                                                          <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_gdim</span><span class="p">())]</span>
+                                                                          <span class="p">)))</span>
+        
+<div class="viewcode-block" id="SteadyStokes.set_element">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.set_element">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_family</span><span class="p">,</span> <span class="n">u_degree</span><span class="p">,</span> <span class="n">p_family</span><span class="p">,</span> <span class="n">p_degree</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the element for the Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            u_family: The family of the velocity element.</span>
+<span class="sd">            u_degree: The degree of the velocity element.</span>
+<span class="sd">            p_family: The family of the pressure element.</span>
+<span class="sd">            p_degree: The degree of the pressure element.</span>
+<span class="sd">            mesh: The mesh to use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">momentum</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="n">u_family</span><span class="p">,</span> <span class="n">u_degree</span><span class="p">,</span> <span class="n">element_shape</span><span class="o">=</span><span class="s1">&#39;vector&#39;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">continuity</span><span class="o">.</span><span class="n">set_element</span><span class="p">(</span><span class="n">p_family</span><span class="p">,</span> <span class="n">p_degree</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_element</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SteadyStokes.build_function_space">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.build_function_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_function_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the function space for the Stokes problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_function_space</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SteadyStokes.set_weak_form">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.set_weak_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_weak_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stab</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the weak form for the Stokes problem.</span>
+<span class="sd">        This includes the momentum and continuity equations.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">            stab: A boolean indicating whether to include stabilization terms in the weak form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;kinematic_viscosity&#39;</span><span class="p">)</span>
+        <span class="n">body_force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;body_force&#39;</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_stokes_momentum_form</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">body_force</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
+        <span class="n">continuity</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weak_form</span> <span class="o">+=</span> <span class="n">continuity</span>
+
+        <span class="k">if</span> <span class="n">stab</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_stab</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_stokes_momentum_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">body_force</span><span class="p">,</span> <span class="n">nu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the weak form of the momentum equation for the Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            u: The velocity solution function.</span>
+<span class="sd">            p: The pressure solution function.</span>
+<span class="sd">            body_force: The body force function.</span>
+<span class="sd">            nu: The kinematic viscosity function.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The weak form of the momentum equation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="n">nu</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">w</span><span class="p">))</span> <span class="o">*</span> <span class="n">dx</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">dx</span>
+        <span class="n">fb</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">body_force</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+
+        <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="o">-</span> <span class="n">fb</span>
+    
+<div class="viewcode-block" id="SteadyStokes.get_stabilization_constant">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.get_stabilization_constant">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stabilization_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the stabilization constant for the Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The stabilization constant.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_cell_diameter</span><span class="p">()</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;kinematic_viscosity&#39;</span><span class="p">)</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="o">*</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mi">4</span><span class="o">/</span><span class="n">nu</span>
+        <span class="k">return</span> <span class="n">tau</span></div>
+
+    
+<div class="viewcode-block" id="SteadyStokes.add_stab">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.add_stab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_stab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add stabilization terms to the weak form for the Stokes problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stabilization_constant</span><span class="p">()</span>
+        <span class="n">stab_form</span> <span class="o">=</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">stab_form</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyStokes.flux">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the flux of the Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            h: The flux vector.</span>
+<span class="sd">            physics_tag: The tag to identify the physics problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The flux form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+        <span class="n">flux_form</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="o">-</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">flux_form</span></div>
+
+
+<div class="viewcode-block" id="SteadyStokes.set_body_force">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.set_body_force">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_body_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body_force</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the body force for the Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            body_force: The body force value or function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;body_force&#39;</span><span class="p">,</span> <span class="n">body_force</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyStokes.set_kinematic_viscosity">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.set_kinematic_viscosity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_kinematic_viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the kinematic viscosity for the Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            nu: The kinematic viscosity value or function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_external_function</span><span class="p">(</span><span class="s1">&#39;kinematic_viscosity&#39;</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyStokes.get_kinematic_viscosity">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.get_kinematic_viscosity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kinematic_viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the kinematic viscosity for the Stokes problem.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------------</span>
+<span class="sd">            The kinematic viscosity value or function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_function</span><span class="p">(</span><span class="s1">&#39;kinematic_viscosity&#39;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SteadyStokes.set_bcs">
+<a class="viewcode-back" href="../../physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes.set_bcs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiphysics_bc_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overload the set_bcs from the multphysics problem to set the boundary conditions for the Stokes problem.</span>
+<span class="sd">        The boundary conditions on pressure must be handled separately.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">            multiphysics_bc_dict: A dictionary containing the boundary conditions for each physics problem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u_bcs</span> <span class="o">=</span> <span class="n">multiphysics_bc_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">p_bcs</span> <span class="o">=</span> <span class="n">multiphysics_bc_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_bcs</span><span class="p">({</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">u_bcs</span><span class="p">})</span>
+
+        <span class="c1"># Pressure boundary conditions</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_test_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="n">pV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">boundary_id</span> <span class="ow">in</span> <span class="n">p_bcs</span><span class="p">:</span>
+            <span class="n">bc_data</span> <span class="o">=</span> <span class="n">p_bcs</span><span class="p">[</span><span class="n">boundary_id</span><span class="p">]</span>
+            <span class="n">bc_type</span> <span class="o">=</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+            <span class="n">bc_value</span> <span class="o">=</span> <span class="n">bc_data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">bc_type</span> <span class="o">==</span> <span class="s1">&#39;dirichlet&#39;</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">boundary_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">bc</span> <span class="o">=</span> <span class="n">bcs</span><span class="o">.</span><span class="n">build_dirichlet_bc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">boundary_id</span><span class="p">,</span> <span class="n">bc_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_function_space</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bc</span><span class="p">)</span>
+
+
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">boundary_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">boundary_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;point&#39;</span><span class="p">):</span>
+                    <span class="c1"># Get the function space and dof coordinates</span>
+                    <span class="n">pV_base</span> <span class="o">=</span> <span class="n">pV</span><span class="o">.</span><span class="n">collapse</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">p_dof_coords</span> <span class="o">=</span> <span class="n">pV_base</span><span class="o">.</span><span class="n">tabulate_dof_coordinates</span><span class="p">()</span>
+                    <span class="n">comm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="o">.</span><span class="n">comm</span>
+                    
+                    <span class="c1"># Ensure 3D coordinate if needed:</span>
+                    <span class="n">point_location</span> <span class="o">=</span> <span class="n">bc_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+                    <span class="n">point_location</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">point_location</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">point_location</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">point_location</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_location</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                    <span class="n">eps</span> <span class="o">=</span> <span class="n">bc_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eps&#39;</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">)</span>
+
+
+                    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p_dof_coords</span> <span class="o">-</span> <span class="n">point_location</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">local_min_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span>
+                    <span class="n">local_min_dist</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">local_min_idx</span><span class="p">]</span>
+
+                    <span class="n">all_min_data</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">gather</span><span class="p">((</span><span class="n">local_min_dist</span><span class="p">,</span> <span class="n">local_min_idx</span><span class="p">,</span> <span class="n">comm</span><span class="o">.</span><span class="n">rank</span><span class="p">),</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">comm</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># Choose the global closest DOF</span>
+                        <span class="n">global_min_dist</span><span class="p">,</span> <span class="n">global_min_idx</span><span class="p">,</span> <span class="n">owner_rank</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_min_data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">global_min_idx</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="n">owner_rank</span> <span class="o">=</span> <span class="kc">None</span>
+
+                    <span class="k">if</span> <span class="n">comm</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="n">owner_rank</span><span class="p">:</span>
+                        <span class="n">bc</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">dirichletbc</span><span class="p">(</span><span class="n">bc_value</span><span class="p">,</span> <span class="p">[</span><span class="n">global_min_idx</span><span class="p">],</span> <span class="n">pV</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dirichlet_bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bc</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">bc_type</span> <span class="o">==</span> <span class="s1">&#39;neumann&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_to_weak_form</span><span class="p">(</span><span class="n">bc_value</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">boundary_id</span><span class="p">))</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

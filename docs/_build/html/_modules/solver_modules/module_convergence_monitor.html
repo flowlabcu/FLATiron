@@ -1,0 +1,174 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convergence Monitor &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Non-linear Problem" href="module_non_linear_problem.html" />
+    <link rel="prev" title="Block Solver" href="module_block_solver.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../toc_solver_modules.html">Solver Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="module_block_solver.html">Block Solver</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Convergence Monitor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-flatiron_tk.solver.convergence_monitor">Indicator Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="module_non_linear_problem.html">Non-linear Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_non_linear_solver.html">Non-linear Solver</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../toc_modules.html">FLATiron Modules</a></li>
+          <li class="breadcrumb-item"><a href="../toc_solver_modules.html">Solver Modules</a></li>
+      <li class="breadcrumb-item active">Convergence Monitor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_modules/solver_modules/module_convergence_monitor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="convergence-monitor">
+<h1>Convergence Monitor<a class="headerlink" href="#convergence-monitor" title="Link to this heading"></a></h1>
+<section id="module-flatiron_tk.solver.convergence_monitor">
+<span id="indicator-fields"></span><h2>Indicator Fields<a class="headerlink" href="#module-flatiron_tk.solver.convergence_monitor" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.solver.convergence_monitor.ConvergenceMonitor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.solver.convergence_monitor.</span></span><span class="sig-name descname"><span class="pre">ConvergenceMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_every=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_history=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;petsc4py.PETSc.Comm</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/convergence_monitor.html#ConvergenceMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.convergence_monitor.ConvergenceMonitor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object which reports and records the convergence history of an iterative method.
+This is meant to be used with PETSc’s iterative method objects.</p>
+<dl class="simple">
+<dt>Parameters</dt><dd><dl class="simple">
+<dt>name<span class="classifier">str</span></dt><dd><p>Name to identify the iterative method (e.g., ‘ksp’, ‘snes’,
+‘ts’).</p>
+</dd>
+<dt>verbose<span class="classifier">bool, optional</span></dt><dd><p>If True, prints the iteration number and residual norm to
+standard output every <cite>report_every</cite> iterations. Default is True.</p>
+</dd>
+<dt>report_every<span class="classifier">int, optional</span></dt><dd><p>Frequency of reporting the iteration number and residual norm.
+Default is 1 (every iteration).</p>
+</dd>
+<dt>record_history<span class="classifier">bool, optional</span></dt><dd><p>If True, records the convergence history (iteration numbers and
+residual norms). Default is True.</p>
+</dd>
+<dt>comm<span class="classifier">MPI.Comm, optional</span></dt><dd><p>MPI communicator for parallel execution. Default is PETSc.COMM_WORLD.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.convergence_monitor.ConvergenceMonitor.convergence_history">
+<span class="sig-name descname"><span class="pre">convergence_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/convergence_monitor.html#ConvergenceMonitor.convergence_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.convergence_monitor.ConvergenceMonitor.convergence_history" title="Link to this definition"></a></dt>
+<dd><p>Returns the recorded convergence history as a list of arrays.
+Each array corresponds to a segment of the convergence history where
+the iteration count was monotonically increasing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.solver.convergence_monitor.ConvergenceMonitor.reset_convergence_history">
+<span class="sig-name descname"><span class="pre">reset_convergence_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/convergence_monitor.html#ConvergenceMonitor.reset_convergence_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.convergence_monitor.ConvergenceMonitor.reset_convergence_history" title="Link to this definition"></a></dt>
+<dd><p>Resets the recorded convergence history.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="module_block_solver.html" class="btn btn-neutral float-left" title="Block Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_non_linear_problem.html" class="btn btn-neutral float-right" title="Non-linear Problem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

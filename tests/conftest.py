@@ -1,6 +1,9 @@
 import numpy as np
+from flatiron_tk.mesh import Mesh
 import pytest
-from flatiron_tk.mesh import Mesh, LineMesh, RectMesh, BoxMesh
+
+import dolfinx.mesh 
+from mpi4py import MPI
 
 def approx_zero(a):
     '''
@@ -28,22 +31,56 @@ def vector_equal():
     return _vector_equal
 
 @pytest.fixture(scope="module")
-def unit_box_mesh_fe():
-    import fenics as fe
-    return fe.BoxMesh(fe.Point(0, 0, 0), fe.Point(1,1,1), 10, 10, 10)
+def line_mesh_1():
+    """Create a 1D line mesh for testing."""
+    # Define the line length
+    length = 1.0
+    
+    # Create a line mesh using dolfinx
+    return dolfinx.mesh.create_interval(comm = MPI.COMM_WORLD, 
+                                     points = (0.0, length),
+                                     nx = 32)
 
 @pytest.fixture(scope="module")
-def ubm_flatiron(unit_box_mesh_fe):
-    return Mesh(mesh=unit_box_mesh_fe)
+def box_mesh_2():
+    """Create a 2D box mesh for testing."""
+    # Define the box dimensions
+    length = 1.0
+    width = 1.0
+    
+    # Create a box mesh using dolfinx
+    return dolfinx.mesh.create_rectangle(comm = MPI.COMM_WORLD, 
+                                         points = ((0.0, 0.0), (length, width)),
+                                         n = (32, 32),
+                                         cell_type = dolfinx.mesh.CellType.triangle)
 
 @pytest.fixture(scope="module")
-def mesh_3d():
-    return BoxMesh(0, 0, 0, 1, 1, 1, 1/10)
+def box_mesh_3():
+    """Create a 3D box mesh for testing."""
+    # Define the box dimensions
+    length = 1.0
+    width = 1.0
+    height = 1.0
+    
+    # Create a box mesh using dolfinx
+    return dolfinx.mesh.create_box(comm = MPI.COMM_WORLD, 
+                                         points = ((0.0, 0.0, 0.0), (length, width, height)),
+                                         n = (32, 32, 32),
+                                         cell_type = dolfinx.mesh.CellType.tetrahedron)
 
 @pytest.fixture(scope="module")
-def mesh_2d():
-    return RectMesh(0, 0, 1, 1, 1/10)
+def unit_box_mesh():
+    """
+    Dolfin mesh.
+    """
+    return dolfinx.mesh.create_box(comm = MPI.COMM_WORLD, 
+                                   points = ((0, 0, 0), (1, 1, 1)), 
+                                   n = (10, 10, 10),
+                                   cell_type = dolfinx.mesh.CellType.hexahedron)
 
 @pytest.fixture(scope="module")
-def mesh_1d():
-    return LineMesh(0, 1, 1/10)
+def ubm_flatiron(unit_box_mesh):
+    """
+    Create a flatiron mesh object.
+    """
+    return Mesh(mesh=unit_box_mesh)

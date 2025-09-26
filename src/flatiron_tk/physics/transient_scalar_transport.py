@@ -1,198 +1,232 @@
-'''
-Base class for transient problems for scalar transports
-'''
+import dolfinx 
+import ufl 
+
+from flatiron_tk.physics import SteadyScalarTransport
 
 
-from ..info.messages import import_fenics
-fe = import_fenics()
+class TransientScalarTransport(SteadyScalarTransport):
+    def __init__(self, mesh, dt=0.01, theta=0.5, *args, **kwargs):
+        """
+        Transient scalar transport problem. Supers SteadyScalarTransport.
 
-from .scalar_transport import ScalarTransport
-
-class TransientScalarTransport(ScalarTransport):
-
-    # -----------------------------------------
-    # Init
-    # -----------------------------------------
-    def __init__(self, mesh, dt, theta=0.5, *args, **kwargs):
+        Parameters
+        -------------
+        mesh : flatiron_tk.mesh
+            The mesh on which to solve the problem.
+        dt : float
+            The time step size.
+        theta : float, optional
+            The theta parameter for the implicit-explicit scheme. Default is 0.5.
+        """
         super().__init__(mesh, *args, **kwargs)
+        
         self.set_external_function('dt', dt)
-        self.set_external_function('midpoint theta', theta)
+        self.set_external_function('midpoint_theta', theta)
+        self.set_tag('c')
 
     def build_function_space(self):
+        """
+        Build the function space for the transient scalar transport problem.
+        """
         super().build_function_space()
-        self.previous_solution = fe.Function(self.function_space())
+        self.previous_solution = dolfinx.fem.Function(self.get_function_space())
 
-    # -----------------------------------------
-    # Getters for external functions. Overloaded
-    # to include the previous value
-    # -----------------------------------------
     def set_advection_velocity(self, u0, un):
-        self.set_external_function('previous advection velocity', u0)
-        self.set_external_function('advection velocity', un)
+        """
+        Set the advection velocity for the transient scalar transport problem.
+        
+        Parameters:
+        -----------
+            u0: The advection velocity at the previous time step.
+            un: The advection velocity at the current time step.
+        """
+        self.set_external_function('previous_advection_velocity', u0)
+        self.set_external_function('advection_velocity', un)
 
     def set_diffusivity(self, D0, Dn):
-        self.set_external_function('previous diffusivity', D0)
+        """
+        Set the diffusivity for the transient scalar transport problem.
+        
+        Parameters:
+        -----------
+            D0: The diffusivity at the previous time step.
+            Dn: The diffusivity at the current time step.
+        """
+        self.set_external_function('previous_diffusivity', D0)
         self.set_external_function('diffusivity', Dn)
 
     def set_reaction(self, R0, Rn):
-        self.set_external_function('previous reaction', R0)
+        """
+        Set the reaction term for the transient scalar transport problem.
+        
+        Parameters:
+        -----------
+            R0: The reaction term at the previous time step.
+            Rn: The reaction term at the current time step.
+        """
+        self.set_external_function('previous_reaction', R0)
         self.set_external_function('reaction', Rn)
 
-    # -----------------------------------------
-    # Weak formulation
-    # -----------------------------------------
-    def set_weak_form(self, stab=False):
+    def set_time_step_size(self, dt):
+        """
+        Set the time step size for the transient scalar transport problem.
+        
+        Parameters:
+        -----------
+            dt: The time step size.
+        """
+        self.set_external_function('dt', dt)
 
-        '''
+    def set_midpoint_theta(self, theta):
+        """
+        Set the theta parameter for the implicit-explicit scheme.
+        
+        Parameters:
+        -----------
+            theta: The theta parameter.
+        """
+        self.set_external_function('midpoint_theta', theta)
+
+    def set_weak_form(self, stab=False):
+        """
         Set weak formulation as:
         dc/dt + mid(advection) - mid(diffusion) - mid(reaction) == 0
 
         for a mid point type method
         where mid(f) = theta*f1 + (1-theta)*f0
-        '''
-        w = self.test_function()
 
-        # Midpoint integration parameters
+        Parameters
+        -----------
+            stab: A boolean indicating whether to include stabilization terms in the weak form.
+        """
         dt = self.external_function('dt')
-        theta = self.external_function('midpoint theta')
-
-        # Get previous state functions
+        theta = self.external_function('midpoint_theta')
+        
+        w = self.get_test_function()
         c0 = self.previous_solution
-        D0 = self.external_function('previous diffusivity')
-        u0 = self.external_function('previous advection velocity')
-        r0 = self.external_function('previous reaction')
+        c = self.get_solution_function()
+        D0 = self.external_function('previous_diffusivity')
+        Dn = self.external_function('diffusivity')
+        u0 = self.external_function('previous_advection_velocity')
+        un = self.external_function('advection_velocity')
+        r0 = self.external_function('previous_reaction')
+        rn = self.external_function('reaction')
 
-        # Get current state functions
-        c = self.solution_function()
-        D = self.get_diffusivity()
-        u = self.get_advection_velocity()
-        r = self.get_reaction()
+        # Transient weakform 
+        dcdt = w * (c - c0) / dt * self.dx
 
-        # Create the transient weakform
-        dcdt = w*(c-c0)/dt*self.dx
+        # Previous terms 
+        a_form_0 = self._advective_form(c0, u0)
+        d_form_0 = self._diffusive_form(c0, D0)
+        r_form_0 = self._reactive_form(r0)
 
-        # Previous time step term
-        a_form_0 = self.advection(u0, c0)
-        d_form_0 = self.diffusion(D0, c0)
-        r_form_0 = self.reaction(r0, c0)
+        # Current terms
+        a_form_n = self._advective_form(c, un)
+        d_form_n = self._diffusive_form(c, Dn)
+        r_form_n = self._reactive_form(rn)
 
-        # Current time step term
-        a_form_n = self.advection(u, c)
-        d_form_n = self.diffusion(D, c)
-        r_form_n = self.reaction(r, c)
+        # Set forms 
+        form_0 = a_form_0 + d_form_0 - r_form_0
+        form_n = a_form_n + d_form_n - r_form_n
 
-        # Set previous and current form
-        form_0 = a_form_0 - d_form_0 - r_form_0
-        form_n = a_form_n - d_form_n - r_form_n
-
-        # Define weak form via midpoint method
-        self.weak_form = dcdt + (1-theta)*form_0 + theta*form_n
+        # Define weak form by theta-galerkin method
+        self.weak_form = dcdt + (1 - theta) * form_0 + theta * form_n
 
         if stab:
             self.add_stab()
 
-    # -----------------------------------------
-    # Stabilization
-    # -----------------------------------------
     def add_stab(self):
-        w = self.test_function()
+        """
+        Add stabilization term to the weak form.
+        """
+
+        w = self.get_test_function()
         D = self.get_diffusivity()
         u = self.get_advection_velocity()
-        if self.dim == 1:
-            P = u*fe.grad(w)[0]
+        
+        if self.mesh.get_gdim() == 1:
+            P = u * ufl.grad(w)[0]
         else:
-            P = fe.dot(u, fe.grad(w))
+            P = ufl.dot(u, ufl.grad(w))
+        residual = self.get_residual()
+        tau = self.stabilization_constant()
+        self.add_to_weak_form(P * tau * residual, self.dx)
 
-        residue = self.get_residue()
-        tau = self.stab_constant()
-        self.add_to_weakform(P*tau*residue, self.dx)
+        return 
 
-    def stab_constant(self):
-        '''
+    def stabilization_constant(self):
+        """
         tau from Donea's book Remark 5.8
-        '''
+        """
 
-        # Grab functions
         dt = self.external_function('dt')
-        w = self.test_function()
+        w = self.get_test_function()
         D = self.get_diffusivity()
         u = self.get_advection_velocity()
         r = self.get_reaction()
-        h = self.mesh.cell_diameter()
-        theta = self.external_function('midpoint theta')
-        # Define |u|
-        u_norm = fe.sqrt(u*u) if self.dim == 1 else fe.sqrt(fe.dot(u, u))
+        h = self.mesh.get_cell_diameter()
+        theta = self.external_function('midpoint_theta')
 
-        # Define tau
+        # define the normal of u 
+        u_norm = ufl.sqrt(u*u) if self.mesh.get_gdim() == 1 else ufl.sqrt(ufl.dot(u, u))
+
+        # define tau 
         tau = ( (1/(theta*dt))**2 + (2*u_norm/h)**2 + 9*(4*D/h**2)**2 + r**2 ) **(-0.5)
+
         return tau
-
-    def edge_stab(self, gamma, c):
-        theta = self.external_function('midpoint theta')
-        h_f = fe.FacetArea(self.mesh.fenics_mesh())
-        c0 = self.previous_solution
-        J0 = super().edge_stab(gamma, c0)
-        Jn = super().edge_stab(gamma, c)
-        return (theta)*J0 + (1-theta)*Jn
-
-    def get_residue(self):
-
-        # Midpoint integration parameters
+    
+    def get_residual(self):
+        """
+        Compute the residual for the transient scalar transport problem.
+        
+        Returns:
+        -------------
+            The residual expression for the transient scalar transport equations.
+        """
         dt = self.external_function('dt')
-        theta = self.external_function('midpoint theta')
+        theta = self.external_function('midpoint_theta')
 
-        # Get previous state functions
         c0 = self.previous_solution
-        D0 = self.external_function('previous diffusivity')
-        u0 = self.external_function('previous advection velocity')
-        r0 = self.external_function('previous reaction')
+        D0 = self.external_function('previous_diffusivity')
+        u0 = self.external_function('previous_advection_velocity')
+        r0 = self.external_function('previous_reaction')
 
-        # Get current state functions
-        c = self.solution_function()
-        D = self.get_diffusivity()
-        u = self.get_advection_velocity()
-        r = self.get_reaction()
+        c = self.get_solution_function()
+        Dn = self.external_function('diffusivity')
+        un = self.external_function('advection_velocity')
+        rn = self.external_function('reaction')
 
-        # Advection residue
-        if self.dim == 1:
-            a_residue = theta*u*fe.grad(c)[0] + (1-theta)*u0*fe.grad(c0)[0]
+        # advective residual
+        if self.mesh.get_gdim() == 1:
+            a_residual = theta*un*ufl.grad(c)[0] + (1-theta)*u0*ufl.grad(c0)[0]
         else:
-            a_residue = theta*fe.dot(u, fe.grad(c)) + (1-theta)*fe.dot(u0, fe.grad(c0))
+            a_residual = theta*ufl.dot(un, ufl.grad(c)) + (1-theta)*ufl.dot(u0, ufl.grad(c0))
 
-        # Diffusion residue
-        d_residue = -theta*D*fe.div(fe.grad(c)) + (1-theta)*D0*fe.div(fe.grad(c0))
+        # diffusive residual
+        d_residual = -theta*Dn*ufl.div(ufl.grad(c)) + (1-theta)*D0*ufl.div(ufl.grad(c0))
 
-        # Reaction residue
-        r_residue = theta*r + (1-theta)*r0
+        # reactive residual
+        r_residual = theta*rn + (1-theta)*r0
 
-        # Time dependent term
-        dcdt = (c-c0)/dt
+        dcdt = (c - c0) / dt
 
-        return dcdt + a_residue + d_residue - r_residue
+        return dcdt + a_residual + d_residual - r_residual
+    
+    def set_initial_condition(self, u0):
+        """
+        Set the initial condition for the problem.
 
-    # -----------------------------------------
-    # Initial conditions
-    # -----------------------------------------
-    def set_initial_condition(self, f):
-        fe.assign(self.previous_solution, f)
-        fe.assign(self.solution_function(), f)
+        Parameters
+        -------------
+        u0 : dolfinx.fem.Function
+            The initial condition function.
+        """
+        self.previous_solution.interpolate(u0)
+        self.previous_solution.x.array[:] = u0.x.array[:]
 
-    # -----------------------------------------
-    # Solution update
-    # -----------------------------------------
+
     def update_previous_solution(self):
-        self.previous_solution.assign(self.solution_function())
-
-    ####################################
-    ## Set physics properties
-    ####################################
-    def set_time_step_size(self, dt):
-        self.set_external_function('dt', dt)
-
-    def set_mid_point_theta(self, new_theta):
-        self.set_external_function('mid point theta', new_theta)
-
-
-
-
-
+        """
+        Update the previous solution with the current solution.
+        """
+        self.previous_solution.x.array[:] = self.get_solution_function().x.array[:]

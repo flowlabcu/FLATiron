@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multiphysics Problem &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Scalar-Transport" href="module_scalar_transport.html" />
+    <link rel="prev" title="Physics Problem" href="module_physics_problem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="module_physics_problem.html">Physics Problem</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Multiphysics Problem</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem"><code class="docutils literal notranslate"><span class="pre">MultiphysicsProblem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem"><code class="docutils literal notranslate"><span class="pre">TransientMultiPhysicsProblem</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="module_scalar_transport.html">Scalar-Transport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../toc_modules.html">FLATiron Modules</a></li>
+          <li class="breadcrumb-item"><a href="../toc_physics_modules.html">Physics Modules</a></li>
+      <li class="breadcrumb-item active">Multiphysics Problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modules/physics_modules/module_multiphysics_problem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-flatiron_tk.physics.multiphysics_problem">
+<span id="multiphysics-problem"></span><h1>Multiphysics Problem<a class="headerlink" href="#module-flatiron_tk.physics.multiphysics_problem" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.multiphysics_problem.</span></span><span class="sig-name descname"><span class="pre">MultiphysicsProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">physics_problems</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem" title="flatiron_tk.physics.physics_problem.PhysicsProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicsProblem</span></code></a></p>
+<p>A class to represent a multiphysics problem by combining multiple physics problems.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.flux">
+<span class="sig-name descname"><span class="pre">flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.flux" title="Link to this definition"></a></dt>
+<dd><p>Get the flux for a given physics tag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h</strong> (<em>ufl.core.expr.Expr</em>) – The test function for the flux calculation.</p></li>
+<li><p><strong>physics_tag</strong> (<em>str</em>) – The tag of the physics problem for which to calculate the flux.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The flux expression for the specified physics problem.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ufl.core.expr.Expr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_function_space">
+<span class="sig-name descname"><span class="pre">get_function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_function_space" title="Link to this definition"></a></dt>
+<dd><p>Get the function space for a given physics tag.
+:param physics_tag: The tag of the physics problem. If None, returns the function space for the multiphysics problem.
+:type physics_tag: str, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The function space associated with the given physics tag, or the multiphysics function space if no tag is provided.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dolfinx.fem.FunctionSpace</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_global_dofs">
+<span class="sig-name descname"><span class="pre">get_global_dofs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_function_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_global_dofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_global_dofs" title="Link to this definition"></a></dt>
+<dd><p>Get the global degrees of freedom (DOFs) indices on the local process for a given physics tag or
+for all physics problems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_function_space</strong> (<em>dolfinx.fem.FunctionSpace</em>) – The global function space from which to extract the DOFs.</p></li>
+<li><p><strong>physics_tag</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – The tag(s) of the physics problem(s). If None, returns the DOFs for all physics problems.</p></li>
+<li><p><strong>sort</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to sort the DOFs before returning. Default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array of global DOFs indices on local process associated with the given physics tag(s), or all DOFs</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_physics">
+<span class="sig-name descname"><span class="pre">get_physics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_physics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_physics" title="Link to this definition"></a></dt>
+<dd><p>Get the physics problem for a given physics tag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>physics_tag</strong> (<em>str</em>) – The tag of the physics problem.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The physics problem associated with the given tag.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem" title="flatiron_tk.physics.physics_problem.PhysicsProblem">PhysicsProblem</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_physics_id">
+<span class="sig-name descname"><span class="pre">get_physics_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_physics_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_physics_id" title="Link to this definition"></a></dt>
+<dd><p>Get the physics ID for a given physics tag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>physics_tag</strong> (<em>str</em>) – The tag of the physics problem.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the physics problem.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_residual">
+<span class="sig-name descname"><span class="pre">get_residual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_residual" title="Link to this definition"></a></dt>
+<dd><p>Get the residual of the multiphysics problem by summing the residuals of each subphysics problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The residual expression for the multiphysics problem.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ufl.core.expr.Expr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_solution_function">
+<span class="sig-name descname"><span class="pre">get_solution_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_solution_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_solution_function" title="Link to this definition"></a></dt>
+<dd><p>Get the solution function for a given physics tag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>physics_tag</strong> (<em>str</em><em>, </em><em>optional</em>) – The tag of the physics problem. If None, returns the solution function for the multiphysics problem.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The solution function associated with the given physics tag, or the multiphysics solution function if no tag is provided.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ufl.core.expr.Expr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_test_function">
+<span class="sig-name descname"><span class="pre">get_test_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_test_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_test_function" title="Link to this definition"></a></dt>
+<dd><p>Get the test function for a given physics tag.
+:param physics_tag: The tag of the physics problem. If None, returns the test function for the multiphysics problem.
+:type physics_tag: str, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The test function associated with the given physics tag, or the multiphysics test function if no tag is provided.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ufl.core.expr.Expr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_trial_function">
+<span class="sig-name descname"><span class="pre">get_trial_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.get_trial_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.get_trial_function" title="Link to this definition"></a></dt>
+<dd><p>Get the trial function for a given physics tag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>physics_tag</strong> (<em>str</em><em>, </em><em>optional</em>) – The tag of the physics problem. If None, returns the trial function for the multiphysics problem.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The trial function associated with the given physics tag, or the multiphysics trial function if no tag is provided.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ufl.core.expr.Expr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_bcs">
+<span class="sig-name descname"><span class="pre">set_bcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiphysics_bc_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_bcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_bcs" title="Link to this definition"></a></dt>
+<dd><p>Set the boundary conditions for the multiphysics problem by iterating over the boundary conditions of each subphysics problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>multiphysics_bc_dict</strong> (<em>dict</em>) – A dictionary containing the boundary conditions for each subphysics problem.
+The keys are the boundary IDs and the values are dictionaries with the boundary condition type and value.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a boundary condition type is not recognized or if the physics ID is not found in the multiphysics problem.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_element">
+<span class="sig-name descname"><span class="pre">set_element</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_element" title="Link to this definition"></a></dt>
+<dd><p>Set the finite element for the multiphysics problem by creating a mixed element
+from the elements of the subphysics problems.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_function_space">
+<span class="sig-name descname"><span class="pre">set_function_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_function_space" title="Link to this definition"></a></dt>
+<dd><p>Set the function space for the multiphysics problem and for each subphysics problem.
+:param V: The function space for the multiphysics problem.
+:type V: dolfinx.fem.FunctionSpace</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_solution_function">
+<span class="sig-name descname"><span class="pre">set_solution_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiphysics_solution_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_solution_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_solution_function" title="Link to this definition"></a></dt>
+<dd><p>Set the solution function for the multiphysics problem and for each subphysics problem.
+:param multiphysics_solution_function: The solution function for the multiphysics problem.
+:type multiphysics_solution_function: dolfinx.fem.Function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_test_function">
+<span class="sig-name descname"><span class="pre">set_test_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiphysics_test_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_test_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_test_function" title="Link to this definition"></a></dt>
+<dd><p>Set the test function for the multiphysics problem and for each subphysics problem.
+:param multiphysics_test_function: The test function for the multiphysics problem.
+:type multiphysics_test_function: ufl.TestFunction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_trial_function">
+<span class="sig-name descname"><span class="pre">set_trial_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiphysics_trial_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_trial_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_trial_function" title="Link to this definition"></a></dt>
+<dd><p>Set the trial function for the multiphysics problem and for each subphysics problem.
+:param multiphysics_trial_function: The trial function for the multiphysics problem.
+:type multiphysics_trial_function: ufl.TrialFunction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_weak_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_weak_form" title="Link to this definition"></a></dt>
+<dd><p>Set the weak form for the multiphysics problem by summing the weak forms of each subphysics problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em><em>, </em><em>optional</em>) – Options for each subphysics problem’s weak form. If not provided,
+an empty dictionary is used for each subphysics problem.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a subphysics problem does not have the attribute <cite>weak_form</cite> defined.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_writer">
+<span class="sig-name descname"><span class="pre">set_writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.set_writer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.set_writer" title="Link to this definition"></a></dt>
+<dd><p>Set the writer for each subphysics problem to write output to the specified directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_dir</strong> (<em>str</em>) – The directory where the output files will be written.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em>, </em><em>optional</em>) – The file format for the output files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_to_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.write" title="Link to this definition"></a></dt>
+<dd><p>Write the solution of the multiphysics problem to files.
+:param function_to_save: The function to save. If None, the solution function of the multiphysics problem is used.
+:type function_to_save: ufl.core.expr.Expr, optional
+:param *args: Additional positional arguments to pass to the write method of each subphysics problem.
+:type *args: tuple
+:param **kwargs: Additional keyword arguments to pass to the write method of each subphysics problem.
+:type **kwargs: dict</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.write_subphysics">
+<span class="sig-name descname"><span class="pre">write_subphysics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem.write_subphysics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem.write_subphysics" title="Link to this definition"></a></dt>
+<dd><p>Recursive function that splits (monolithic) multiphysics problems and solutions
+until each sub solution can be written.</p>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Coupled</span><span class="o">-</span><span class="n">Flow</span><span class="o">-</span><span class="n">Transport</span><span class="p">[</span><span class="n">Navier</span><span class="o">-</span><span class="n">Stokes</span><span class="p">[</span><span class="n">momentum</span><span class="p">,</span> <span class="n">continuity</span><span class="p">],</span> <span class="n">Transport</span><span class="p">]</span>
+    <span class="o">|</span>
+<span class="n">Split</span> <span class="mi">1</span>
+    <span class="o">|----</span><span class="n">Navier</span><span class="o">-</span><span class="n">Stokes</span><span class="p">[</span><span class="n">momentum</span><span class="p">,</span> <span class="n">continuity</span><span class="p">]</span> <span class="p">(</span><span class="n">call</span> <span class="n">function</span><span class="p">)</span>
+    <span class="o">|</span>       <span class="o">|</span>
+    <span class="o">|</span>    <span class="n">Split</span> <span class="mi">2</span>
+    <span class="o">|</span>       <span class="o">|----</span><span class="n">Momentum</span> <span class="o">-&gt;</span> <span class="n">write</span> <span class="n">to</span> <span class="n">file</span>
+    <span class="o">|</span>       <span class="o">|</span>
+    <span class="o">|</span>       <span class="o">|----</span><span class="n">Continuity</span> <span class="o">-&gt;</span> <span class="n">write</span> <span class="n">to</span> <span class="n">file</span>
+    <span class="o">|</span>
+    <span class="o">|----</span><span class="n">Transport</span> <span class="o">-&gt;</span> <span class="n">write</span> <span class="n">to</span> <span class="n">file</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>physics</strong> (<a class="reference internal" href="module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem" title="flatiron_tk.physics.physics_problem.PhysicsProblem"><em>PhysicsProblem</em></a>) – The physics problem to write the solution for.</p></li>
+<li><p><strong>solution</strong> (<em>dolfinx.fem.Function</em>) – The solution function to write.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.multiphysics_problem.</span></span><span class="sig-name descname"><span class="pre">TransientMultiPhysicsProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">physics_problems</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#TransientMultiPhysicsProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem" title="flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiphysicsProblem</span></code></a></p>
+<p>Extension of <cite>MultiphysicsProblem</cite> to support transient simulations.</p>
+<p>This class manages the storage and update of the previous time step’s solution, which
+is essential for time-stepping schemes in transient simulations involving multiple
+coupled physics components.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#TransientMultiPhysicsProblem.build_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem.build_function_space" title="Link to this definition"></a></dt>
+<dd><p>Build the function space for the multiphysics problem and initialize the previous solution function.
+This method extends the <cite>build_function_space</cite> method of the <cite>MultiphysicsProblem</cite> class
+by also creating a function to store the solution from the previous time step.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem.update_previous_solution">
+<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/flatiron_tk/physics/multiphysics_problem.html#TransientMultiPhysicsProblem.update_previous_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem.update_previous_solution" title="Link to this definition"></a></dt>
+<dd><p>Update the previous solution function with the current solution.
+This method copies the values from the current solution function to the previous solution function,
+preparing it for the next time step in a transient simulation.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="module_physics_problem.html" class="btn btn-neutral float-left" title="Physics Problem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_scalar_transport.html" class="btn btn-neutral float-right" title="Scalar-Transport" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Nick Rovito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
