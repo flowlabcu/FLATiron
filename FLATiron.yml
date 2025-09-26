@@ -1,4 +1,4 @@
-name: FLATironX
+name: rtdflatiron
 channels:
   - defaults
   - conda-forge
@@ -375,4 +375,4 @@ dependencies:
       - threadpoolctl==3.6.0
       - typer==0.15.2
       - tzdata==2025.2
-prefix: /home/njrovito/anaconda3/envs/FLATironX
+prefix: /home/docs/.conda/envs/rtdflatiron
