@@ -17,8 +17,8 @@ build:
 sphinx:
   configuration: docs/source/conf.py
 
-conda: 
-  environment: FLATiron.yaml
+#conda: 
+#  environment: FLATiron.yaml
 
 # Optionally build your docs in additional formats such as PDF and ePub
 # formats:
@@ -28,8 +28,8 @@ conda:
 # Optional but recommended, declare the Python requirements required
 # to build your documentation
 # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
-# python:
-#  install:
-#    - method: pip
-#      path: .
-#     - requirements: requirements.txt
+python:
+  install:
+    - method: pip
+      path: .
+    - requirements: requirements.txt
