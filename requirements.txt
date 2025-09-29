@@ -67,7 +67,6 @@ scooby==0.10.0
 setuptools==80.9.0
 shellingham==1.5.4
 six==1.17.0
-slepc4py==3.23.0
 snowballstemmer==3.0.1
 Sphinx==8.2.3
 sphinx-rtd-theme==3.0.2
