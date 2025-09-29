@@ -34,7 +34,6 @@ MarkupSafe==3.0.2
 matplotlib==3.10.1
 mdurl==0.1.2
 meshio==5.3.5
-mpi4py==4.0.3
 msgpack==1.1.0
 multidict==6.3.2
 munkres==1.1.4
