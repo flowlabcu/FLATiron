@@ -1,9 +1,12 @@
-import adios4dolfinx
-import basix
-import dolfinx
 import numbers
 import subprocess
-import ufl 
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable

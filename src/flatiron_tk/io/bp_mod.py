@@ -1,8 +1,11 @@
-import adios4dolfinx
-import basix
-import dolfinx
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
 
-from mpi4py import MPI
 from pathlib import Path
 
 def _bp_get_mesh(filepath:Path):
@@ -13,7 +16,7 @@ def _bp_get_mesh(filepath:Path):
 
     return adios4dolfinx.read_mesh(bp_file, comm=MPI.COMM_WORLD)
 
-def _build_function_space(msh:dolfinx.mesh.Mesh, element_family:str='CG', element_degree:int=1, element_shape=None):
+def _build_function_space(msh, element_family:str='CG', element_degree:int=1, element_shape=None):
         if element_shape == 'scalar' or element_shape is None:
             _shape = ()
         elif element_shape == 'vector':

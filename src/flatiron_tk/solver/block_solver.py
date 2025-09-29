@@ -1,10 +1,15 @@
 import numpy as np
-import dolfinx
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
 
 from collections.abc import Iterable
 from flatiron_tk.solver import ConvergenceMonitor
 from flatiron_tk.solver import NonLinearSolver
-from petsc4py import PETSc
 
 
 """

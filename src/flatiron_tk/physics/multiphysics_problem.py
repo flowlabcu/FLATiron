@@ -1,15 +1,18 @@
-import basix
-import dolfinx
 import numpy as np
 import os
 import subprocess
-import ufl
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
 
 from collections.abc import Iterable
 from flatiron_tk.io import *
 from flatiron_tk.physics import PhysicsProblem
-from mpi4py import MPI
-
 
 def _is_container(obj):
     """

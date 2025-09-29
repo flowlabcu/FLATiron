@@ -1,6 +1,11 @@
-import dolfinx 
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+
 import numpy as np
-import ufl 
 
 from flatiron_tk.fem import boundary_conditions as bcs
 from flatiron_tk.physics import MultiphysicsProblem

@@ -1,59 +1,92 @@
-import pytest
-from flatiron_tk.physics import *
-from flatiron_tk.mesh import RectMesh, LineMesh
-from flatiron_tk.solver import NonLinearSolver
+import flatiron_tk
 import numpy as np
-import dolfinx
+import pytest
+import ufl 
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
+
+from flatiron_tk.physics import *
+from flatiron_tk.mesh import LineMesh
+from flatiron_tk.solver import NonLinearSolver, NonLinearProblem, ConvergenceMonitor
 
 
-def test_scalar_transport(line_mesh_1):
+def test_scalar_transport():
+    """
+    Solve 1D steady advection–diffusion–reaction with Dirichlet BCs
+    and compare with the analytical solution.
+    """
 
-    '''
-    This test solves the problem found in the demo.
+    # Mesh
 
-    u*dc/dx - D*d^2c/dx^2 - 1 = 0
-    c[0] = 0
-    c[1] = 0
-    c = 1/u * ( x - (1-exp(g*x))/(1-exp(g)) )
-    g = u/D
-    '''
-    line_mesh = LineMesh(0, 1, 1/32)
-    st = SteadyScalarTransport(line_mesh, 'a')
-    st.set_element('CG', 1)
+    num_elements = 1024
+    line_mesh = LineMesh(0, 1, 1 / num_elements)  # 128 elements
+    st = SteadyScalarTransport(line_mesh, "a")
+    st.set_element("CG", 1)
     st.build_function_space()
 
-    u = 1
-    h = 1/10 # Mesh Resolution
-    Pe = 5 # This is the cell Peclet number
-    D = u/Pe/2*h
-    r = 1.
+    # Parameters
+    u = 1.0
+    h = 1 / num_elements
+    Pe = 5
+    D = u / Pe * (h / 2)  # diffusivity
+    r = 1.0
+
+    print(Pe)
 
     st.set_advection_velocity(u)
     st.set_diffusivity(D)
     st.set_reaction(r)
 
-    # Set weak form
+    # Weak form + stabilization
     st.set_weak_form()
-    st.add_stab('su')
-    # bc_dict = {1:{'type': 'dirichlet', 'value': fe.Constant(0.)},
-    #            2:{'type': 'dirichlet', 'value': fe.Constant(0.)}}
-    # st.set_bcs(bc_dict)
+    st.add_stab("shakib")
 
-    # # Set solver
-    # la_solver = fe.PETScKrylovSolver()
-    # fe.PETScOptions.set("ksp_monitor")
-    # la_solver.set_from_options()
-    # solver = PhysicsSolver(st, la_solver=la_solver)
+    # Boundary conditions
+    bc_dict = {
+        1: {"type": "dirichlet", "value": flatiron_tk.constant(line_mesh, 0.0)},
+        2: {"type": "dirichlet", "value": flatiron_tk.constant(line_mesh, 0.0)},
+    }
+    st.set_bcs(bc_dict)
 
-    # Solve
-    # solver.solve()
+    # Solver
+    def my_custom_ksp_setup(ksp):
+        ksp.setType(ksp.Type.FGMRES)
+        ksp.pc.setType(ksp.pc.Type.LU)
+        ksp.setTolerances(rtol=1e-8, atol=1e-10, max_it=500)
+        ksp.setMonitor(ConvergenceMonitor("ksp"))
 
-    # Compare solutions
-    # x = np.linspace(0, 1, 11)
-    # g = u/D
-    # sol_exact = 1/u * (x - (1-np.exp(g*x))/(1-np.exp(g)))
-    # sol_comp = [st.solution(xi) for xi in x]
+    problem = NonLinearProblem(st)
+    solver = NonLinearSolver(
+        line_mesh.msh.comm, problem, outer_ksp_set_function=my_custom_ksp_setup
+    )
+    solver.solve()
 
-    # Since this is an approximation to the actual solution
-    # Make sure that the error is less than a small number to the exact solution
-    # assert np.linalg.norm(sol_exact-sol_comp) < 1e-8
+    # ----------------------------------------------------------------------
+    # Compare numerical vs analytical solution at DOF coordinates
+    # ----------------------------------------------------------------------
+    uh = st.get_solution_function()
+
+    g = u / D
+    def exact_fun(x):
+        # x is a (3, N) array
+        xvals = x[0]
+        exp_neg_g = np.exp(-g)
+        return (1/u) * (
+            xvals - (exp_neg_g - np.exp((xvals - 1)*g)) / (exp_neg_g - 1)
+        )
+        
+
+    u_exact = dolfinx.fem.Function(st.get_function_space())
+    u_exact.interpolate(exact_fun)
+
+    error_form = dolfinx.fem.form(ufl.inner(uh - u_exact, uh - u_exact) * ufl.dx)
+    error_L2 = np.sqrt(dolfinx.fem.assemble_scalar(error_form))
+
+    assert error_L2 < 1e-3
+

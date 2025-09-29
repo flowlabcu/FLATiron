@@ -1,6 +1,11 @@
 import numpy as np
 
-from petsc4py import PETSc
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
 
 class ConvergenceMonitor():
     """

@@ -1,7 +1,13 @@
-import dolfinx
 import flatiron_tk
 import subprocess
-from mpi4py import MPI
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
 
 # Run a simple Navier-Stokes example to generate data
 subprocess.run(['mpirun', '-n', '2', 'python3', '_run_nse.py'])

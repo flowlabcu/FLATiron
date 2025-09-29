@@ -18,11 +18,17 @@ This demo demonstrates how to do a transient convection-diffusion problem in fla
 
 Author: njrovito
 '''
-import dolfinx
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-import ufl
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
 
 from flatiron_tk.mesh import LineMesh
 from flatiron_tk.physics import TransientScalarTransport

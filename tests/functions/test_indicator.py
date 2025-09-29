@@ -1,6 +1,14 @@
 import pytest
 import numpy as np
-import dolfinx
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
+
 from flatiron_tk.functions import build_field_scalar_function
 from flatiron_tk.mesh import RectMesh
 

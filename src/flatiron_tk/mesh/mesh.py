@@ -1,11 +1,14 @@
-import dolfinx
 import numpy as np
-import ufl
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
 
 from ..io import *
-from mpi4py import MPI
-from petsc4py import PETSc
-
 class Mesh():
     """
     A base class for creating and managing computational meshes using Dolfinx.  

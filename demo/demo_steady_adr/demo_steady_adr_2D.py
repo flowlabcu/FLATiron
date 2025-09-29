@@ -1,17 +1,20 @@
+import flatiron_tk
 import matplotlib.pyplot as plt
+import numpy as np
+import sys
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
+
 from flatiron_tk.mesh import RectMesh
 from flatiron_tk.physics import SteadyScalarTransport
 from flatiron_tk.solver import NonLinearProblem
 from flatiron_tk.solver import NonLinearSolver
-
-import flatiron_tk
-import dolfinx
-import ufl 
-import numpy as np
-
-from mpi4py import MPI
-
-import sys
 
 mesh = RectMesh(0.0, 0.0, 1.0, 1.0, 1/20)
 stp = SteadyScalarTransport(mesh, tag='c')

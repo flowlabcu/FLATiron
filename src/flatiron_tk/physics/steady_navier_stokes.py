@@ -1,10 +1,14 @@
-from flatiron_tk.physics import PhysicsProblem
-from flatiron_tk.physics import MultiphysicsProblem
-from flatiron_tk.physics import SteadyStokes
 import numpy as np
 
-import dolfinx 
-import ufl 
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+
+from flatiron_tk.physics import SteadyStokes
+
 
 class SteadyNavierStokes(SteadyStokes):
     """

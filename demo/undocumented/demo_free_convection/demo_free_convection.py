@@ -1,7 +1,13 @@
-import dolfinx
 import flatiron_tk
 import numpy as np
-import ufl
+
+from flatiron_tk.info import *
+adios4dolfinx = import_adios4dolfinx()
+basix = import_basix()
+dolfinx = import_dolfinx()
+PETSc = import_PETSc()
+ufl = import_ufl()
+MPI = import_mpi4py()
 
 from flatiron_tk.mesh import RectMesh
 from flatiron_tk.physics import TransientNavierStokes

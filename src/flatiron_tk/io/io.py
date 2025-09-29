@@ -1,5 +1,7 @@
 import dolfinx
-from mpi4py import MPI
+
+from flatiron_tk.info import *
+MPI = import_mpi4py()
 
 def read_mesh(mesh_file, gdim=None, comm=MPI.COMM_WORLD):
     '''

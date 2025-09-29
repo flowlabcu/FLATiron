@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 from flatiron_tk import constant
 from flatiron_tk.mesh import CuboidMesh
 from flatiron_tk.physics import SteadyScalarTransport
