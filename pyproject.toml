@@ -16,7 +16,7 @@ maintainers = [
 classifiers = [
 
 ]
-license = {text = "GNU General Public License v3"}
+license = { file = "LICENSE.txt" }
 dependencies = [
   "typer"
 ]
@@ -60,4 +60,3 @@ warn_no_return = true
 module = "tests.*"
 allow_untyped_defs = true
 disable_error_code = "attr-defined"
-
