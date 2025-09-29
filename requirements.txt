@@ -1,4 +1,3 @@
-adios4dolfinx==0.9.4
 aiohappyeyeballs==2.6.1
 aiohttp==3.11.16
 aiosignal==1.3.2
