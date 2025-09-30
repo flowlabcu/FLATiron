@@ -71,21 +71,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.mesh.mesh</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..io</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
-
 <div class="viewcode-block" id="Mesh">
 <a class="viewcode-back" href="../../module_mesh.html#flatiron_tk.mesh.mesh.Mesh">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Mesh</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A base class for creating and managing computational meshes using Dolfinx.  </span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    -------------</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
 <span class="sd">        comm: MPI communicator, default is MPI.COMM_WORLD</span>
 <span class="sd">        mesh: dolfinx mesh object, default is None</span>
 <span class="sd">        mesh_file: mesh file name, default is None</span>
@@ -249,6 +253,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ------------</span>
 <span class="sd">            boundary_id (int): The id of the boundary for which to compute the mean normal.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        ------------</span>
 <span class="sd">            np.ndarray: A unit vector representing the mean outward normal of the boundary.</span>
@@ -285,6 +290,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ------------</span>
 <span class="sd">            boundary_id (int): The id of the boundary for which to compute the centroid.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        ------------</span>
 <span class="sd">            np.ndarray: A point representing the centroid of the boundary.</span>
@@ -333,6 +339,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ------------</span>
 <span class="sd">            boundary_id (int): The id of the boundary for which to compute the area.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        ------------</span>
 <span class="sd">            float: The area of the boundary.</span>

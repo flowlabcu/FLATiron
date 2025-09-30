@@ -12,8 +12,9 @@ from ..io import *
 class Mesh():
     """
     A base class for creating and managing computational meshes using Dolfinx.  
-    Parameters:
-    -------------
+    
+    Parameters
+    -----------
         comm: MPI communicator, default is MPI.COMM_WORLD
         mesh: dolfinx mesh object, default is None
         mesh_file: mesh file name, default is None
@@ -151,6 +152,7 @@ class Mesh():
         Parameters
         ------------
             boundary_id (int): The id of the boundary for which to compute the mean normal.
+
         Returns
         ------------
             np.ndarray: A unit vector representing the mean outward normal of the boundary.
@@ -184,6 +186,7 @@ class Mesh():
         Parameters
         ------------
             boundary_id (int): The id of the boundary for which to compute the centroid.
+
         Returns
         ------------
             np.ndarray: A point representing the centroid of the boundary.
@@ -229,6 +232,7 @@ class Mesh():
         Parameters
         ------------
             boundary_id (int): The id of the boundary for which to compute the area.
+
         Returns
         ------------
             float: The area of the boundary.

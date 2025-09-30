@@ -110,6 +110,33 @@ The full source code can be found in <strong>demo/demo_steady_navier_stokes/demo
 <section id="implementation">
 <h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
 <p>First we import the relevant modules and define functions representing the boundary conditions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">SteadyNavierStokes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w">  </span><span class="kn">import</span> <span class="n">ConvergenceMonitor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearSolver</span>
+
+<span class="c1"># Define boundary conditions functions</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">no_slip</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">u_inlet</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">zero_pressure</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Next, we define the mesh.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create mesh</span>
 <span class="n">ne</span> <span class="o">=</span> <span class="mi">64</span>
@@ -196,7 +223,14 @@ the solver parameter using a function that sets the PETSc KSP options.</p>
 </section>
 <section id="full-script">
 <h2>Full Script<a class="headerlink" href="#full-script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>

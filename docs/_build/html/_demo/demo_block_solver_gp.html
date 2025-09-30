@@ -93,7 +93,7 @@
              
   <section id="demo-using-the-block-solver-with-nested-splits">
 <h1>Demo: Using the Block Solver with Nested Splits<a class="headerlink" href="#demo-using-the-block-solver-with-nested-splits" title="Link to this heading"></a></h1>
-<p>In <span class="xref std std-doc">_demo/demo_block_solver_nse</span>, we demonstrated how to use the block solver
+<p>In <a class="reference internal" href="demo_block_solver_nse.html"><span class="doc">Demo: Using the Block Solver for the Navier-Stokes Equations</span></a>, we demonstrated how to use the block solver
 to solve the steady Navier-Stokes equations. In that example, we only needed a single split
 to define the block structure of the system. In this demo, we will show how to use nested splits
 to define a more complex block structure.</p>
@@ -151,7 +151,7 @@ to define a more complex block structure.</p>
 </pre></div>
 </div>
 <p>Next, we define the block structure of the system using nested splits. The first split GP2 from GP1 and GP3, and then we split GP1 and GP3 individually.
-Here, we use the default ksp objects for each split. For an example of how to customize the ksp objects, see <span class="xref std std-doc">_demo/demo_block_solver_nse</span>.</p>
+Here, we use the default ksp objects for each split. For an example of how to customize the ksp objects, see <a class="reference internal" href="demo_block_solver_nse.html"><span class="doc">Demo: Using the Block Solver for the Navier-Stokes Equations</span></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Split the problem into two blocks: (A,C) and (B)</span>
 <span class="n">split0</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">((</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="s1">&#39;C&#39;</span><span class="p">),</span> <span class="s1">&#39;B&#39;</span><span class="p">),</span>
             <span class="s1">&#39;composite_type&#39;</span><span class="p">:</span> <span class="s1">&#39;schur&#39;</span><span class="p">,</span>
@@ -194,8 +194,13 @@ Here, we use the default ksp objects for each split. For an example of how to cu
 </section>
 <section id="full-script">
 <h2>Full Script<a class="headerlink" href="#full-script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineMesh</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiphysicsProblem</span>
@@ -203,7 +208,6 @@ Here, we use the default ksp objects for each split. For an example of how to cu
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonLinearProblem</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockSplitTree</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockNonLinearSolver</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 <span class="c1"># Build GP physics</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GalerkinProjection</span><span class="p">(</span><span class="n">PhysicsProblem</span><span class="p">):</span>

@@ -71,11 +71,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.mesh.basic_mesh</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cartesian_mesh</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -91,14 +97,17 @@
 <span class="sd">        MPI communicator, typically ``MPI.COMM_WORLD``.</span>
 <span class="sd">    cell_type : dolfinx.mesh.CellType, optional</span>
 <span class="sd">        Dolfinx cell type (e.g., triangle, tetrahedron). If not provided, defaults to triangle for 2D and tetrahedron for 3D.</span>
+<span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    msh : dolfinx.mesh.Mesh</span>
 <span class="sd">        The created dolfinx mesh object.</span>
+<span class="sd">    </span>
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    AssertionError</span>
 <span class="sd">        If ``x0``, ``x1``, and ``dx`` do not have the same length.</span>
+<span class="sd">    </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    - For 1D, creates an interval mesh.</span>
@@ -130,7 +139,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">CuboidMesh</span><span class="p">(</span><span class="n">Mesh</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a 3D cuboid mesh between (x0, y0, z0) and (x1, y1, z1) with a given element size.</span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    -------------</span>
 <span class="sd">        x0: Start point of the mesh in the x-direction.</span>
 <span class="sd">        y0: Start point of the mesh in the y-direction.</span>
@@ -171,7 +180,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">RectMesh</span><span class="p">(</span><span class="n">Mesh</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a 2D rectangular mesh between (x0, y0) and (x1, y1) with a given element size.</span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    -------------</span>
 <span class="sd">        x0: Start point of the mesh in the x-direction.</span>
 <span class="sd">        y0: Start point of the mesh in the y-direction.</span>
@@ -210,7 +219,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">LineMesh</span><span class="p">(</span><span class="n">Mesh</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a 1D line mesh between x0 and x1 with a given element size.</span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    -------------</span>
 <span class="sd">        x0: Start point of the mesh.</span>
 <span class="sd">        x1: End point of the mesh.</span>

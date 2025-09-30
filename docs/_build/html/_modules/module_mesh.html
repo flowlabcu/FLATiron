@@ -102,17 +102,19 @@
 <dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.mesh.</span></span><span class="sig-name descname"><span class="pre">Mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A base class for creating and managing computational meshes using Dolfinx.
-Parameters:
-————-</p>
-<blockquote>
-<div><p>comm: MPI communicator, default is MPI.COMM_WORLD
-mesh: dolfinx mesh object, default is None
-mesh_file: mesh file name, default is None
-boundary: dolfinx mesh tags for boundary, default is None
-subdomain: dolfinx mesh tags for subdomain, default is None
-gdim: geometric dimension of the mesh, optional, used when loading from file</p>
-</div></blockquote>
+<p>A base class for creating and managing computational meshes using Dolfinx.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>comm</strong> (<em>MPI communicator</em><em>, </em><em>default is MPI.COMM_WORLD</em>)</p></li>
+<li><p><strong>mesh</strong> (<em>dolfinx mesh object</em><em>, </em><em>default is None</em>)</p></li>
+<li><p><strong>mesh_file</strong> (<em>mesh file name</em><em>, </em><em>default is None</em>)</p></li>
+<li><p><strong>boundary</strong> (<em>dolfinx mesh tags for boundary</em><em>, </em><em>default is None</em>)</p></li>
+<li><p><strong>subdomain</strong> (<em>dolfinx mesh tags for subdomain</em><em>, </em><em>default is None</em>)</p></li>
+<li><p><strong>gdim</strong> (<em>geometric dimension</em><em> of </em><em>the mesh</em><em>, </em><em>optional</em><em>, </em><em>used when loading from file</em>)</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="flatiron_tk.mesh.mesh.Mesh.get_boundary_area">
 <span class="sig-name descname"><span class="pre">get_boundary_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/mesh.html#Mesh.get_boundary_area"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.mesh.Mesh.get_boundary_area" title="Link to this definition"></a></dt>
@@ -231,19 +233,24 @@ gdim: geometric dimension of the mesh, optional, used when loading from file</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.basic_mesh.</span></span><span class="sig-name descname"><span class="pre">CuboidMesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/basic_mesh.html#CuboidMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.basic_mesh.CuboidMesh" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a></p>
 <p>Create a 3D cuboid mesh between (x0, y0, z0) and (x1, y1, z1) with a given element size.
-Parameters:
-————-</p>
-<blockquote>
-<div><p>x0: Start point of the mesh in the x-direction.
-y0: Start point of the mesh in the y-direction.
-z0: Start point of the mesh in the z-direction.
-x1: End point of the mesh in the x-direction.
-y1: End point of the mesh in the y-direction.
-z1: End point of the mesh in the z-direction.
-dx: Element size in each direction (can be a single float or a list/tuple of three floats).
-comm: MPI communicator, default is MPI.COMM_WORLD.
-<a href="#id2"><span class="problematic" id="id3">**</span></a>kwargs: Additional keyword arguments passed to dolfinx.mesh.create_box (e.g., cell_type).</p>
-</div></blockquote>
+:param x0:
+:type x0: Start point of the mesh in the x-direction.
+:param y0:
+:type y0: Start point of the mesh in the y-direction.
+:param z0:
+:type z0: Start point of the mesh in the z-direction.
+:param x1:
+:type x1: End point of the mesh in the x-direction.
+:param y1:
+:type y1: End point of the mesh in the y-direction.
+:param z1:
+:type z1: End point of the mesh in the z-direction.
+:param dx:
+:type dx: Element size in each direction (can be a single float or a list/tuple of three floats).
+:param comm:
+:type comm: MPI communicator, default is MPI.COMM_WORLD.
+:param **kwargs:
+:type **kwargs: Additional keyword arguments passed to dolfinx.mesh.create_box (e.g., cell_type).</p>
 </dd></dl>
 
 <dl class="py class">
@@ -251,15 +258,16 @@ comm: MPI communicator, default is MPI.COMM_WORLD.
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.basic_mesh.</span></span><span class="sig-name descname"><span class="pre">LineMesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/basic_mesh.html#LineMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.basic_mesh.LineMesh" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a></p>
 <p>Create a 1D line mesh between x0 and x1 with a given element size.
-Parameters:
-————-</p>
-<blockquote>
-<div><p>x0: Start point of the mesh.
-x1: End point of the mesh.
-dx: Element size.
-comm: MPI communicator, default is MPI.COMM_WORLD.
-<a href="#id4"><span class="problematic" id="id5">**</span></a>kwargs: Additional keyword arguments passed to dolfinx.mesh.create_interval.</p>
-</div></blockquote>
+:param x0:
+:type x0: Start point of the mesh.
+:param x1:
+:type x1: End point of the mesh.
+:param dx:
+:type dx: Element size.
+:param comm:
+:type comm: MPI communicator, default is MPI.COMM_WORLD.
+:param **kwargs:
+:type **kwargs: Additional keyword arguments passed to dolfinx.mesh.create_interval.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -267,17 +275,20 @@ comm: MPI communicator, default is MPI.COMM_WORLD.
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.mesh.basic_mesh.</span></span><span class="sig-name descname"><span class="pre">RectMesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/mesh/basic_mesh.html#RectMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.mesh.basic_mesh.RectMesh" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a></p>
 <p>Create a 2D rectangular mesh between (x0, y0) and (x1, y1) with a given element size.
-Parameters:
-————-</p>
-<blockquote>
-<div><p>x0: Start point of the mesh in the x-direction.
-y0: Start point of the mesh in the y-direction.
-x1: End point of the mesh in the x-direction.
-y1: End point of the mesh in the y-direction.
-dx: Element size in each direction (can be a single float or a list/tuple of two floats).
-comm: MPI communicator, default is MPI.COMM_WORLD.
-<a href="#id6"><span class="problematic" id="id7">**</span></a>kwargs: Additional keyword arguments passed to dolfinx.mesh.create_rectangle (e.g., cell_type).</p>
-</div></blockquote>
+:param x0:
+:type x0: Start point of the mesh in the x-direction.
+:param y0:
+:type y0: Start point of the mesh in the y-direction.
+:param x1:
+:type x1: End point of the mesh in the x-direction.
+:param y1:
+:type y1: End point of the mesh in the y-direction.
+:param dx:
+:type dx: Element size in each direction (can be a single float or a list/tuple of two floats).
+:param comm:
+:type comm: MPI communicator, default is MPI.COMM_WORLD.
+:param **kwargs:
+:type **kwargs: Additional keyword arguments passed to dolfinx.mesh.create_rectangle (e.g., cell_type).</p>
 </dd></dl>
 
 </section>

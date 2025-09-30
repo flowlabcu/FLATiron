@@ -24,14 +24,17 @@ def _cartesian_mesh(x0, x1, dx, comm, **kwargs):
         MPI communicator, typically ``MPI.COMM_WORLD``.
     cell_type : dolfinx.mesh.CellType, optional
         Dolfinx cell type (e.g., triangle, tetrahedron). If not provided, defaults to triangle for 2D and tetrahedron for 3D.
+    
     Returns
     -------
     msh : dolfinx.mesh.Mesh
         The created dolfinx mesh object.
+    
     Raises
     ------
     AssertionError
         If ``x0``, ``x1``, and ``dx`` do not have the same length.
+    
     Notes
     -----
     - For 1D, creates an interval mesh.
@@ -61,7 +64,7 @@ def _cartesian_mesh(x0, x1, dx, comm, **kwargs):
 class CuboidMesh(Mesh):
     """
     Create a 3D cuboid mesh between (x0, y0, z0) and (x1, y1, z1) with a given element size.
-    Parameters:
+    Parameters
     -------------
         x0: Start point of the mesh in the x-direction.
         y0: Start point of the mesh in the y-direction.
@@ -99,7 +102,7 @@ class CuboidMesh(Mesh):
 class RectMesh(Mesh):
     """
     Create a 2D rectangular mesh between (x0, y0) and (x1, y1) with a given element size.
-    Parameters:
+    Parameters
     -------------
         x0: Start point of the mesh in the x-direction.
         y0: Start point of the mesh in the y-direction.
@@ -135,7 +138,7 @@ class RectMesh(Mesh):
 class LineMesh(Mesh):
     """
     Create a 1D line mesh between x0 and x1 with a given element size.
-    Parameters:
+    Parameters
     -------------
         x0: Start point of the mesh.
         x1: End point of the mesh.

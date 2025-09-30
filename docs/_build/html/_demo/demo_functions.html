@@ -102,12 +102,17 @@ how to create indicator functions for fictitious domains.</p>
 domain, while the second mesh, <cite>fictitious</cite>, represents a subdomain within the main domain.</p>
 <div class="math notranslate nohighlight">
 \[\Omega_{fictitious} \subset \Omega_{domain}\]</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_field_scalar_function</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_rank_indicator_function</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 <span class="c1"># Define the domain and fictitious region</span>
 <span class="n">domain</span> <span class="o">=</span> <span class="n">RectMesh</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">20</span><span class="p">)</span>
@@ -148,12 +153,17 @@ visualizing how the domain is partitioned across different processes while debug
 </section>
 <section id="full-script">
 <h2>Full Script<a class="headerlink" href="#full-script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_field_scalar_function</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_rank_indicator_function</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 <span class="c1"># Define the domain and fictitious region</span>
 <span class="n">domain</span> <span class="o">=</span> <span class="n">RectMesh</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">20</span><span class="p">)</span>

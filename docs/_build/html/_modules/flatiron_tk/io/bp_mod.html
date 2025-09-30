@@ -71,11 +71,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.io.bp_mod</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">adios4dolfinx</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">basix</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
+<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_bp_get_mesh</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="n">Path</span><span class="p">):</span>
@@ -86,7 +89,7 @@
 
     <span class="k">return</span> <span class="n">adios4dolfinx</span><span class="o">.</span><span class="n">read_mesh</span><span class="p">(</span><span class="n">bp_file</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_build_function_space</span><span class="p">(</span><span class="n">msh</span><span class="p">:</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">Mesh</span><span class="p">,</span> <span class="n">element_family</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="n">element_degree</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">element_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_function_space</span><span class="p">(</span><span class="n">msh</span><span class="p">,</span> <span class="n">element_family</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="n">element_degree</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">element_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">element_shape</span> <span class="o">==</span> <span class="s1">&#39;scalar&#39;</span> <span class="ow">or</span> <span class="n">element_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_shape</span> <span class="o">=</span> <span class="p">()</span>
         <span class="k">elif</span> <span class="n">element_shape</span> <span class="o">==</span> <span class="s1">&#39;vector&#39;</span><span class="p">:</span>

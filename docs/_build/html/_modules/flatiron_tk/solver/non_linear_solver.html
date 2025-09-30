@@ -71,12 +71,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.solver.non_linear_solver</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.convergence_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceMonitor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">petsc</span> <span class="k">as</span> <span class="n">fem_petsc</span> <span class="c1"># Import fem.petsc for NonlinearProblem</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.nls</span><span class="w"> </span><span class="kn">import</span> <span class="n">petsc</span> <span class="k">as</span> <span class="n">nls_petsc</span> <span class="c1"># Alias nls.petsc to avoid name collision</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.convergence_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceMonitor</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">fem_petsc</span> <span class="o">=</span> <span class="n">import_dolfinx_fem_petsc</span><span class="p">()</span>
+<span class="n">nls_petsc</span> <span class="o">=</span> <span class="n">import_dolfinx_nls_petsc</span><span class="p">()</span>
+<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
+<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
+<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
 
 <div class="viewcode-block" id="NonLinearSolver">
 <a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver">[docs]</a>
@@ -111,7 +113,7 @@
 <span class="sd">            - post_ksp_setup_hook (callable): A hook function to run after KSP setup. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comm</span><span class="p">:</span> <span class="n">MPI</span><span class="o">.</span><span class="n">Comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">fem_petsc</span><span class="o">.</span><span class="n">NonlinearProblem</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="n">problem</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mpi_comm</span> <span class="o">=</span> <span class="n">comm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">problem</span> <span class="o">=</span> <span class="n">problem</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ksp_is_initialized</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># Flag to ensure KSP setup is done once</span>
@@ -171,7 +173,7 @@
 
 <div class="viewcode-block" id="NonLinearSolver.set_ksp_option">
 <a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver.set_ksp_option">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_ksp_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">:</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="p">,</span> <span class="n">keyword</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_ksp_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper method to set a PETSc KSP option using its option prefix.</span>
 <span class="sd">        This ensures options are specific to this KSP instance.</span>
@@ -192,7 +194,7 @@
 
 <div class="viewcode-block" id="NonLinearSolver.default_set_ksp">
 <a class="viewcode-back" href="../../solver_modules/module_non_linear_solver.html#flatiron_tk.solver.non_linear_solver.NonLinearSolver.default_set_ksp">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">default_set_ksp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">:</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_set_ksp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ksp</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets default values for the KSP solver. This method is used if no</span>
 <span class="sd">        custom KSP setup function is provided by the user.</span>
