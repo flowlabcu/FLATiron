@@ -44,7 +44,8 @@ packages = [
     "flatiron_tk.functions",
     "flatiron_tk.mesh",
     "flatiron_tk.solver",
-    "flatiron_tk.io"]
+    "flatiron_tk.io",
+    "flatiron_tk.info"]
 
 # [tool.setuptools.package-data]
 # "*" = ["*.*"]
