@@ -6,19 +6,23 @@
 
 ## 2. Features
 
-`FLATiron` is a collection of modular implementations of stabilized finite element methods for fluid flow and advection-diffusion transport processes. The library was designed leveraging the ease of going from mathematical weak formulations of flow and transport problems to high-performance computing modules that is enabled by `FEniCS` and the underlying `ufl` syntaxes. A few key features include:
+`FLATiron` is a library of modular implementations of stabilized finite element methods for fluid flow and transport processes. The library was designed by leveraging the ease of going from mathematical weak formulations of flow and transport problems to high-performance computing modules that is enabled by the finite element library `FEniCSx`; the underlying `dolfinx`, `ffcx`, and `basix` libraries; and the associated `ufl` syntaxes. A few key features include:
 
 - Petrov-Galerkin stabilization for Navier-Stokes and advection-diffusion equations.
 - Brinkman formulation for immersed porous media.
 - Jump stabilized formulations for advection-diffusion transport.
 - Integration of chemical reaction models in transport problems (suited for biochemical cascades).
-- Thermofluid coupling 
+- Fluid-thermal coupling and bioheat transport modeling capabilities.
 
 ## 3. Installation instructions
 
-FLATiron is installed in two steps. The library relies on the `dolfinx v0.9.0` library. It's recommended that `dolfinx` is installed using a package manager like Anaconda. 
+`FLATiron` is installed in two steps.
 
-Installation instructions, and additional details are provided on the install page of `FLATiron` documentation available here: **[Install](https://flatiron-docs.readthedocs.io/en/latest/installation.html)**
+- The library relies on the `dolfinx v0.9.0` library. It's recommended that `dolfinx` is installed using a package manager like `Anaconda`. This is the first requisite step.
+- Thereafter, the `gmsh` for meshing needs to be installed. An additional library for accessing advanced file I/O capabilities, named `adios4dolfinx` is needed.
+- Finally, the `FLATiron` module can be installed using `pip`.
+
+Detailed installation instructions, and additional details for `dolfinx` base libraries are provided on the install page of `FLATiron` documentation available here: **[Install](https://flatiron-docs.readthedocs.io/en/latest/installation.html)**
 
 ## 4. Demos
 
@@ -42,7 +46,8 @@ Below, we have provided a list of research papers that have described the underl
 ‌
 - Teeraratkul, C., Tomaiuolo, M., Stalker, T.J., and Mukherjee, D. “Investigating Clot-flow Interactions By Integrating Intravital ImagingWith In Silico Modeling For Analysis Of Flow, Transport, And Hemodynamic Forces.” **Scientific Reports. 14(1):696. 2024.**
 
-- Rovito, N., and Mukherjee, D., 2024, “In Silico Analysis of Flow-Mediated Drug Transport for Thrombolytic Therapy in Acute Ischemic Stroke,” Volume 8: Fluids Engineering.
+- Rovito, N., and Mukherjee, D. In Silico Analysis Of Flow-mediated Drug Transport For Thrombolytic
+Therapy In Acute Ischemic Stroke. **In: ASME International Mechanical Engineering Congress and Exposition, Vol. 88667, pp. V008T10A026. 2025**.
 ‌
 ## 7. Questions and issues
 
