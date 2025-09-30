@@ -45,4 +45,7 @@ sphinxcontrib-jsmath
 sphinxcontrib-qthelp
 sphinxcontrib-serializinghtml
 
+# FLATiron_tk 
+-e .
+
 
