@@ -27,6 +27,15 @@ extensions = [
     'sphinx.ext.mathjax'
 ]
 
+autodoc_mock_imports = [
+    "dolfinx",
+    "basix",
+    "adios4dolfinx",
+    "ufl",
+    "petsc4py",
+    "mpi4py",
+]
+
 language = 'en'
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
