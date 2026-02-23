@@ -1,19 +1,13 @@
+import dolfinx
 import flatiron_tk
 import numpy as np
-import pytest
-import ufl 
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
+import ufl
 
 from flatiron_tk.physics import *
 from flatiron_tk.mesh import LineMesh
-from flatiron_tk.solver import NonLinearSolver, NonLinearProblem, ConvergenceMonitor
+from flatiron_tk.solver import NonLinearSolver
+from flatiron_tk.solver import NonLinearProblem
+from flatiron_tk.solver import ConvergenceMonitor
 
 
 def test_scalar_transport():
