@@ -1,12 +1,9 @@
+import adios4dolfinx
+import basix
+import dolfinx
 import numbers
 import subprocess
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
+import ufl 
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
@@ -504,7 +501,6 @@ class PhysicsProblem(ABC):
 
         elif self.output_file.suffix == '.pvd':                    
             if time_stamp is not None:
-                print(f'Writing function {function_to_write.name} at time {time_stamp}')
                 self.output_fid.write_function(function_to_write, t=time_stamp)
             else:
                 self.output_fid.write_function(function_to_write)

@@ -1,11 +1,6 @@
 import numpy as np
 
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
+from petsc4py import PETSc
 
 class ConvergenceMonitor():
     """
@@ -13,7 +8,7 @@ class ConvergenceMonitor():
     This is meant to be used with PETSc's iterative method objects.
 
     Parameters
-        ----------
+    ----------
         name : str
             Name to identify the iterative method (e.g., 'ksp', 'snes',
             'ts').

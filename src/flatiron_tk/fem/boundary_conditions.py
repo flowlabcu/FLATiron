@@ -1,14 +1,8 @@
+import dolfinx
 import numpy as np
 
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-
 def is_subspace(V):
-    '''
+    """
     Returns True if V is a subspace of a function space, False otherwise.
 
     Parameters
@@ -19,14 +13,14 @@ def is_subspace(V):
     -------
     bool
         True if V is a subspace, False otherwise.
-    '''
+    """
     if len(V.component()) == 0:
         return False
     else:
         return True
         
 def get_function_space_search(V):
-    '''
+    """
     Returns the function space to search for dofs in case V is a subspace.
     If V is not a subspace, returns V itself.
     Parameters
@@ -41,7 +35,7 @@ def get_function_space_search(V):
         dolfinx.fem.FunctionSpace
         The function space to search for dofs.
     
-    '''
+    """
     if is_subspace(V):
         V_sub, V_submap = V.collapse()
         return (V, V_sub)
@@ -49,7 +43,7 @@ def get_function_space_search(V):
         return V
     
 def build_dirichlet_bc(mesh, bnd_id, bc_val, function_space):
-    '''
+    """
     Builds a Dirichlet boundary condition for a given boundary and value.
     Parameters
     ----------
@@ -69,7 +63,7 @@ def build_dirichlet_bc(mesh, bnd_id, bc_val, function_space):
     Raises
     ------
     TypeError : If `bc_val` is not a `dolfinx.fem.Function` or `dolfinx.fem.Constant`.
-    '''
+    """
 
     if isinstance(bc_val, dolfinx.fem.Function):
         _function_space_search = get_function_space_search(function_space)
@@ -92,6 +86,6 @@ def build_dirichlet_bc(mesh, bnd_id, bc_val, function_space):
         bc = dolfinx.fem.dirichletbc(bc_val, dofs, function_space)
 
     else:
-        raise TypeError("bc_val must be a dolfinx.fem.Function or dolfinx.fem.Constant, got {}".format(type(bc_val)))
+        raise TypeError(f'bc_val must be a dolfinx.fem.Function or dolfinx.fem.Constant, got {type(bc_val)}')
 
     return bc

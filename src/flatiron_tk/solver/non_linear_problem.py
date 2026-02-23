@@ -1,5 +1,8 @@
-from flatiron_tk.info import *
-petsc = import_dolfinx_fem_petsc()
+import dolfinx as dfx
+import ufl
+from mpi4py import MPI
+from petsc4py import PETSc
+from dolfinx.fem import petsc
 
 class NonLinearProblem(petsc.NonlinearProblem):
     """

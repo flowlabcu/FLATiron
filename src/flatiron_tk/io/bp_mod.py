@@ -1,14 +1,22 @@
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
+import adios4dolfinx
+import basix
+import dolfinx
 
+from mpi4py import MPI
 from pathlib import Path
 
 def _bp_get_mesh(filepath:Path):
+    """
+    Read a mesh from a BP file with adios4dolfinx.
+    Parameters
+    ----------
+    filepath : str or Path
+        Path to the BP file.
+    Returns
+    -------
+    msh : dolfinx.mesh.Mesh
+        The mesh read from the BP file.
+    """
     # Ensure filepath is a Path object (adios4dolfinx is buggy with str)
     if not isinstance(filepath, Path):
         filepath = Path(filepath)
@@ -16,7 +24,24 @@ def _bp_get_mesh(filepath:Path):
 
     return adios4dolfinx.read_mesh(bp_file, comm=MPI.COMM_WORLD)
 
-def _build_function_space(msh, element_family:str='CG', element_degree:int=1, element_shape=None):
+def _build_function_space(msh:dolfinx.mesh.Mesh, element_family:str='CG', element_degree:int=1, element_shape=None):
+        """
+        Build a function space on the given mesh.
+        Parameters
+        ----------
+        msh : dolfinx.mesh.Mesh
+            The mesh to build the function space on.
+        element_family : str, optional
+            Finite element family. Default is 'CG'.
+        element_degree : int, optional
+            Finite element degree. Default is 1.
+        element_shape : str, optional
+            Shape of the element. Can be 'scalar', 'vector', or 'tensor'. Default is None (scalar).
+        Returns
+        -------
+        V : dolfinx.fem.FunctionSpace
+            The built function space.
+        """
         if element_shape == 'scalar' or element_shape is None:
             _shape = ()
         elif element_shape == 'vector':
@@ -31,6 +56,19 @@ def _build_function_space(msh, element_family:str='CG', element_degree:int=1, el
         return V
 
 def bp_get_time_steps(filepath:Path, name:str=None):
+    """
+    Get the time steps available in a BP file.
+    Parameters
+    ----------
+    filepath : str or Path
+        Path to the BP file.
+    name : str, optional
+        Name of the function to get time steps for. If None, the first function in the file is used.
+    Returns
+    -------
+    time_steps : list of float
+        List of time steps available in the BP file.
+    """
     if not isinstance(filepath, Path):
         filepath = Path(filepath)
     bp_file = filepath

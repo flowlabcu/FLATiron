@@ -1,14 +1,8 @@
+import dolfinx 
 import numpy as np
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
+import ufl 
 
 from flatiron_tk.physics import SteadyStokes
-
 
 class SteadyNavierStokes(SteadyStokes):
     """
@@ -16,6 +10,7 @@ class SteadyNavierStokes(SteadyStokes):
     This class extends the SteadyStokes class to include the convective term
     in the momentum equation.
     """
+
 
     def set_initial_guess(self, initial_guess_u=None, initial_guess_p=None):
         """
@@ -30,28 +25,18 @@ class SteadyNavierStokes(SteadyStokes):
         -----------
             None
         """
-        u_sol = self.get_solution_function('u')
-        p_sol = self.get_solution_function('p')
+        initial_guess_u = initial_guess_u.collapse()
+        initial_guess_p = initial_guess_p.collapse()
 
         if initial_guess_u is not None:
-            # User provided velocity initial guess
-            if isinstance(initial_guess_u, dolfinx.fem.Function):
-                u_sol.x.array[:] = initial_guess_u.x.array
-            else:
-                u_sol.interpolate(initial_guess_u)
+            self.solution.sub(0).interpolate(initial_guess_u)
         else:
-            # Zero initial guess
-            u_sol.interpolate(lambda x: np.zeros((self.mesh.geometry.dim, x.shape[1]), dtype=dolfinx.default_scalar_type))
+            self.solution.sub(0).interpolate(lambda x: np.zeros((self.mesh.geometry.dim, x.shape[1]), dtype=dolfinx.default_scalar_type))
 
         if initial_guess_p is not None:
-            # User provided pressure initial guess
-            if isinstance(initial_guess_p, dolfinx.fem.Function):
-                p_sol.x.array[:] = initial_guess_p.x.array
-            else:
-                p_sol.interpolate(initial_guess_p)
+            self.solution.sub(1).interpolate(initial_guess_p)
         else:
-            # Zero initial guess
-            p_sol.interpolate(lambda x: np.zeros(x.shape[1], dtype=dolfinx.default_scalar_type))
+            self.solution.sub(1).interpolate(lambda x: np.zeros(x.shape[1], dtype=dolfinx.default_scalar_type))
 
     def set_weak_form(self, stab=False):
         """
@@ -121,7 +106,6 @@ class SteadyNavierStokes(SteadyStokes):
 
         return rho*ufl.grad(u)*u - mu*ufl.div(ufl.grad(u)) + ufl.grad(p) - rho*body_force
         
-    
     def get_stab_constant(self, u, h, alpha, beta):
         """
         Compute the stabilization constants for the steady Navier-Stokes problem.

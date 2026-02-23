@@ -1,2 +1,3 @@
-from .io import read_mesh
+from .io import *
 from .bp_mod import *
+from .input_object import InputObject
