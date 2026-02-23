@@ -2,14 +2,7 @@ import numpy as np
 from flatiron_tk.mesh import Mesh
 import pytest
 
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
-
+import dolfinx.mesh 
 from mpi4py import MPI
 
 def approx_zero(a):

@@ -1,11 +1,5 @@
+import dolfinx
 import numpy as np
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
 
 def build_field_scalar_function(domain_mesh, fictitious_mesh, inside_value, outside_value, name=None):
     """
@@ -38,7 +32,6 @@ def build_field_scalar_function(domain_mesh, fictitious_mesh, inside_value, outs
     q = dolfinx.fem.Function(Q)
     q.x.array[:] = inside_value
 
-    cell_map = domain_mesh.msh.topology.index_map(domain_mesh.msh.topology.dim)
     cell_map = domain_mesh.msh.topology.index_map(domain_mesh.msh.topology.dim)
     num_cells_on_proc = cell_map.size_local + cell_map.num_ghosts
     cells = np.arange(num_cells_on_proc, dtype=np.int32)

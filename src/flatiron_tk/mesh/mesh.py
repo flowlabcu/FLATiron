@@ -1,20 +1,16 @@
+import dolfinx
 import numpy as np
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
+import ufl
 
 from ..io import *
+from mpi4py import MPI
+from petsc4py import PETSc
+
 class Mesh():
     """
     A base class for creating and managing computational meshes using Dolfinx.  
-    
     Parameters
-    -----------
+    -------------
         comm: MPI communicator, default is MPI.COMM_WORLD
         mesh: dolfinx mesh object, default is None
         mesh_file: mesh file name, default is None
@@ -91,6 +87,7 @@ class Mesh():
             marking_dict : dict, A dictionary where keys are marker ids and values are functions that return boolean arrays
                         indicating which entities to mark.
             entity_dim : int, The dimension of the entities to mark (e.g., facets or cells).
+        
         Returns
         -------
             dolfinx.mesh.MeshTags: A MeshTags object containing the marked entities.
@@ -152,7 +149,7 @@ class Mesh():
         Parameters
         ------------
             boundary_id (int): The id of the boundary for which to compute the mean normal.
-
+        
         Returns
         ------------
             np.ndarray: A unit vector representing the mean outward normal of the boundary.
@@ -186,7 +183,7 @@ class Mesh():
         Parameters
         ------------
             boundary_id (int): The id of the boundary for which to compute the centroid.
-
+        
         Returns
         ------------
             np.ndarray: A point representing the centroid of the boundary.
@@ -232,7 +229,7 @@ class Mesh():
         Parameters
         ------------
             boundary_id (int): The id of the boundary for which to compute the area.
-
+        
         Returns
         ------------
             float: The area of the boundary.
@@ -261,6 +258,52 @@ class Mesh():
         mean_cell_diameter = integrated_cell_diameter / volume
         return mean_cell_diameter
 
-    
-    
+class Boundary:
+    """
+    A simple class to represent and store properties of a mesh boundary.
+    Parameters
+    ----------
+    mesh : flatiron_tk.Mesh
+        The mesh object containing the boundary.
+    boundary_id : int
+        The identifier for the specific boundary.
+    **kwargs : dict
+        Additional attributes to be set for the boundary.
 
+    Default Attributes
+    ------------------
+    id : int
+        The boundary identifier.
+    area : float
+        The area of the boundary.
+    radius : float
+        The equivalent radius of the boundary (assuming circular shape).
+    centroid : np.ndarray
+        The centroid coordinates of the boundary.
+    normal : np.ndarray
+        The mean outward normal vector of the boundary.
+    """
+    def __init__(self, mesh, boundary_id, **kwargs):
+        self.id = boundary_id
+        
+        self.area = mesh.get_boundary_area(boundary_id)
+        self.radius = np.sqrt(self.area / np.pi)
+        self.centroid = mesh.get_boundary_centroid(boundary_id)
+        self.normal = mesh.get_mean_boundary_normal(boundary_id)
+        
+        # Set additional attributes from kwargs
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def set_new_attributes(self, **kwargs):
+        """
+        Sets new attributes or updates existing ones for the Boundary instance.
+        Parameters
+        ----------
+        **kwargs : dict
+            Key-value pairs representing the attributes to be set or updated.
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                print(f'\033[91m[WARNING]\033[0m Attribute \"{key}\" already exists and will be overwritten.')
+            setattr(self, key, value)

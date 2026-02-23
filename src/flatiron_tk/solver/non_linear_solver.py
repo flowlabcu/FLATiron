@@ -1,11 +1,9 @@
+import dolfinx
 from .convergence_monitor import ConvergenceMonitor
-
-from flatiron_tk.info import *
-fem_petsc = import_dolfinx_fem_petsc()
-nls_petsc = import_dolfinx_nls_petsc()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-MPI = import_mpi4py()
+from dolfinx.fem import petsc as fem_petsc # Import fem.petsc for NonlinearProblem
+from dolfinx.nls import petsc as nls_petsc # Alias nls.petsc to avoid name collision
+from mpi4py import MPI
+from petsc4py import PETSc
 
 class NonLinearSolver(nls_petsc.NewtonSolver): 
     """
@@ -38,7 +36,7 @@ class NonLinearSolver(nls_petsc.NewtonSolver):
             - post_ksp_setup_hook (callable): A hook function to run after KSP setup. 
     """
 
-    def __init__(self, comm, problem, **kwargs):
+    def __init__(self, comm: MPI.Comm, problem: fem_petsc.NonlinearProblem, **kwargs):
         self._mpi_comm = comm
         self.problem = problem
         self.ksp_is_initialized = False # Flag to ensure KSP setup is done once
@@ -93,7 +91,7 @@ class NonLinearSolver(nls_petsc.NewtonSolver):
 
         self.ksp_is_initialized = True
 
-    def set_ksp_option(self, ksp, keyword: str, value):
+    def set_ksp_option(self, ksp: PETSc.KSP, keyword: str, value):
         """
         Helper method to set a PETSc KSP option using its option prefix.
         This ensures options are specific to this KSP instance.
@@ -111,7 +109,7 @@ class NonLinearSolver(nls_petsc.NewtonSolver):
         opts = PETSc.Options()
         opts[f"{prefix}{keyword}"] = value
 
-    def default_set_ksp(self, ksp):
+    def default_set_ksp(self, ksp: PETSc.KSP):
         """
         Sets default values for the KSP solver. This method is used if no
         custom KSP setup function is provided by the user.
@@ -159,8 +157,7 @@ class NonLinearSolver(nls_petsc.NewtonSolver):
         dolfinx.fem.petsc.assemble_vector(self._b, res_form)
         dolfinx.fem.petsc.apply_lifting(self._b, [jac_form], bcs=[self.problem.physics.dirichlet_bcs])
         self._b.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
-        dolfinx.fem.petsc.set_bc(self._b, self.problem.physics.dirichlet_bcs)
-
+        dolfinx.fem.petsc.set_bc(self._b, self.problem.physics.dirichlet_bcs)            
 
         # Reattach new A matrix
         self.krylov_solver.setOperators(self._A)

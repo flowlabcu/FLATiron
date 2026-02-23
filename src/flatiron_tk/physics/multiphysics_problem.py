@@ -1,18 +1,15 @@
+import basix
+import dolfinx
 import numpy as np
 import os
 import subprocess
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
+import ufl
 
 from collections.abc import Iterable
 from flatiron_tk.io import *
 from flatiron_tk.physics import PhysicsProblem
+from mpi4py import MPI
+
 
 def _is_container(obj):
     """
@@ -21,7 +18,8 @@ def _is_container(obj):
     ----------
     obj : any
         The object to check.
-    Returns
+    
+    eturns
     -------
     bool
         True if the object is a container, False otherwise.
@@ -33,16 +31,16 @@ class MultiphysicsProblem(PhysicsProblem):
     A class to represent a multiphysics problem by combining multiple physics problems.
 
     Initialize a multiphysics problem by combining multiple physics problems.
-        Parameters
-        ----------
-        \*physics_problems : `PhysicsProblem`
-            A variable number of physics problem instances to be combined into a multiphysics problem.
-        
-        Raises
-        ------
-        ValueError
-            If the provided physics problems do not share the same mesh or if there are tag conflicts.
+    Parameters
+    ----------
+    \*physics_problems : `PhysicsProblem`
+        A variable number of physics problem instances to be combined into a multiphysics problem.
     
+    Raises
+    ------
+    ValueError
+        If the provided physics problems do not share the same mesh or if there are tag conflicts.
+
     """
 
     def __init__(self, *physics_problems):
@@ -176,6 +174,7 @@ class MultiphysicsProblem(PhysicsProblem):
         ----------
         physics_tag : str, optional
             The tag of the physics problem. If None, returns the function space for the multiphysics problem.
+        
         Returns
         -------
         dolfinx.fem.FunctionSpace
@@ -192,6 +191,7 @@ class MultiphysicsProblem(PhysicsProblem):
         ----------
         physics_tag : str, optional
             The tag of the physics problem. If None, returns the test function for the multiphysics problem.
+        
         Returns
         -------
         ufl.core.expr.Expr
@@ -210,6 +210,7 @@ class MultiphysicsProblem(PhysicsProblem):
         ----------
         physics_tag : str, optional
             The tag of the physics problem. If None, returns the trial function for the multiphysics problem.
+        
         Returns
         -------
         ufl.core.expr.Expr
@@ -227,6 +228,7 @@ class MultiphysicsProblem(PhysicsProblem):
         ----------
         physics_tag : str, optional
             The tag of the physics problem. If None, returns the solution function for the multiphysics problem.
+        
         Returns
         -------
         ufl.core.expr.Expr
@@ -254,6 +256,7 @@ class MultiphysicsProblem(PhysicsProblem):
         ----------
         physics_tag : str
             The tag of the physics problem.
+        
         Returns
         -------
         PhysicsProblem
@@ -270,6 +273,7 @@ class MultiphysicsProblem(PhysicsProblem):
         ----------
         physics_tag : str
             The tag of the physics problem.
+        
         Returns
         -------
         int
@@ -370,6 +374,7 @@ class MultiphysicsProblem(PhysicsProblem):
             The test function for the flux calculation.
         physics_tag : str
             The tag of the physics problem for which to calculate the flux.
+        
         Returns
         -------
         ufl.core.expr.Expr

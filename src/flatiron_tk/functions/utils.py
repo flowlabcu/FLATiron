@@ -1,13 +1,9 @@
+import dolfinx 
 import flatiron_tk
 import numpy as np
-import sys
+import ufl
 
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
+from mpi4py import MPI
 
 def constant(mesh: 'flatiron_tk.Mesh', value: 'float | tuple') -> dolfinx.fem.Constant:
     """
@@ -22,114 +18,161 @@ def constant(mesh: 'flatiron_tk.Mesh', value: 'float | tuple') -> dolfinx.fem.Co
     """
     return dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type(value))
 
-def debug_print(*args, **kwargs):
+def compute_flowrate(flow_physics, id, previous=False):
     """
-    Debug print function that only prints if the script is run with the
-    --debug flag.
-    """
-    if '--debug' in sys.argv:
-        print('\033[92m[DEBUG]\033[0m', *args, **kwargs)
+    Computes the flow rate across a specified boundary in the Navier-Stokes simulation.
 
-class ParaboloidInletProfile:
-    def __init__(self, flow_rate, radius, center, normal):
+    Parameters
+    ----------
+    flow_physics : TransientNavierStokes, SteadyNavierStokes, or SteadyStokes
+        The flow physics object containing the solution and mesh information.
+    id : int
+        The boundary ID across which to compute the flow rate.  
+    previous : bool, optional
+        If True, use the previous time step's solution for transient simulations. Default is False.
+
+    Returns
+    -------
+    flowrate : dolfinx.fem.Function
+        A function representing the flow rate across the specified boundary.
+    """
+
+    # Get constants from physics object
+    u = flow_physics.get_solution_function('u')
+
+    if previous:
+        u = flow_physics.previous_solution.sub(0)
+
+    n = flow_physics.mesh.get_facet_normal() 
+
+    form = ufl.inner(u, n) * flow_physics.ds(id)
+    flowrate = dolfinx.fem.assemble_scalar(dolfinx.fem.form(form))
+    flowrate = MPI.COMM_WORLD.allreduce(flowrate, op=MPI.SUM)
+    
+    return flowrate
+class PointEvaluator:
+    """
+    Efficiently evaluate finite element functions at user-specified points
+    without rebuilding the bounding box tree each time.
+
+    Parameters
+    ----------
+    mesh : flatiron_tk.Mesh
+        The mesh on which the function is defined.
+    """
+
+    def __init__(self, mesh):
+        self.mesh = mesh
+        # Build bounding box tree once
+        self.tree = dolfinx.geometry.bb_tree(mesh.msh, mesh.get_tdim())
+
+    def _ensure_3D_point(self, point):
         """
+        Convert a 1D, 2D, or 3D point into a 3D NumPy array.
+        """
+        point = np.array(point, dtype=np.float64).ravel()
+        if point.size < 3:
+            if MPI.COMM_WORLD.rank == 0:
+                print(f'\033[91m[WARNING]\033[0m Point {point} is not 3D. Padding with zeros.')
+            point = np.pad(point, (0, 3 - point.size), mode="constant")
+        elif point.size > 3:
+            raise ValueError("Point must be 1D, 2D, or 3D.")
+        return point
+
+    def evaluate_point(self, function, point, show_warning=True):
+        """
+        Evaluate a Dolfinx Function at a single point in parallel.
+        Returns the value or None if the point is outside the mesh.
+        
         Parameters
         ----------
-        flow_rate : float
-            Volumetric flow rate Q.
-        radius : float
-            Inlet radius.
-        center : array_like
-            Center of the inlet circle (3D).
-        normal : array_like
-            Inlet normal vector (not necessarily unit length).
+        function : dolfinx.fem.Function
+            The function to evaluate.
+        point : array-like
+            Point at which to evaluate. 
+        show_warning : bool, optional
+            Whether to show a warning if the point is outside the mesh. Default is True.    
+        
+        Returns
+        -------
+        value : list or None
+            Function value at the point (as a list) or None if outside the mesh.
+
         """
-        self.flow_rate = flow_rate
-        self.radius = radius
-        self.center = np.array(center, dtype=float)
-        self.normal = np.array(normal, dtype=float)
-        self.normal /= np.linalg.norm(self.normal)  # ensure unit normal
+        point = self._ensure_3D_point(point)
 
-    def update_flow_rate(self, new_flow_rate):
-        """Update the flow rate Q for the current timestep."""
-        self.flow_rate = new_flow_rate
+        # Local search
+        cells = dolfinx.geometry.compute_collisions_points(self.tree, point)
+        colliding_cells = dolfinx.geometry.compute_colliding_cells(
+            self.mesh.msh, cells, point[None, :]
+        )
+        cell_candidates = colliding_cells.links(0)
 
-    @property
-    def v_max(self):
-        """Compute maximum centerline velocity from flow rate."""
-        area = np.pi * self.radius**2
-        u_mean = self.flow_rate / area
-        return 2 * u_mean
+        local_val = None
+        if len(cell_candidates) > 0:
+            cell_index = cell_candidates[0]
+            local_val = function.eval(point, cell_index)
 
-    def __call__(self, x):
+        # MPI: gather all candidate values
+        all_vals = MPI.COMM_WORLD.allgather(local_val)
+        # Pick the first non-None value
+        for val in all_vals:
+            if val is not None:
+                return val
+
+        if MPI.COMM_WORLD.rank == 0 and show_warning:
+            print(f"\033[91m[WARNING]\033[0m Point {point} is outside the global mesh.")
+        return None
+
+
+    def evaluate_set(self, function, points):
         """
-        Evaluate velocity profile.
+        Evaluate a Dolfinx Function at multiple points in parallel.
+        Returns the points (as Nx3 array) and a list of values (or None if outside mesh).
 
         Parameters
         ----------
-        x : np.ndarray of shape (gdim, num_points)
+        function : dolfinx.fem.Function
+            The function to evaluate.
+        points : sequence of array-like
+            Points at which to evaluate.
 
         Returns
         -------
-        np.ndarray of shape (gdim, num_points)
-            Velocity vectors at the given points.
+        points_3d : np.ndarray
+            Nx3 array of points.
+        merged : list
+            List of function values at each point (None if outside mesh).
         """
-        dx = x - self.center[:, np.newaxis]
-        r = np.linalg.norm(dx, axis=0)
+        points_3d = np.array([self._ensure_3D_point(p) for p in points], dtype=np.float64)
+        n_points = points_3d.shape[0]
 
-        # Parabolic factor (inside radius)
-        factor = np.where(r <= self.radius, 1 - (r / self.radius) ** 2, 0.0)
-        velocity_magnitude = self.v_max * factor
+        # Local search
+        cells = dolfinx.geometry.compute_collisions_points(self.tree, points_3d)
+        colliding_cells = dolfinx.geometry.compute_colliding_cells(self.mesh.msh, cells, points_3d)
 
-        return self.normal[:, np.newaxis] * velocity_magnitude
+        local_results = []
+        for i, point in enumerate(points_3d):
+            cell_candidates = colliding_cells.links(i)
+            if len(cell_candidates) > 0:
+                cell_index = cell_candidates[0]
+                val = function.eval(point, cell_index)
+            else:
+                val = None
+            local_results.append(val)
 
-class ParabolicInletProfile:
-    def __init__(self, flow_rate, radius, center, normal):
-        """
-        Parameters
-        ----------
-        flow_rate : float
-            Volumetric flow rate Q.
-        radius : float
-            Inlet radius.
-        center : array_like
-            Center of the inlet (2D).
-        normal : array_like
-            Inlet normal vector (not necessarily unit length, 2D).
-        """
-        self.flow_rate = flow_rate
-        self.radius = radius
-        self.center = np.array(center, dtype=float)
-        self.normal = np.array(normal, dtype=float)
-        self.normal /= np.linalg.norm(self.normal)  # ensure unit normal
+        # MPI: gather results from all ranks
+        all_results = MPI.COMM_WORLD.allgather(local_results)
 
-    def update_flow_rate(self, new_flow_rate):
-        """Update the flow rate Q for the current timestep."""
-        self.flow_rate = new_flow_rate
+        # Merge: pick first non-None value for each point
+        merged = []
+        for i in range(n_points):
+            # all_results is a list of lists, one per rank
+            col = [rank_vals[i] for rank_vals in all_results]
+            non_none = [v for v in col if v is not None]
+            merged.append(non_none[0] if non_none else None)
 
-    @property
-    def v_max(self):
-        """Compute maximum centerline velocity from flow rate."""
-        width = 2 * self.radius
-        u_mean = self.flow_rate / width
-        return 1.5 * u_mean  # For 2D parabolic profile (Poiseuille)
+        return points_3d, merged
 
-    def __call__(self, x):
-        """
-        Evaluate velocity profile.
 
-        Parameters
-        ----------
-        x : np.ndarray of shape (2, num_points)
 
-        Returns
-        -------
-        np.ndarray of shape (2, num_points)
-            Velocity vectors at the given points.
-        """
-        dx = x - self.center[:, np.newaxis]
-        r = np.linalg.norm(dx, axis=0) 
-        factor = np.where(r <= self.radius, 1 - (r / self.radius) ** 2, 0.0)
-        velocity_magnitude = self.v_max * factor
-
-        return self.normal[:, np.newaxis] * velocity_magnitude
