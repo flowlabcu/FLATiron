@@ -71,17 +71,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.physics.steady_navier_stokes</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span> 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span> 
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">SteadyStokes</span>
-
 
 <div class="viewcode-block" id="SteadyNavierStokes">
 <a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes">[docs]</a>
@@ -91,6 +85,7 @@
 <span class="sd">    This class extends the SteadyStokes class to include the convective term</span>
 <span class="sd">    in the momentum equation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 
 <div class="viewcode-block" id="SteadyNavierStokes.set_initial_guess">
 <a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.set_initial_guess">[docs]</a>
@@ -107,28 +102,18 @@
 <span class="sd">        -----------</span>
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">u_sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
-        <span class="n">p_sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="n">initial_guess_u</span> <span class="o">=</span> <span class="n">initial_guess_u</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
+        <span class="n">initial_guess_p</span> <span class="o">=</span> <span class="n">initial_guess_p</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">initial_guess_u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># User provided velocity initial guess</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_guess_u</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-                <span class="n">u_sol</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">initial_guess_u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">u_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">initial_guess_u</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">initial_guess_u</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Zero initial guess</span>
-            <span class="n">u_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">initial_guess_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># User provided pressure initial guess</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_guess_p</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-                <span class="n">p_sol</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">initial_guess_p</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">p_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">initial_guess_p</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">initial_guess_p</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Zero initial guess</span>
-            <span class="n">p_sol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="SteadyNavierStokes.set_weak_form">
@@ -208,7 +193,6 @@
         <span class="k">return</span> <span class="n">rho</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">u</span> <span class="o">-</span> <span class="n">mu</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">))</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">rho</span><span class="o">*</span><span class="n">body_force</span></div>
 
         
-    
 <div class="viewcode-block" id="SteadyNavierStokes.get_stab_constant">
 <a class="viewcode-back" href="../../physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes.get_stab_constant">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_stab_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
@@ -304,7 +288,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

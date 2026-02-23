@@ -71,17 +71,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.io.bp_mod</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
-<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">adios4dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">basix</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_bp_get_mesh</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read a mesh from a BP file with adios4dolfinx.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str or Path</span>
+<span class="sd">        Path to the BP file.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    msh : dolfinx.mesh.Mesh</span>
+<span class="sd">        The mesh read from the BP file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Ensure filepath is a Path object (adios4dolfinx is buggy with str)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
@@ -89,7 +97,24 @@
 
     <span class="k">return</span> <span class="n">adios4dolfinx</span><span class="o">.</span><span class="n">read_mesh</span><span class="p">(</span><span class="n">bp_file</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_build_function_space</span><span class="p">(</span><span class="n">msh</span><span class="p">,</span> <span class="n">element_family</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="n">element_degree</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">element_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_function_space</span><span class="p">(</span><span class="n">msh</span><span class="p">:</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">Mesh</span><span class="p">,</span> <span class="n">element_family</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="n">element_degree</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">element_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a function space on the given mesh.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        msh : dolfinx.mesh.Mesh</span>
+<span class="sd">            The mesh to build the function space on.</span>
+<span class="sd">        element_family : str, optional</span>
+<span class="sd">            Finite element family. Default is &#39;CG&#39;.</span>
+<span class="sd">        element_degree : int, optional</span>
+<span class="sd">            Finite element degree. Default is 1.</span>
+<span class="sd">        element_shape : str, optional</span>
+<span class="sd">            Shape of the element. Can be &#39;scalar&#39;, &#39;vector&#39;, or &#39;tensor&#39;. Default is None (scalar).</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        V : dolfinx.fem.FunctionSpace</span>
+<span class="sd">            The built function space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">element_shape</span> <span class="o">==</span> <span class="s1">&#39;scalar&#39;</span> <span class="ow">or</span> <span class="n">element_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_shape</span> <span class="o">=</span> <span class="p">()</span>
         <span class="k">elif</span> <span class="n">element_shape</span> <span class="o">==</span> <span class="s1">&#39;vector&#39;</span><span class="p">:</span>
@@ -106,6 +131,19 @@
 <div class="viewcode-block" id="bp_get_time_steps">
 <a class="viewcode-back" href="../../module_io.html#flatiron_tk.io.bp_mod.bp_get_time_steps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bp_get_time_steps</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the time steps available in a BP file.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str or Path</span>
+<span class="sd">        Path to the BP file.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Name of the function to get time steps for. If None, the first function in the file is used.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    time_steps : list of float</span>
+<span class="sd">        List of time steps available in the BP file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">bp_file</span> <span class="o">=</span> <span class="n">filepath</span>
@@ -280,7 +318,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

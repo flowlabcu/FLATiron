@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="I/O" href="module_io.html" />
+    <link rel="next" title="Info" href="module_info.html" />
     <link rel="prev" title="FEM" href="module_fem.html" /> 
 </head>
 
@@ -54,14 +54,14 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-flatiron_tk.functions.utils">Utilities</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.functions.utils.ParabolicInletProfile"><code class="docutils literal notranslate"><span class="pre">ParabolicInletProfile</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.functions.utils.ParaboloidInletProfile"><code class="docutils literal notranslate"><span class="pre">ParaboloidInletProfile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.functions.utils.PointEvaluator"><code class="docutils literal notranslate"><span class="pre">PointEvaluator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.functions.utils.compute_flowrate"><code class="docutils literal notranslate"><span class="pre">compute_flowrate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.functions.utils.constant"><code class="docutils literal notranslate"><span class="pre">constant()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.functions.utils.debug_print"><code class="docutils literal notranslate"><span class="pre">debug_print()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="module_info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_io.html">I/O</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_mesh.html">Mesh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="toc_physics_modules.html">Physics Modules</a></li>
@@ -148,44 +148,86 @@ the inside value if it is in the fictitious region, and the outside value otherw
 <section id="module-flatiron_tk.functions.utils">
 <span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-flatiron_tk.functions.utils" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="flatiron_tk.functions.utils.ParabolicInletProfile">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.functions.utils.</span></span><span class="sig-name descname"><span class="pre">ParabolicInletProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#ParabolicInletProfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.ParabolicInletProfile" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="flatiron_tk.functions.utils.PointEvaluator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.functions.utils.</span></span><span class="sig-name descname"><span class="pre">PointEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#PointEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.PointEvaluator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Efficiently evaluate finite element functions at user-specified points
+without rebuilding the bounding box tree each time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mesh</strong> (<em>flatiron_tk.Mesh</em>) – The mesh on which the function is defined.</p>
+</dd>
+</dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.functions.utils.ParabolicInletProfile.update_flow_rate">
-<span class="sig-name descname"><span class="pre">update_flow_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_flow_rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#ParabolicInletProfile.update_flow_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.ParabolicInletProfile.update_flow_rate" title="Link to this definition"></a></dt>
-<dd><p>Update the flow rate Q for the current timestep.</p>
+<dt class="sig sig-object py" id="flatiron_tk.functions.utils.PointEvaluator.evaluate_point">
+<span class="sig-name descname"><span class="pre">evaluate_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_warning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#PointEvaluator.evaluate_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.PointEvaluator.evaluate_point" title="Link to this definition"></a></dt>
+<dd><p>Evaluate a Dolfinx Function at a single point in parallel.
+Returns the value or None if the point is outside the mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<em>dolfinx.fem.Function</em>) – The function to evaluate.</p></li>
+<li><p><strong>point</strong> (<em>array-like</em>) – Point at which to evaluate.</p></li>
+<li><p><strong>show_warning</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to show a warning if the point is outside the mesh. Default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – Function value at the point (as a list) or None if outside the mesh.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list or None</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="flatiron_tk.functions.utils.ParabolicInletProfile.v_max">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_max</span></span><a class="headerlink" href="#flatiron_tk.functions.utils.ParabolicInletProfile.v_max" title="Link to this definition"></a></dt>
-<dd><p>Compute maximum centerline velocity from flow rate.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="flatiron_tk.functions.utils.ParaboloidInletProfile">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.functions.utils.</span></span><span class="sig-name descname"><span class="pre">ParaboloidInletProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#ParaboloidInletProfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.ParaboloidInletProfile" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="flatiron_tk.functions.utils.ParaboloidInletProfile.update_flow_rate">
-<span class="sig-name descname"><span class="pre">update_flow_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_flow_rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#ParaboloidInletProfile.update_flow_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.ParaboloidInletProfile.update_flow_rate" title="Link to this definition"></a></dt>
-<dd><p>Update the flow rate Q for the current timestep.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="flatiron_tk.functions.utils.ParaboloidInletProfile.v_max">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_max</span></span><a class="headerlink" href="#flatiron_tk.functions.utils.ParaboloidInletProfile.v_max" title="Link to this definition"></a></dt>
-<dd><p>Compute maximum centerline velocity from flow rate.</p>
+<dt class="sig sig-object py" id="flatiron_tk.functions.utils.PointEvaluator.evaluate_set">
+<span class="sig-name descname"><span class="pre">evaluate_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#PointEvaluator.evaluate_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.PointEvaluator.evaluate_set" title="Link to this definition"></a></dt>
+<dd><p>Evaluate a Dolfinx Function at multiple points in parallel.
+Returns the points (as Nx3 array) and a list of values (or None if outside mesh).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<em>dolfinx.fem.Function</em>) – The function to evaluate.</p></li>
+<li><p><strong>points</strong> (<em>sequence</em><em> of </em><em>array-like</em>) – Points at which to evaluate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>points_3d</strong> (<em>np.ndarray</em>) – Nx3 array of points.</p></li>
+<li><p><strong>merged</strong> (<em>list</em>) – List of function values at each point (None if outside mesh).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="flatiron_tk.functions.utils.compute_flowrate">
+<span class="sig-prename descclassname"><span class="pre">flatiron_tk.functions.utils.</span></span><span class="sig-name descname"><span class="pre">compute_flowrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow_physics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#compute_flowrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.compute_flowrate" title="Link to this definition"></a></dt>
+<dd><p>Computes the flow rate across a specified boundary in the Navier-Stokes simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow_physics</strong> (<a class="reference internal" href="physics_modules/module_navier-stokes.html#flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes" title="flatiron_tk.physics.transient_navier_stokes.TransientNavierStokes"><em>TransientNavierStokes</em></a><em>, </em><a class="reference internal" href="physics_modules/module_navier-stokes.html#flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes" title="flatiron_tk.physics.steady_navier_stokes.SteadyNavierStokes"><em>SteadyNavierStokes</em></a><em>, or </em><a class="reference internal" href="physics_modules/module_stokes.html#flatiron_tk.physics.steady_stokes.SteadyStokes" title="flatiron_tk.physics.steady_stokes.SteadyStokes"><em>SteadyStokes</em></a>) – The flow physics object containing the solution and mesh information.</p></li>
+<li><p><strong>id</strong> (<em>int</em>) – The boundary ID across which to compute the flow rate.</p></li>
+<li><p><strong>previous</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, use the previous time step’s solution for transient simulations. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>flowrate</strong> – A function representing the flow rate across the specified boundary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfinx.fem.Function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="flatiron_tk.functions.utils.constant">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.functions.utils.</span></span><span class="sig-name descname"><span class="pre">constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="module_mesh.html#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><span class="pre">Mesh</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Constant</span></span></span><a class="reference internal" href="flatiron_tk/functions/utils.html#constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.constant" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">flatiron_tk.functions.utils.</span></span><span class="sig-name descname"><span class="pre">constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="module_mesh.html#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><span class="pre">Mesh</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Constant</span></span></span><a class="reference internal" href="flatiron_tk/functions/utils.html#constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.constant" title="Link to this definition"></a></dt>
 <dd><p>Create a dolfinx.fem.Constant with a specified value on a given mesh.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -203,13 +245,6 @@ the inside value if it is in the fictitious region, and the outside value otherw
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="flatiron_tk.functions.utils.debug_print">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.functions.utils.</span></span><span class="sig-name descname"><span class="pre">debug_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/functions/utils.html#debug_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.functions.utils.debug_print" title="Link to this definition"></a></dt>
-<dd><p>Debug print function that only prints if the script is run with the
-–debug flag.</p>
-</dd></dl>
-
 </section>
 </section>
 
@@ -218,13 +253,13 @@ the inside value if it is in the fictitious region, and the outside value otherw
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="module_fem.html" class="btn btn-neutral float-left" title="FEM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="module_io.html" class="btn btn-neutral float-right" title="I/O" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="module_info.html" class="btn btn-neutral float-right" title="Info" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

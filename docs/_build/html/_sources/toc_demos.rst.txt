@@ -9,7 +9,9 @@ FLATiron Demos
    _demo/demo_adios4dolfinx
    _demo/demo_block_solver_nse
    _demo/demo_block_solver_gp
+   _demo/demo_free_convection
    _demo/demo_functions
+   _demo/demo_massless_tracers
    _demo/demo_scalar_transport_edge_stab
    _demo/demo_steady_adr
    _demo/demo_steady_multiphysics

@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath("../../"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'flatiron_tk'
-copyright = '2025, Nick Rovito'
+copyright = '2024, Chayut Teeraratkul'
 author = 'Nick Rovito; Chayut Teeraratkul; Jessica Holmes'
 release = '0.9.0'
 

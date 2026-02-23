@@ -1,16 +1,14 @@
+import dolfinx
+import basix
 import flatiron_tk
+import numpy as np
 import subprocess
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
+from mpi4py import MPI
+from flatiron_tk.mesh import Mesh
+import adios4dolfinx
 
 # Run a simple Navier-Stokes example to generate data
-subprocess.run(['mpirun', '-n', '2', 'python3', '_run_nse.py'])
+# subprocess.run(['mpirun', '-n', '2', 'python3', '_run_nse.py'])
 
 # Read in the velocity field from the ADIOS2 output file
 u = flatiron_tk.bp_read_function('output-bp/u.bp', time_id=-1, name='u', 

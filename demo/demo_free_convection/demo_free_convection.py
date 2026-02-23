@@ -1,13 +1,7 @@
+import dolfinx
 import flatiron_tk
 import numpy as np
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
+import ufl
 
 from flatiron_tk.mesh import RectMesh
 from flatiron_tk.physics import TransientNavierStokes
@@ -16,11 +10,6 @@ from flatiron_tk.physics import TransientMultiPhysicsProblem
 from flatiron_tk.solver import ConvergenceMonitor
 from flatiron_tk.solver import NonLinearProblem
 from flatiron_tk.solver import NonLinearSolver
-
-# Define the mesh
-ne = 64
-h = 1/ne
-mesh = RectMesh(0, 0, 1, 1, h)
 
 # Define fluid properties
 dt = 0.001
@@ -38,6 +27,11 @@ specific_heat = 1.0
 alpha = mu / (rho * Pr)
 conductivity = alpha * rho * specific_heat
 expansion_coef = (mu * conductivity * Ra) / (rho * gravity * delta_temp * length**3)
+
+# Define the mesh
+ne = 64
+h = 1/ne
+mesh = RectMesh(0, 0, 1, 1, h)
 
 # Create transient Navier-Stokes and scalar transport physics
 nse = TransientNavierStokes(mesh)
@@ -66,7 +60,7 @@ u = nse.get_solution_function('u')
 u0 = ufl.split(coupled_physics.sub_physics[0].previous_solution)[0]
 T = adr.get_solution_function('T')
 T0 = ufl.split(coupled_physics.sub_physics[1].previous_solution)[0]
-w = coupled_physics.sub_physics[0].get_test_function('u')  #
+w = coupled_physics.sub_physics[0].get_test_function('u') 
 
 # Set weak forms
 adr.set_advection_velocity(u0, u0)
@@ -77,6 +71,7 @@ coupled_physics.set_weak_form(nse_options, adr_options)
 # Boussinesq force
 g = ufl.as_vector([0.0, gravity])
 boussinesq_term = 0.5 * ((1 - T) * expansion_coef * g + (1 - T0) * expansion_coef * g)
+
 # Add to weak form
 coupled_physics.add_to_weak_form(ufl.inner(boussinesq_term, w) * nse.dx)
 
@@ -125,6 +120,7 @@ bc_dict = {
 }
 
 coupled_physics.set_bcs(bc_dict)
+
 problem = NonLinearProblem(coupled_physics)
 coupled_physics.set_writer('output', 'xdmf')
 

@@ -71,16 +71,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.functions.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">flatiron_tk</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span> 
+<span class="kn">import</span><span class="w"> </span><span class="nn">flatiron_tk</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 <div class="viewcode-block" id="constant">
 <a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.constant">[docs]</a>
@@ -98,131 +94,175 @@
     <span class="k">return</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="debug_print">
-<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.debug_print">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">debug_print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_flowrate">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.compute_flowrate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_flowrate</span><span class="p">(</span><span class="n">flow_physics</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">previous</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Debug print function that only prints if the script is run with the</span>
-<span class="sd">    --debug flag.</span>
+<span class="sd">    Computes the flow rate across a specified boundary in the Navier-Stokes simulation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flow_physics : TransientNavierStokes, SteadyNavierStokes, or SteadyStokes</span>
+<span class="sd">        The flow physics object containing the solution and mesh information.</span>
+<span class="sd">    id : int</span>
+<span class="sd">        The boundary ID across which to compute the flow rate.  </span>
+<span class="sd">    previous : bool, optional</span>
+<span class="sd">        If True, use the previous time step&#39;s solution for transient simulations. Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    flowrate : dolfinx.fem.Function</span>
+<span class="sd">        A function representing the flow rate across the specified boundary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;--debug&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m[DEBUG]</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
+    <span class="c1"># Get constants from physics object</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ParaboloidInletProfile">
-<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.ParaboloidInletProfile">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ParaboloidInletProfile</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">normal</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">previous</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">previous_solution</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span> 
+
+    <span class="n">form</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="n">flowrate</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">form</span><span class="p">))</span>
+    <span class="n">flowrate</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">flowrate</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">flowrate</span></div>
+
+<div class="viewcode-block" id="PointEvaluator">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.PointEvaluator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PointEvaluator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Efficiently evaluate finite element functions at user-specified points</span>
+<span class="sd">    without rebuilding the bounding box tree each time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh : flatiron_tk.Mesh</span>
+<span class="sd">        The mesh on which the function is defined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span>
+        <span class="c1"># Build bounding box tree once</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">bb_tree</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get_tdim</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_3D_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        flow_rate : float</span>
-<span class="sd">            Volumetric flow rate Q.</span>
-<span class="sd">        radius : float</span>
-<span class="sd">            Inlet radius.</span>
-<span class="sd">        center : array_like</span>
-<span class="sd">            Center of the inlet circle (3D).</span>
-<span class="sd">        normal : array_like</span>
-<span class="sd">            Inlet normal vector (not necessarily unit length).</span>
+<span class="sd">        Convert a 1D, 2D, or 3D point into a 3D NumPy array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flow_rate</span> <span class="o">=</span> <span class="n">flow_rate</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>  <span class="c1"># ensure unit normal</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">point</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m[WARNING]</span><span class="se">\033</span><span class="s1">[0m Point </span><span class="si">{</span><span class="n">point</span><span class="si">}</span><span class="s1"> is not 3D. Padding with zeros.&#39;</span><span class="p">)</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">point</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">point</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Point must be 1D, 2D, or 3D.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">point</span>
 
-<div class="viewcode-block" id="ParaboloidInletProfile.update_flow_rate">
-<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.ParaboloidInletProfile.update_flow_rate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_flow_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_flow_rate</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the flow rate Q for the current timestep.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flow_rate</span> <span class="o">=</span> <span class="n">new_flow_rate</span></div>
-
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">v_max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute maximum centerline velocity from flow rate.&quot;&quot;&quot;</span>
-        <span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">**</span><span class="mi">2</span>
-        <span class="n">u_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_rate</span> <span class="o">/</span> <span class="n">area</span>
-        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">u_mean</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="PointEvaluator.evaluate_point">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.PointEvaluator.evaluate_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">show_warning</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate velocity profile.</span>
+<span class="sd">        Evaluate a Dolfinx Function at a single point in parallel.</span>
+<span class="sd">        Returns the value or None if the point is outside the mesh.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function : dolfinx.fem.Function</span>
+<span class="sd">            The function to evaluate.</span>
+<span class="sd">        point : array-like</span>
+<span class="sd">            Point at which to evaluate. </span>
+<span class="sd">        show_warning : bool, optional</span>
+<span class="sd">            Whether to show a warning if the point is outside the mesh. Default is True.    </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : list or None</span>
+<span class="sd">            Function value at the point (as a list) or None if outside the mesh.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_3D_point</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+        <span class="c1"># Local search</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_collisions_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+        <span class="n">colliding_cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_colliding_cells</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="p">)</span>
+        <span class="n">cell_candidates</span> <span class="o">=</span> <span class="n">colliding_cells</span><span class="o">.</span><span class="n">links</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">local_val</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">cell_index</span> <span class="o">=</span> <span class="n">cell_candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">local_val</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">cell_index</span><span class="p">)</span>
+
+        <span class="c1"># MPI: gather all candidate values</span>
+        <span class="n">all_vals</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="n">local_val</span><span class="p">)</span>
+        <span class="c1"># Pick the first non-None value</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">all_vals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">val</span>
+
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">show_warning</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[91m[WARNING]</span><span class="se">\033</span><span class="s2">[0m Point </span><span class="si">{</span><span class="n">point</span><span class="si">}</span><span class="s2"> is outside the global mesh.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="PointEvaluator.evaluate_set">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.PointEvaluator.evaluate_set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate a Dolfinx Function at multiple points in parallel.</span>
+<span class="sd">        Returns the points (as Nx3 array) and a list of values (or None if outside mesh).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        x : np.ndarray of shape (gdim, num_points)</span>
+<span class="sd">        function : dolfinx.fem.Function</span>
+<span class="sd">            The function to evaluate.</span>
+<span class="sd">        points : sequence of array-like</span>
+<span class="sd">            Points at which to evaluate.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray of shape (gdim, num_points)</span>
-<span class="sd">            Velocity vectors at the given points.</span>
+<span class="sd">        points_3d : np.ndarray</span>
+<span class="sd">            Nx3 array of points.</span>
+<span class="sd">        merged : list</span>
+<span class="sd">            List of function values at each point (None if outside mesh).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">points_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_ensure_3D_point</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">n_points</span> <span class="o">=</span> <span class="n">points_3d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="c1"># Parabolic factor (inside radius)</span>
-        <span class="n">factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">r</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">velocity_magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_max</span> <span class="o">*</span> <span class="n">factor</span>
+        <span class="c1"># Local search</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_collisions_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">points_3d</span><span class="p">)</span>
+        <span class="n">colliding_cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_colliding_cells</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">points_3d</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">velocity_magnitude</span></div>
+        <span class="n">local_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points_3d</span><span class="p">):</span>
+            <span class="n">cell_candidates</span> <span class="o">=</span> <span class="n">colliding_cells</span><span class="o">.</span><span class="n">links</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cell_index</span> <span class="o">=</span> <span class="n">cell_candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">cell_index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">local_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 
+        <span class="c1"># MPI: gather results from all ranks</span>
+        <span class="n">all_results</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="n">local_results</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ParabolicInletProfile">
-<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.ParabolicInletProfile">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ParabolicInletProfile</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">normal</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        flow_rate : float</span>
-<span class="sd">            Volumetric flow rate Q.</span>
-<span class="sd">        radius : float</span>
-<span class="sd">            Inlet radius.</span>
-<span class="sd">        center : array_like</span>
-<span class="sd">            Center of the inlet (2D).</span>
-<span class="sd">        normal : array_like</span>
-<span class="sd">            Inlet normal vector (not necessarily unit length, 2D).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flow_rate</span> <span class="o">=</span> <span class="n">flow_rate</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>  <span class="c1"># ensure unit normal</span>
+        <span class="c1"># Merge: pick first non-None value for each point</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+            <span class="c1"># all_results is a list of lists, one per rank</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="n">rank_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">rank_vals</span> <span class="ow">in</span> <span class="n">all_results</span><span class="p">]</span>
+            <span class="n">non_none</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">col</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">non_none</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">non_none</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ParabolicInletProfile.update_flow_rate">
-<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.ParabolicInletProfile.update_flow_rate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_flow_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_flow_rate</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the flow rate Q for the current timestep.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flow_rate</span> <span class="o">=</span> <span class="n">new_flow_rate</span></div>
+        <span class="k">return</span> <span class="n">points_3d</span><span class="p">,</span> <span class="n">merged</span></div>
+</div>
 
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">v_max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute maximum centerline velocity from flow rate.&quot;&quot;&quot;</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span>
-        <span class="n">u_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_rate</span> <span class="o">/</span> <span class="n">width</span>
-        <span class="k">return</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">u_mean</span>  <span class="c1"># For 2D parabolic profile (Poiseuille)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate velocity profile.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        x : np.ndarray of shape (2, num_points)</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        np.ndarray of shape (2, num_points)</span>
-<span class="sd">            Velocity vectors at the given points.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
-        <span class="n">factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">r</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">velocity_magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_max</span> <span class="o">*</span> <span class="n">factor</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">velocity_magnitude</span></div>
 
 </pre></div>
 
@@ -233,7 +273,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

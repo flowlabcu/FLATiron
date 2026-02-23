@@ -48,13 +48,8 @@ Fist, we import code the relevant modules from flatiron_tk and the basic librari
 
 .. code-block:: python
 
-    from flatiron_tk.info import *
-    adios4dolfinx = import_adios4dolfinx()
-    basix = import_basix()
-    dolfinx = import_dolfinx()
-    PETSc = import_PETSc()
-    ufl = import_ufl()
-    MPI = import_mpi4py()
+    import dolfinx
+    import ufl
 
     from flatiron_tk.mesh import RectMesh
     from flatiron_tk.physics import MultiphysicsProblem
@@ -201,13 +196,8 @@ Full Script
 
 .. code-block:: python
 
-    from flatiron_tk.info import *
-    adios4dolfinx = import_adios4dolfinx()
-    basix = import_basix()
-    dolfinx = import_dolfinx()
-    PETSc = import_PETSc()
-    ufl = import_ufl()
-    MPI = import_mpi4py()
+    import dolfinx
+    import ufl
 
     from flatiron_tk.mesh import RectMesh
     from flatiron_tk.physics import MultiphysicsProblem

@@ -8,6 +8,7 @@ FLATiron Modules
 
    _modules/module_fem
    _modules/module_functions
+   _modules/module_info
    _modules/module_io
    _modules/module_mesh
 

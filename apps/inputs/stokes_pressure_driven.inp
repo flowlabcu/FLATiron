@@ -1,0 +1,24 @@
+# Mesh file
+mesh file = mesh/rect.msh
+
+# Output directory prefix
+output prefix = stokes_pres_driven
+output type = pvd
+
+# stokes flow (steady only)
+flow physics type = steady stokes
+
+# Set element type
+element type = linear
+
+# Physical properties
+dynamic viscosity = 1
+density = 1
+
+# Boundary conditions
+inlet pressure = 10.0
+outlet pressure = 1.0
+BC1 = (1, pressure, face, inlet pressure)
+BC2 = (2, wall, no slip)
+BC3 = (3, pressure, face, outlet pressure)
+BC4 = (4, wall, no slip)

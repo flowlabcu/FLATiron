@@ -48,6 +48,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
@@ -55,11 +56,14 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Multiphysics Problem</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem"><code class="docutils literal notranslate"><span class="pre">MultiphysicsProblem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.multiphysics_problem.TransientMultiPhysicsProblem"><code class="docutils literal notranslate"><span class="pre">TransientMultiPhysicsProblem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#designing-multiphysics">Designing multiphysics</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="module_scalar_transport.html">Scalar-Transport</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Steady Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html#module-flatiron_tk.physics.transient_navier_stokes">Transient Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_particle_tracking.html">Particle Tracking</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
 </ul>
 </li>
@@ -102,15 +106,12 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.multiphysics_problem.</span></span><span class="sig-name descname"><span class="pre">MultiphysicsProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">physics_problems</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/multiphysics_problem.html#MultiphysicsProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.multiphysics_problem.MultiphysicsProblem" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="module_physics_problem.html#flatiron_tk.physics.physics_problem.PhysicsProblem" title="flatiron_tk.physics.physics_problem.PhysicsProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicsProblem</span></code></a></p>
 <p>A class to represent a multiphysics problem by combining multiple physics problems.</p>
-<dl>
-<dt>Initialize a multiphysics problem by combining multiple physics problems.</dt><dd><dl>
-<dt>*physics_problems<span class="classifier"><cite>PhysicsProblem</cite></span></dt><dd><p>A variable number of physics problem instances to be combined into a multiphysics problem.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>If the provided physics problems do not share the same mesh or if there are tag conflicts.</p>
-</dd>
-</dl>
+<p>Initialize a multiphysics problem by combining multiple physics problems.
+:param *physics_problems: A variable number of physics problem instances to be combined into a multiphysics problem.
+:type *physics_problems: <cite>PhysicsProblem</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the provided physics problems do not share the same mesh or if there are tag conflicts.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -421,6 +422,14 @@ preparing it for the next time step in a transient simulation.</p>
 
 </dd></dl>
 
+<p>This is a class that provide an interface for a coupled multi-physics problem. This class provides an interface for physics problem with multiple variables and multiple equation problems.</p>
+<section id="designing-multiphysics">
+<h2>Designing multiphysics<a class="headerlink" href="#designing-multiphysics" title="Link to this heading"></a></h2>
+<p>MultiPhysics take in the different PhysicsProblem classes in the constructor, and build a <strong>monolithic</strong> problem based on all of the Physics.
+The weak formulation that we solve is the sum of all of the weak formulations from the base physics. Here, functions such as the trial, test,
+and solution functions requires a tag input indicating which variable you are pulling from. These functions will return the <strong>reference</strong> to the specific
+variable in the monolothic function object.</p>
+</section>
 </section>
 
 
@@ -434,7 +443,7 @@ preparing it for the next time step in a transient simulation.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

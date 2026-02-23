@@ -73,12 +73,7 @@
   <h1>Source code for flatiron_tk.solver.convergence_monitor</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
 
 <div class="viewcode-block" id="ConvergenceMonitor">
 <a class="viewcode-back" href="../../solver_modules/module_convergence_monitor.html#flatiron_tk.solver.convergence_monitor.ConvergenceMonitor">[docs]</a>
@@ -88,7 +83,7 @@
 <span class="sd">    This is meant to be used with PETSc&#39;s iterative method objects.</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">    ----------</span>
 <span class="sd">        name : str</span>
 <span class="sd">            Name to identify the iterative method (e.g., &#39;ksp&#39;, &#39;snes&#39;,</span>
 <span class="sd">            &#39;ts&#39;).</span>
@@ -182,7 +177,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

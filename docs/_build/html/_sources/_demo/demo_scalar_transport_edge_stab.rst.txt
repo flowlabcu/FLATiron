@@ -106,20 +106,12 @@ Full Script
 
 .. code-block:: python 
 
-    from flatiron_tk.info import *
-    adios4dolfinx = import_adios4dolfinx()
-    basix = import_basix()
-    dolfinx = import_dolfinx()
-    PETSc = import_PETSc()
-    ufl = import_ufl()
-    MPI = import_mpi4py()
-    
+    import dolfinx
     import flatiron_tk
     import matplotlib.pyplot as plt
     import matplotlib
     import numpy as np
     import sys
-
     from flatiron_tk.physics import TransientScalarTransport
     from flatiron_tk.mesh import RectMesh
     from flatiron_tk.solver import NonLinearProblem

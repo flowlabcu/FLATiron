@@ -16,11 +16,13 @@
       <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Solver Modules" href="../toc_solver_modules.html" />
-    <link rel="prev" title="Navier-Stokes" href="module_navier-stokes.html" /> 
+    <link rel="prev" title="Particle Tracking" href="module_particle_tracking.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,6 +50,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
@@ -55,7 +58,9 @@
 <li class="toctree-l3"><a class="reference internal" href="module_multiphysics_problem.html">Multiphysics Problem</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_scalar_transport.html">Scalar-Transport</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Steady Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html#module-flatiron_tk.physics.transient_navier_stokes">Transient Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_particle_tracking.html">Particle Tracking</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Brinkman Navier-Stokes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-flatiron_tk.physics.transient_brinkman_navier_stokes">Transient Brinkman Navier-Stokes</a></li>
 </ul>
@@ -225,6 +230,41 @@ This method copies the current solution to the previous solution for the next ti
 
 </dd></dl>
 
+<p>This class solves the transient Brinkman Navier Stokes problem. The Brinkman equations are a modification of the Navier-Stokes equations to
+account for flow in porous media by adding a Darcy drag term to the momentum equation.</p>
+<section id="strong-formulation">
+<h3>Strong formulation<a class="headerlink" href="#strong-formulation" title="Link to this heading"></a></h3>
+<p>Momentum equation</p>
+<div class="math notranslate nohighlight">
+\[\rho \frac{\partial \textbf{u}}{\partial t} + \rho \textbf{u} \cdot \nabla \textbf{u} = \nabla \cdot \boldsymbol{\sigma} + \textbf{b} + \frac{\mu}{K} \textbf{u}\]</div>
+<p>Continuity</p>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot \textbf{u} = 0\]</div>
+<p>where <span class="math notranslate nohighlight">\(\textbf{u}\)</span> and <cite>p</cite> are the velocity and pressure field respectively with the constants <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> are the fluid density and dynamic viscosity respectively.</p>
+</section>
+<section id="boundary-conditions">
+<h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading"></a></h3>
+<p>Fixed value boundary condition</p>
+<div class="math notranslate nohighlight">
+\[\textbf{u} = \textbf{u}_D \;\forall \textbf{x} \in \Gamma_D\]</div>
+<p>Traction boundary condition</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\sigma} \cdot \hat{\textbf{n}} = \textbf{t} \;\;\forall \textbf{x} \in \Gamma_N\]</div>
+</section>
+<section id="weak-formulation">
+<h3>Weak formulation<a class="headerlink" href="#weak-formulation" title="Link to this heading"></a></h3>
+<p>In this implementation, we the mid-point method for time integration. Let <span class="math notranslate nohighlight">\(\mathcal{L}(u, p)\)</span> be the weak
+formulation obtained in the <a class="reference internal" href="module_navier-stokes.html"><span class="doc">Steady Navier-Stokes</span></a>, the weak formulation for the transient problem is</p>
+<div class="math notranslate nohighlight">
+\[0 = \left( \textbf{w}, \frac{\textbf{u}^n - \textbf{u}^{n-1}}{\Delta t} \right) + \theta \left( \mathcal{L}(\textbf{u}^n, p^n) + \textbf{i} \frac{\mu}{\kappa}(\textbf{u}^n, \textbf{w}) \right) + (1-\theta)\left( \mathcal{L}(\textbf{u}^0, p^n) + \textbf{i} \frac{\mu}{\kappa}(\textbf{u}^n, \textbf{w}) \right)\]</div>
+</section>
+<section id="stabilization-parameters">
+<h3>Stabilization parameters<a class="headerlink" href="#stabilization-parameters" title="Link to this heading"></a></h3>
+<p>Stabilization parameter now has time dependence and is defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau = \left( \left( \frac{1}{\Delta t} \right)^2 + \left(\frac{2|\textbf{u}|}{h}\right)^2 + 9\left(\frac{4\nu}{h^2}\right)^2 \right)^{-0.5} \\\end{split}\]</div>
+<p>In this case, we use the same stabilization parameter for both SUPG and PSPG</p>
+</section>
 </section>
 </section>
 
@@ -232,14 +272,14 @@ This method copies the current solution to the previous solution for the next ti
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="module_navier-stokes.html" class="btn btn-neutral float-left" title="Navier-Stokes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_particle_tracking.html" class="btn btn-neutral float-left" title="Particle Tracking" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../toc_solver_modules.html" class="btn btn-neutral float-right" title="Solver Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

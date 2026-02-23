@@ -1,0 +1,26 @@
+# Mesh file
+mesh file = mesh/unit_square.msh
+
+# Output directory prefix
+output prefix = stokes_ldc
+output type = pvd
+
+# Set flow physics type
+flow physics type = steady stokes
+
+# Set element type
+element type = linear
+
+# Physical properties
+dynamic viscosity = 1
+density = 1
+
+# Boundary conditions
+lid_velocity = 1.0
+p_null = 0.0
+BC1 = (1, wall, no slip)
+BC2 = (2, wall, no slip)
+BC3 = (3, wall, no slip)
+BC4 = (4, inlet, plug, xhat, lid_velocity)
+BC5 = (1, pressure, fix nullspace, p_null)
+

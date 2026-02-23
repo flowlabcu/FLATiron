@@ -11,5 +11,6 @@ Physics Modules
     physics_modules/module_scalar_transport
     physics_modules/module_stokes
     physics_modules/module_navier-stokes
+    physics_modules/module_particle_tracking
     physics_modules/module_porous_media
    

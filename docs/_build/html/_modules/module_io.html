@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Mesh" href="module_mesh.html" />
-    <link rel="prev" title="Functions" href="module_functions.html" /> 
+    <link rel="prev" title="Info" href="module_info.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,8 +48,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../toc_modules.html">FLATiron Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="module_fem.html">FEM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_info.html">Info</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">I/O</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-flatiron_tk.io.io">Mesh I/O</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.io.io.PVDWriter"><code class="docutils literal notranslate"><span class="pre">PVDWriter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.io.io.read_mesh"><code class="docutils literal notranslate"><span class="pre">read_mesh()</span></code></a></li>
 </ul>
 </li>
@@ -99,25 +101,50 @@
 <h1>I/O<a class="headerlink" href="#i-o" title="Link to this heading"></a></h1>
 <section id="module-flatiron_tk.io.io">
 <span id="mesh-i-o"></span><h2>Mesh I/O<a class="headerlink" href="#module-flatiron_tk.io.io" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.io.io.PVDWriter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.io.</span></span><span class="sig-name descname"><span class="pre">PVDWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/io/io.html#PVDWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.io.io.PVDWriter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Simple .pvd (VTK Collection) writer that stores filenames (relative) per timestep.
+:param filename: Path to the output .pvd file.
+:type filename: str</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.io.io.PVDWriter.add_dataset">
+<span class="sig-name descname"><span class="pre">add_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/io/io.html#PVDWriter.add_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.io.io.PVDWriter.add_dataset" title="Link to this definition"></a></dt>
+<dd><p>Add a dataset to the collection.
+:param timestep: The time step associated with the dataset.
+:type timestep: float
+:param file: The path to the dataset file.
+:type file: str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.io.io.PVDWriter.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/io/io.html#PVDWriter.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.io.io.PVDWriter.write" title="Link to this definition"></a></dt>
+<dd><p>Write the .pvd file to disk.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="flatiron_tk.io.io.read_mesh">
-<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.io.</span></span><span class="sig-name descname"><span class="pre">read_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gdim=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/io/io.html#read_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.io.io.read_mesh" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.io.</span></span><span class="sig-name descname"><span class="pre">read_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gdim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">mpi4py.MPI.COMM_WORLD</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/io/io.html#read_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.io.io.read_mesh" title="Link to this definition"></a></dt>
 <dd><p>Read a mesh from a file with dolfinx.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mesh_file</strong> – str, Path to the mesh file.</p></li>
-<li><p><strong>gdim</strong> – int, Geometric dimension of the mesh. Default is None.</p></li>
-<li><p><strong>comm</strong> – MPI communicator. Default is MPI.COMM_WORLD.</p></li>
+<li><p><strong>mesh_file</strong> (<em>str</em><em>, </em><em>Path to the mesh file.</em>)</p></li>
+<li><p><strong>gdim</strong> (<em>int</em><em>, </em><em>Geometric dimension</em><em> of </em><em>the mesh. Default is None.</em>)</p></li>
+<li><p><strong>comm</strong> (<em>MPI communicator. Default is MPI.COMM_WORLD.</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>dolfinx.mesh.Mesh, The mesh object.
-subdomain : dolfinx.mesh.MeshTags, The subdomain tags.
-boundary : dolfinx.mesh.MeshTags, The boundary tags.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>mesh</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mesh</strong> (<em>dolfinx.mesh.Mesh, The mesh object.</em>)</p></li>
+<li><p><strong>subdomain</strong> (<em>dolfinx.mesh.MeshTags, The subdomain tags.</em>)</p></li>
+<li><p><strong>boundary</strong> (<em>dolfinx.mesh.MeshTags, The boundary tags.</em>)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -128,7 +155,20 @@ boundary : dolfinx.mesh.MeshTags, The boundary tags.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="flatiron_tk.io.bp_mod.bp_get_time_steps">
 <span class="sig-prename descclassname"><span class="pre">flatiron_tk.io.bp_mod.</span></span><span class="sig-name descname"><span class="pre">bp_get_time_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="flatiron_tk/io/bp_mod.html#bp_get_time_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.io.bp_mod.bp_get_time_steps" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the time steps available in a BP file.
+:param filepath: Path to the BP file.
+:type filepath: str or Path
+:param name: Name of the function to get time steps for. If None, the first function in the file is used.
+:type name: str, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time_steps</strong> – List of time steps available in the BP file.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="flatiron_tk.io.bp_mod.bp_read_function">
@@ -213,14 +253,14 @@ boundary : dolfinx.mesh.MeshTags, The boundary tags.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="module_functions.html" class="btn btn-neutral float-left" title="Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_info.html" class="btn btn-neutral float-left" title="Info" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="module_mesh.html" class="btn btn-neutral float-right" title="Mesh" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

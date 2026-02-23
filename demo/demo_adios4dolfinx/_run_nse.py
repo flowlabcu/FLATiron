@@ -119,7 +119,7 @@ split = {
 tree = BlockSplitTree(nse, splits=split)
 solver = BlockNonLinearSolver(tree, MPI.COMM_WORLD, problem, outer_ksp_set_function=set_outer_ksp)
 
-while t < 1.0:
+while t < 0.1:
     print(f'Solving at time t = {t:.2f}')
 
     # Solve the problem
