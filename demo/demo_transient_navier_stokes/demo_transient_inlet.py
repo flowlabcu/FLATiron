@@ -1,21 +1,18 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import os 
-import psutil as ps 
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
-
-from flatiron_tk.mesh import Mesh
-from flatiron_tk.physics import TransientNavierStokes
-from flatiron_tk.solver  import ConvergenceMonitor
+import matplotlib.pyplot as plt
 from flatiron_tk.solver import NonLinearProblem
 from flatiron_tk.solver import NonLinearSolver
+import dolfinx
+import ufl 
+import numpy as np
+from flatiron_tk.physics import TransientNavierStokes
+from flatiron_tk.solver  import ConvergenceMonitor
+from flatiron_tk.mesh import Mesh
+import sys
+import basix
+import subprocess
+import psutil as ps 
+import os 
 
 process = ps.Process(os.getpid())
 

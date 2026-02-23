@@ -1,12 +1,6 @@
+import dolfinx
+import flatiron_tk
 import numpy as np
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
 
 from flatiron_tk.mesh import RectMesh
 from flatiron_tk.physics import SteadyNavierStokes
@@ -52,7 +46,10 @@ V_p = nse.get_function_space('p').collapse()[0]
 zero_v = dolfinx.fem.Function(V_u)
 zero_v.interpolate(no_slip)
 inlet_v = dolfinx.fem.Function(V_u)
-inlet_v.interpolate(u_inlet)
+profile = flatiron_tk.PlugInletProfile(speed=1.0, normal=[1.0, 0.0])
+inlet_v.interpolate(profile)
+
+
 zero_p = dolfinx.fem.Function(V_p)
 zero_p.x.array[:] = 0.0
 

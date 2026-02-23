@@ -1,12 +1,6 @@
+import dolfinx
+import flatiron_tk
 import numpy as np
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
 
 from flatiron_tk.mesh import Mesh
 from flatiron_tk.physics import TransientNavierStokes
@@ -46,19 +40,9 @@ nse.set_weak_form(stab=True)
 V_u = nse.get_function_space('u').collapse()[0]
 V_p = nse.get_function_space('p').collapse()[0]
 
-# Parabolic profile 
-def inlet_velocity(x):
-    # Parabolic profile: u_x = 4 * U_max * y * (H - y) / H^2
-    # Assuming inlet along x, y in [0, H], U_max = 10.0, H = 4.1
-    values = np.zeros((2, x.shape[1]), dtype=dolfinx.default_scalar_type)
-    y = x[1]
-    H = 4.1
-    U_max = u_mag
-    values[0] = 4 * U_max * y * (H - y) / (H ** 2)
-    return values
-
+profile = flatiron_tk.ParabolicInletProfile(flow_rate=2.0/3.0, radius=4.1/2.0, center=mesh.get_boundary_centroid(1), normal=np.array([1.0, 0.0]))
 inlet_v = dolfinx.fem.Function(V_u)
-inlet_v.interpolate(lambda x: inlet_velocity(x))
+inlet_v.interpolate(profile)
 
 zero_p = dolfinx.fem.Function(V_p)
 zero_p.interpolate(zero_pressure)
@@ -98,11 +82,9 @@ def my_custom_ksp_setup(ksp):
 solver = NonLinearSolver(mesh.msh.comm, problem, outer_ksp_set_function=my_custom_ksp_setup)
 
 # Solve
+t = 0
 while t < 10.0:
     print(f'Solving at time t = {t:.2f}')
-    
-    # Set the inlet velocity for the current time step
-    inlet_v.interpolate(lambda x: inlet_velocity(x))
     
     # Solve the problem
     solver.solve()

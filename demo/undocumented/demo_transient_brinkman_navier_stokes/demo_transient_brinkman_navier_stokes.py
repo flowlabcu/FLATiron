@@ -1,14 +1,8 @@
+import dolfinx
 import numpy as np
 import psutil as ps 
 import os 
-
-from flatiron_tk.info import *
-adios4dolfinx = import_adios4dolfinx()
-basix = import_basix()
-dolfinx = import_dolfinx()
-PETSc = import_PETSc()
-ufl = import_ufl()
-MPI = import_mpi4py()
+import ufl
 
 from flatiron_tk.functions import build_field_scalar_function
 from flatiron_tk.mesh import Mesh
@@ -17,6 +11,8 @@ from flatiron_tk.solver import BlockNonLinearSolver
 from flatiron_tk.solver import BlockSplitTree
 from flatiron_tk.solver  import ConvergenceMonitor
 from flatiron_tk.solver import NonLinearProblem
+from mpi4py import MPI
+from petsc4py import PETSc
 
 # Define Mesh and Fictitious Domain
 mesh_file = '../mesh/2db.msh'
