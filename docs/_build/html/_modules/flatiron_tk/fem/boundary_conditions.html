@@ -71,19 +71,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.fem.boundary_conditions</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <div class="viewcode-block" id="is_subspace">
 <a class="viewcode-back" href="../../module_fem.html#flatiron_tk.fem.boundary_conditions.is_subspace">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_subspace</span><span class="p">(</span><span class="n">V</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns True if V is a subspace of a function space, False otherwise.</span>
 
 <span class="sd">    Parameters</span>
@@ -94,7 +88,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    bool</span>
 <span class="sd">        True if V is a subspace, False otherwise.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">component</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
@@ -104,7 +98,7 @@
 <div class="viewcode-block" id="get_function_space_search">
 <a class="viewcode-back" href="../../module_fem.html#flatiron_tk.fem.boundary_conditions.get_function_space_search">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_function_space_search</span><span class="p">(</span><span class="n">V</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the function space to search for dofs in case V is a subspace.</span>
 <span class="sd">    If V is not a subspace, returns V itself.</span>
 <span class="sd">    Parameters</span>
@@ -119,7 +113,7 @@
 <span class="sd">        dolfinx.fem.FunctionSpace</span>
 <span class="sd">        The function space to search for dofs.</span>
 <span class="sd">    </span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">is_subspace</span><span class="p">(</span><span class="n">V</span><span class="p">):</span>
         <span class="n">V_sub</span><span class="p">,</span> <span class="n">V_submap</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">V_sub</span><span class="p">)</span>
@@ -130,7 +124,7 @@
 <div class="viewcode-block" id="build_dirichlet_bc">
 <a class="viewcode-back" href="../../module_fem.html#flatiron_tk.fem.boundary_conditions.build_dirichlet_bc">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_dirichlet_bc</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">bnd_id</span><span class="p">,</span> <span class="n">bc_val</span><span class="p">,</span> <span class="n">function_space</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Builds a Dirichlet boundary condition for a given boundary and value.</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -150,7 +144,7 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    TypeError : If `bc_val` is not a `dolfinx.fem.Function` or `dolfinx.fem.Constant`.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bc_val</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
         <span class="n">_function_space_search</span> <span class="o">=</span> <span class="n">get_function_space_search</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
@@ -173,7 +167,7 @@
         <span class="n">bc</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">dirichletbc</span><span class="p">(</span><span class="n">bc_val</span><span class="p">,</span> <span class="n">dofs</span><span class="p">,</span> <span class="n">function_space</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;bc_val must be a dolfinx.fem.Function or dolfinx.fem.Constant, got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">bc_val</span><span class="p">)))</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;bc_val must be a dolfinx.fem.Function or dolfinx.fem.Constant, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bc_val</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">bc</span></div>
 
@@ -186,7 +180,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -48,17 +48,22 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Physics Problem</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.physics_problem.PhysicsProblem"><code class="docutils literal notranslate"><span class="pre">PhysicsProblem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defining-custom-physics">Defining custom physics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defining-member-functions">Defining member functions</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="module_multiphysics_problem.html">Multiphysics Problem</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_scalar_transport.html">Scalar-Transport</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Steady Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html#module-flatiron_tk.physics.transient_navier_stokes">Transient Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_particle_tracking.html">Particle Tracking</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
 </ul>
 </li>
@@ -514,6 +519,22 @@ Inherited classes must implement the <cite>set_weak_form</cite> method to define
 
 </dd></dl>
 
+<p>PhysicsProblem is a base class for other physics to inherit and define their own physics.
+This class provides routine functions that are needed by every physics such as function space
+definition, solution io, etc. This class contains as members, the flatiron_tk.Mesh object the physics
+is defined on, a <code class="docutils literal notranslate"><span class="pre">tag</span></code> which is a name of the physics</p>
+<section id="defining-custom-physics">
+<h2>Defining custom physics<a class="headerlink" href="#defining-custom-physics" title="Link to this heading"></a></h2>
+<p>Any physics problem will inherit this class. The developer will need to overload the <code class="docutils literal notranslate"><span class="pre">set_weak_form</span></code>, <code class="docutils literal notranslate"><span class="pre">flux</span></code>, and <code class="docutils literal notranslate"><span class="pre">get_residue</span></code> methods and
+properly define the physics of the particular problem. For example, see the <cite>SteadyScalarTransport</cite> physics.</p>
+</section>
+<section id="defining-member-functions">
+<h2>Defining member functions<a class="headerlink" href="#defining-member-functions" title="Link to this heading"></a></h2>
+<p>To streamline the physics parameters, we provide a dictionary mapping a string to a function called <code class="docutils literal notranslate"><span class="pre">external_function_dict</span></code> as a member function.
+This dictionary will contain any external functions and variables that will be used to define the physics. For example, if we have a diffusion problem,
+then the diffusivity of the problem will be encoded in <code class="docutils literal notranslate"><span class="pre">external_function_dict</span></code>. By doing it this way, we have a centralized location that stores
+all of the physics definition. Any physics inheriting this class will use the <code class="docutils literal notranslate"><span class="pre">set_external_function</span></code> method to assign a function value into this dictionary.</p>
+</section>
 </section>
 
 
@@ -527,7 +548,7 @@ Inherited classes must implement the <cite>set_weak_form</cite> method to define
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

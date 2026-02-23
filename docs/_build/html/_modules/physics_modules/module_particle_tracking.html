@@ -1,0 +1,225 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Particle Tracking &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Brinkman Navier-Stokes" href="module_porous_media.html" />
+    <link rel="prev" title="Steady Navier-Stokes" href="module_navier-stokes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_info.html">Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="module_physics_problem.html">Physics Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_multiphysics_problem.html">Multiphysics Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_scalar_transport.html">Scalar-Transport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Steady Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html#module-flatiron_tk.physics.transient_navier_stokes">Transient Navier-Stokes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Particle Tracking</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker"><code class="docutils literal notranslate"><span class="pre">MasslessTracerTracker</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../toc_solver_modules.html">Solver Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../toc_modules.html">FLATiron Modules</a></li>
+          <li class="breadcrumb-item"><a href="../toc_physics_modules.html">Physics Modules</a></li>
+      <li class="breadcrumb-item active">Particle Tracking</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_modules/physics_modules/module_particle_tracking.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-flatiron_tk.physics.particle_tracking">
+<span id="particle-tracking"></span><h1>Particle Tracking<a class="headerlink" href="#module-flatiron_tk.physics.particle_tracking" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.particle_tracking.</span></span><span class="sig-name descname"><span class="pre">MasslessTracerTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Track massless particles and write per-step .vtp files plus a .pvd collection
+(finalized automatically via atexit). Works under MPI: only rank 0 writes the .pvd,
+while all ranks may write .vtp files if desired.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<a class="reference internal" href="../module_mesh.html#flatiron_tk.mesh.mesh.Mesh" title="flatiron_tk.mesh.mesh.Mesh"><em>Mesh</em></a>) – The flatirion_tk mesh object.</p></li>
+<li><p><strong>dt</strong> (<em>float</em>) – Time step size for particle advection.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.get_coordinates_on_boundary">
+<span class="sig-name descname"><span class="pre">get_coordinates_on_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.get_coordinates_on_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.get_coordinates_on_boundary" title="Link to this definition"></a></dt>
+<dd><p>Get the coordinates of all DOFs on a given boundary across all ranks.
+:param boundary_id: The boundary marker ID from which to get the coordinates.
+:type boundary_id: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coords</strong> – Nx3 array of coordinates on the given boundary across all ranks.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.inject_particles">
+<span class="sig-name descname"><span class="pre">inject_particles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_particle_positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.inject_particles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.inject_particles" title="Link to this definition"></a></dt>
+<dd><p>Inject new particles at specified positions.
+:param new_particle_positions: Iterable of new particle positions, each a 1D array-like of length 2 or 3.
+:type new_particle_positions: Sequence</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.inject_particles_from_boundary">
+<span class="sig-name descname"><span class="pre">inject_particles_from_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.inject_particles_from_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.inject_particles_from_boundary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.set_particle_positions">
+<span class="sig-name descname"><span class="pre">set_particle_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle_positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.set_particle_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.set_particle_positions" title="Link to this definition"></a></dt>
+<dd><p>Set the particle positions directly.
+:param particle_positions: Iterable of particle positions, each a 1D array-like of length 2 or 3.
+:type particle_positions: Sequence</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.set_particle_positions_from_boundary">
+<span class="sig-name descname"><span class="pre">set_particle_positions_from_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.set_particle_positions_from_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.set_particle_positions_from_boundary" title="Link to this definition"></a></dt>
+<dd><p>Set the particle positions to all DOF coordinates on a given boundary.
+:param boundary_id: The boundary marker ID from which to get the coordinates.
+:type boundary_id: int</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.set_writer">
+<span class="sig-name descname"><span class="pre">set_writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.set_writer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.set_writer" title="Link to this definition"></a></dt>
+<dd><p>Prepare output folder and PVD writer.
+:param output_dir: Directory to write per-step files and particles.pvd.
+:type output_dir: str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.update_particle_positions">
+<span class="sig-name descname"><span class="pre">update_particle_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euler'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.update_particle_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.update_particle_positions" title="Link to this definition"></a></dt>
+<dd><p>Update particle positions based on the current and previous velocity fields.
+:param current_velocity: The current velocity field.
+:type current_velocity: dolfinx.fem.Function
+:param previous_velocity: The previous velocity field (required for Heun’s method).
+:type previous_velocity: dolfinx.fem.Function
+:param method: The time integration method to use (‘euler’ or ‘heun’).
+:type method: str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.particle_tracking.MasslessTracerTracker.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_stamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/particle_tracking.html#MasslessTracerTracker.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.particle_tracking.MasslessTracerTracker.write" title="Link to this definition"></a></dt>
+<dd><p>Write current particle positions to a .vtp file and add to a .pvd collection.
+:param time_stamp: Time stamp to associate with this write in the .pvd file.
+:type time_stamp: float</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="module_navier-stokes.html" class="btn btn-neutral float-left" title="Steady Navier-Stokes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_porous_media.html" class="btn btn-neutral float-right" title="Brinkman Navier-Stokes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

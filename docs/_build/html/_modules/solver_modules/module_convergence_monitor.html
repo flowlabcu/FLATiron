@@ -48,6 +48,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a></li>
@@ -98,27 +99,23 @@
 <span id="indicator-fields"></span><h2>Indicator Fields<a class="headerlink" href="#module-flatiron_tk.solver.convergence_monitor" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="flatiron_tk.solver.convergence_monitor.ConvergenceMonitor">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.solver.convergence_monitor.</span></span><span class="sig-name descname"><span class="pre">ConvergenceMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_every=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_history=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;petsc4py.PETSc.Comm</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/convergence_monitor.html#ConvergenceMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.convergence_monitor.ConvergenceMonitor" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.solver.convergence_monitor.</span></span><span class="sig-name descname"><span class="pre">ConvergenceMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">petsc4py.PETSc.COMM_WORLD</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/solver/convergence_monitor.html#ConvergenceMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.solver.convergence_monitor.ConvergenceMonitor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object which reports and records the convergence history of an iterative method.
 This is meant to be used with PETSc’s iterative method objects.</p>
-<dl class="simple">
-<dt>Parameters</dt><dd><dl class="simple">
-<dt>name<span class="classifier">str</span></dt><dd><p>Name to identify the iterative method (e.g., ‘ksp’, ‘snes’,
-‘ts’).</p>
-</dd>
-<dt>verbose<span class="classifier">bool, optional</span></dt><dd><p>If True, prints the iteration number and residual norm to
-standard output every <cite>report_every</cite> iterations. Default is True.</p>
-</dd>
-<dt>report_every<span class="classifier">int, optional</span></dt><dd><p>Frequency of reporting the iteration number and residual norm.
-Default is 1 (every iteration).</p>
-</dd>
-<dt>record_history<span class="classifier">bool, optional</span></dt><dd><p>If True, records the convergence history (iteration numbers and
-residual norms). Default is True.</p>
-</dd>
-<dt>comm<span class="classifier">MPI.Comm, optional</span></dt><dd><p>MPI communicator for parallel execution. Default is PETSc.COMM_WORLD.</p>
-</dd>
-</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name to identify the iterative method (e.g., ‘ksp’, ‘snes’,
+‘ts’).</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, prints the iteration number and residual norm to
+standard output every <cite>report_every</cite> iterations. Default is True.</p></li>
+<li><p><strong>report_every</strong> (<em>int</em><em>, </em><em>optional</em>) – Frequency of reporting the iteration number and residual norm.
+Default is 1 (every iteration).</p></li>
+<li><p><strong>record_history</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, records the convergence history (iteration numbers and
+residual norms). Default is True.</p></li>
+<li><p><strong>comm</strong> (<em>MPI.Comm</em><em>, </em><em>optional</em>) – MPI communicator for parallel execution. Default is PETSc.COMM_WORLD.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -151,7 +148,7 @@ the iteration count was monotonically increasing.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -72,26 +72,86 @@
              
   <h1>Source code for flatiron_tk.io.io</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ET</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<div class="viewcode-block" id="PVDWriter">
+<a class="viewcode-back" href="../../module_io.html#flatiron_tk.io.io.PVDWriter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PVDWriter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple .pvd (VTK Collection) writer that stores filenames (relative) per timestep.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Path to the output .pvd file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span>
+            <span class="s2">&quot;VTKFile&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Collection&quot;</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span>
+            <span class="n">byte_order</span><span class="o">=</span><span class="s2">&quot;LittleEndian&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_collection</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="p">,</span> <span class="s2">&quot;Collection&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="PVDWriter.add_dataset">
+<a class="viewcode-back" href="../../module_io.html#flatiron_tk.io.io.PVDWriter.add_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a dataset to the collection.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        timestep : float</span>
+<span class="sd">            The time step associated with the dataset.</span>
+<span class="sd">        file : str</span>
+<span class="sd">            The path to the dataset file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># store only the basename so the pvd can sit in the same folder as the files</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset_collection</span><span class="p">,</span>
+            <span class="s2">&quot;DataSet&quot;</span><span class="p">,</span>
+            <span class="n">timestep</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">timestep</span><span class="p">),</span>
+            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">part</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PVDWriter.write">
+<a class="viewcode-back" href="../../module_io.html#flatiron_tk.io.io.PVDWriter.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the .pvd file to disk.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="p">)</span>
+        <span class="c1"># ensure target dir exists</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</div>
+
 
 <div class="viewcode-block" id="read_mesh">
 <a class="viewcode-back" href="../../module_io.html#flatiron_tk.io.io.read_mesh">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_mesh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read a mesh from a file with dolfinx.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
 <span class="sd">        mesh_file : str, Path to the mesh file.</span>
 <span class="sd">        gdim : int, Geometric dimension of the mesh. Default is None.</span>
 <span class="sd">        comm : MPI communicator. Default is MPI.COMM_WORLD.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
 <span class="sd">        mesh : dolfinx.mesh.Mesh, The mesh object.</span>
 <span class="sd">        subdomain : dolfinx.mesh.MeshTags, The subdomain tags.</span>
 <span class="sd">        boundary : dolfinx.mesh.MeshTags, The boundary tags.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">mesh_file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.msh&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_read_gmsh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
@@ -107,19 +167,21 @@
 
     
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_gmsh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>  
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read a mesh from a GMSH file with dolfinx.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
 <span class="sd">        mesh_file : str, Path to the mesh file.</span>
 <span class="sd">        gdim : int, Geometric dimension of the mesh. Default is None.</span>
 <span class="sd">        comm : MPI communicator. Default is MPI.COMM_WORLD.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
 <span class="sd">        mesh : dolfinx.mesh.Mesh, The mesh object.</span>
 <span class="sd">        subdomain : dolfinx.mesh.MeshTags, The subdomain tags.</span>
 <span class="sd">        boundary : dolfinx.mesh.MeshTags, The boundary tags.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># If the geometric dimension is given, we return exactly the read in mesh</span>
     <span class="k">if</span> <span class="n">gdim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -139,18 +201,20 @@
     <span class="k">return</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gmshio</span><span class="o">.</span><span class="n">read_from_msh</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">tdim</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_xdmf</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read a mesh from a XDMF file with dolfinx.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
 <span class="sd">        mesh_file : str, Path to the mesh file.</span>
 <span class="sd">        comm : MPI communicator. Default is MPI.COMM_WORLD.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
 <span class="sd">        mesh : dolfinx.mesh.Mesh, The mesh object.</span>
 <span class="sd">        subdomain : dolfinx.mesh.MeshTags, The subdomain tags.</span>
 <span class="sd">        boundary : dolfinx.mesh.MeshTags, The boundary tags.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">XDMFFile</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span> <span class="n">mesh_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read_mesh</span><span class="p">()</span>
         <span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
@@ -168,7 +232,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

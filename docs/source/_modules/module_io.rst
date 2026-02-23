@@ -10,7 +10,7 @@ Mesh I/O
    :show-inheritance:
 
 Checkpointing via ADIOS4DOLFINX
---------------------------------------
+----------------------------------
 .. automodule:: flatiron_tk.io.bp_mod
    :members:
    :undoc-members:

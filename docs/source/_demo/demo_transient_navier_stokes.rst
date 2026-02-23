@@ -66,14 +66,7 @@ Note the relative path from the demo script to the generated ``foc.msh`` mesh fi
 
 .. code-block:: python 
 
-    from flatiron_tk.info import *
-    adios4dolfinx = import_adios4dolfinx()
-    basix = import_basix()
-    dolfinx = import_dolfinx()
-    PETSc = import_PETSc()
-    ufl = import_ufl()
-    MPI = import_mpi4py()
-
+    import dolfinx
     import numpy as np
 
     from flatiron_tk.mesh import Mesh
@@ -205,14 +198,7 @@ Full Script
 
 .. code-block:: python 
 
-    from flatiron_tk.info import *
-    adios4dolfinx = import_adios4dolfinx()
-    basix = import_basix()
-    dolfinx = import_dolfinx()
-    PETSc = import_PETSc()
-    ufl = import_ufl()
-    MPI = import_mpi4py()
-    
+    import dolfinx
     import numpy as np
 
     from flatiron_tk.mesh import Mesh

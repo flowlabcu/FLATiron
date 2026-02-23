@@ -45,17 +45,11 @@ We first import relevant libraries and define a mesh using the LineMesh object.
 
 .. code-block:: python
 
-    from flatiron_tk.info import *
-    adios4dolfinx = import_adios4dolfinx()
-    basix = import_basix()
-    dolfinx = import_dolfinx()
-    PETSc = import_PETSc()
-    ufl = import_ufl()
-    MPI = import_mpi4py()
-    
+    import dolfinx
     import matplotlib.pyplot as plt
     import matplotlib.animation as animation
     import numpy as np
+    import ufl
 
     from flatiron_tk.mesh import LineMesh
     from flatiron_tk.physics import TransientScalarTransport

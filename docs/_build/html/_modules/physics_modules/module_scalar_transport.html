@@ -16,6 +16,8 @@
       <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -48,6 +50,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
@@ -59,7 +62,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="module_stokes.html">Stokes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Steady Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html#module-flatiron_tk.physics.transient_navier_stokes">Transient Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_particle_tracking.html">Particle Tracking</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
 </ul>
 </li>
@@ -284,6 +289,55 @@ This class extends the PhysicsProblem class to include advection, diffusion, and
 
 </dd></dl>
 
+<p>This class defines the scalar transport problem, the so-called Advection-Diffusion-Reaction problem</p>
+<section id="strong-formulation">
+<h3>Strong formulation<a class="headerlink" href="#strong-formulation" title="Link to this heading"></a></h3>
+<p>Define a total computational domian as <span class="math notranslate nohighlight">\(\Omega\)</span> and the Dirichlet and Neumann
+boundaries <span class="math notranslate nohighlight">\(\Gamma_D\)</span> and <span class="math notranslate nohighlight">\(\Gamma_N\)</span> where <span class="math notranslate nohighlight">\(\Gamma_D \cup \Gamma_D = \partial\Omega\)</span> and <span class="math notranslate nohighlight">\(\Gamma_D \cap \Gamma_D = 0\)</span>. Let the trial
+function space be defined s</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\textbf{u}\cdot\nabla c = D\nabla^2c + R \\\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(c\)</span> is the concentration field, <span class="math notranslate nohighlight">\(\textbf{u}\)</span> is the velocity, <span class="math notranslate nohighlight">\(D\)</span> is diffusivity, and <span class="math notranslate nohighlight">\(R\)</span> is the reaction.</p>
+</section>
+<section id="boundary-conditions">
+<h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading"></a></h3>
+<p>Fixed value boundary condition</p>
+<div class="math notranslate nohighlight">
+\[c = c_D \; \forall \textbf{x} \in \Gamma_D\]</div>
+<p>Diffusive flux boundary condition</p>
+<div class="math notranslate nohighlight">
+\[\nabla c \cdot \hat{n} = \textbf{h} \cdot \hat{n} \; \forall \textbf{x} \in \Gamma_N\]</div>
+<p>where <span class="math notranslate nohighlight">\(\hat{n}\)</span> is the unit normal to <span class="math notranslate nohighlight">\(\Gamma_N\)</span></p>
+</section>
+<section id="weak-formulation">
+<h3>Weak formulation<a class="headerlink" href="#weak-formulation" title="Link to this heading"></a></h3>
+<p>The weak formulation is stated as follows:</p>
+<div class="math notranslate nohighlight">
+\[C := \{c \in H^1(\Omega) | c = c_D \;\text{on}\; \Gamma_D\}\]</div>
+<p>and the corresponding test function</p>
+<div class="math notranslate nohighlight">
+\[W := \{w \in H^1(\Omega) | w = 0 \;\text{on}\; \Gamma_D\}\]</div>
+<p>The weak formulation, for <span class="math notranslate nohighlight">\(c \in C\)</span> and <span class="math notranslate nohighlight">\(w \in W\)</span></p>
+<div class="math notranslate nohighlight">
+\[0 = \left(w, \textbf{u}\cdot\nabla c\right)_\Omega + \left( \nabla w, D\nabla c \right)_\Omega - \left(w, R\right)_\Omega - \left(w, \textbf{h}\cdot \hat{n}\right)_{\Gamma_n} + \sum_{\Omega_e} \int_{\Omega_e} \tau \mathcal{R} \left(\textbf{u} \cdot \nabla w \right) d\Omega\]</div>
+<p>where ther residue <span class="math notranslate nohighlight">\(\mathcal{R}\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{R} = \textbf{u} \cdot \nabla c - D\nabla^2c - R\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{S}\)</span> is the stabilization term for advection dominated problem.
+There are three types of <span class="math notranslate nohighlight">\(\tau\)</span> that the code provides. These are the <cite>shakib</cite>, <cite>su</cite>, <cite>codina</cite> type.
+For given a cell diameter <span class="math notranslate nohighlight">\(h\)</span>, a cell Peclet number <span class="math notranslate nohighlight">\(Pe_h=\frac{\lvert \textbf{u} \rvert h}{2D}\)</span></p>
+</section>
+<section id="stabilization-parameters">
+<h3>Stabilization parameters<a class="headerlink" href="#stabilization-parameters" title="Link to this heading"></a></h3>
+<p>Stabilization parameters <span class="math notranslate nohighlight">\(\tau\)</span> are predefined values  via the <code class="docutils literal notranslate"><span class="pre">get_stab_constant(tau_type)</span></code> method. The <code class="docutils literal notranslate"><span class="pre">tau_type</span></code>
+parameter can be either <code class="docutils literal notranslate"><span class="pre">shakib</span></code>, <code class="docutils literal notranslate"><span class="pre">su</span></code>, or <code class="docutils literal notranslate"><span class="pre">codina</span></code>, and are defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau_{shakib} = \left( \left( \frac{2\lvert \textbf{u} \rvert^2}{h}\right)^2 + 9*\left(\frac{4D}{h}\right)^2 + R^2 \right)^{-0.5} \\\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau_{su} =  \frac{h}{2 \lvert \textbf{u} \rvert} \left( coth(Pe_h) - \frac{1}{Pe_h}\right) \\\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau_{codina} =  \frac{h}{2 \lvert \textbf{u} \rvert} \left(1 + \frac{1}{Pe_h} + \frac{hR}{2\lvert \textbf{u} \rvert}\right)^{-1} \\\end{split}\]</div>
+</section>
 </section>
 <section id="module-flatiron_tk.physics.transient_scalar_transport">
 <span id="transient-scalar-transport"></span><h2>Transient Scalar-Transport<a class="headerlink" href="#module-flatiron_tk.physics.transient_scalar_transport" title="Link to this heading"></a></h2>
@@ -417,6 +471,170 @@ where mid(f) = theta*f1 + (1-theta)*f0</p>
 
 </dd></dl>
 
+<p>This class defines the transient version of the scalar transport problem</p>
+<section id="id11">
+<h3>Strong formulation<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>The strong form of this now the time-dependent version of the <code class="docutils literal notranslate"><span class="pre">TransientScalarTransport</span></code> problem</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{\partial c}{\partial t} + \textbf{u}\cdot\nabla c = D\nabla^2c + R \\\end{split}\]</div>
+</section>
+<section id="initial-and-boundary-conditions">
+<h3>Initial and Boundary conditions<a class="headerlink" href="#initial-and-boundary-conditions" title="Link to this heading"></a></h3>
+<p>The boundary conditions are the same as the ones defined in the <code class="docutils literal notranslate"><span class="pre">TransientScalarTransport</span></code> class.</p>
+<p>Here, the initial condition can be set through the <code class="docutils literal notranslate"><span class="pre">set_initial_condition</span></code> method.</p>
+</section>
+<section id="time-discretization">
+<h3>Time discretization<a class="headerlink" href="#time-discretization" title="Link to this heading"></a></h3>
+<p>In this module, the default time discretization is the midpoint <span class="math notranslate nohighlight">\(\theta\)</span> method defined as follows:</p>
+<p>Let subscript <span class="math notranslate nohighlight">\(()_0\)</span> denote the variable in the previous time step and <span class="math notranslate nohighlight">\(()_n\)</span> define the variable at the current time step</p>
+<p>Find <span class="math notranslate nohighlight">\(c_n \in C\)</span> and <span class="math notranslate nohighlight">\(w \in W\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[0 = \left(w, \frac{c_n - c_0}{\Delta t} \right) + (1-\theta)\mathcal{L}(c_0; \textbf{u}_0, D_0, R_0) + \theta\mathcal{L}(c_n; \textbf{u}_n, D_n, R_n) + \sum_{\Omega_e} \int_{\Omega_e} \tau \mathcal{R} \left(\textbf{u} \cdot \nabla w \right) d\Omega\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{L}(c; \textbf{u}, D, R) := \left(w, \textbf{u}\cdot\nabla c\right)_\Omega + \left( \nabla w, D\nabla c \right)_\Omega - \left(w, R\right)_\Omega - \left(w, \textbf{h}\cdot \hat{n}\right)_{\Gamma_n}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{S}\)</span> is the stabilization term for advection dominated problem.
+There are three types of <span class="math notranslate nohighlight">\(\tau\)</span> that the code provides. These are the <cite>shakib</cite>, <cite>su</cite>, <cite>codina</cite> type.
+For given a cell diameter <span class="math notranslate nohighlight">\(h\)</span>, a cell Peclet number <span class="math notranslate nohighlight">\(Pe_h=\frac{\lvert \textbf{u} \rvert h}{2D}\)</span>.</p>
+</section>
+<section id="id12">
+<h3>Stabilization parameters<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>Here, we only provide one stabilization constant for the SUPG stabilization based on the <code class="docutils literal notranslate"><span class="pre">cordina</span></code> stabilization parameter</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau_{shakib} = \left( \left( \frac{1}{\theta \Delta t} \right)^2 + \left( \frac{2\lvert \textbf{u} \rvert^2}{h}\right)^2 + 9\left(\frac{4D}{h}\right)^2 + R^2 \right)^{-0.5} \\\end{split}\]</div>
+</section>
+<section id="class-definition">
+<h3>Class definition<a class="headerlink" href="#class-definition" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flatiron_tk.physics.</span></span><span class="sig-name descname"><span class="pre">TransientScalarTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.add_stab">
+<span class="sig-name descname"><span class="pre">add_stab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.add_stab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.add_stab" title="Link to this definition"></a></dt>
+<dd><p>Add stabilization term to the weak form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.build_function_space">
+<span class="sig-name descname"><span class="pre">build_function_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.build_function_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.build_function_space" title="Link to this definition"></a></dt>
+<dd><p>Build the function space for the transient scalar transport problem.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.get_residual">
+<span class="sig-name descname"><span class="pre">get_residual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.get_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.get_residual" title="Link to this definition"></a></dt>
+<dd><p>Compute the residual for the transient scalar transport problem.</p>
+<section id="id13">
+<h4>Returns:<a class="headerlink" href="#id13" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p>The residual expression for the transient scalar transport equations.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_advection_velocity">
+<span class="sig-name descname"><span class="pre">set_advection_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">un</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_advection_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_advection_velocity" title="Link to this definition"></a></dt>
+<dd><p>Set the advection velocity for the transient scalar transport problem.</p>
+<section id="id14">
+<h4>Parameters:<a class="headerlink" href="#id14" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p>u0: The advection velocity at the previous time step.
+un: The advection velocity at the current time step.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_diffusivity">
+<span class="sig-name descname"><span class="pre">set_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_diffusivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_diffusivity" title="Link to this definition"></a></dt>
+<dd><p>Set the diffusivity for the transient scalar transport problem.</p>
+<section id="id15">
+<h4>Parameters:<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p>D0: The diffusivity at the previous time step.
+Dn: The diffusivity at the current time step.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_initial_condition">
+<span class="sig-name descname"><span class="pre">set_initial_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_initial_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_initial_condition" title="Link to this definition"></a></dt>
+<dd><p>Set the initial condition for the problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u0</strong> (<em>dolfinx.fem.Function</em>) – The initial condition function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_midpoint_theta">
+<span class="sig-name descname"><span class="pre">set_midpoint_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_midpoint_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_midpoint_theta" title="Link to this definition"></a></dt>
+<dd><p>Set the theta parameter for the implicit-explicit scheme.</p>
+<section id="id16">
+<h4>Parameters:<a class="headerlink" href="#id16" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p>theta: The theta parameter.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_reaction">
+<span class="sig-name descname"><span class="pre">set_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_reaction" title="Link to this definition"></a></dt>
+<dd><p>Set the reaction term for the transient scalar transport problem.</p>
+<section id="id17">
+<h4>Parameters:<a class="headerlink" href="#id17" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p>R0: The reaction term at the previous time step.
+Rn: The reaction term at the current time step.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_time_step_size">
+<span class="sig-name descname"><span class="pre">set_time_step_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_time_step_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_time_step_size" title="Link to this definition"></a></dt>
+<dd><p>Set the time step size for the transient scalar transport problem.</p>
+<section id="id18">
+<h4>Parameters:<a class="headerlink" href="#id18" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p>dt: The time step size.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.set_weak_form">
+<span class="sig-name descname"><span class="pre">set_weak_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.set_weak_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.set_weak_form" title="Link to this definition"></a></dt>
+<dd><p>Set weak formulation as:
+dc/dt + mid(advection) - mid(diffusion) - mid(reaction) == 0</p>
+<p>for a mid point type method
+where mid(f) = theta*f1 + (1-theta)*f0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stab</strong> (<em>A boolean indicating whether to include stabilization terms in the weak form.</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.stabilization_constant">
+<span class="sig-name descname"><span class="pre">stabilization_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.stabilization_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.stabilization_constant" title="Link to this definition"></a></dt>
+<dd><p>tau from Donea’s book Remark 5.8</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flatiron_tk.physics.TransientScalarTransport.update_previous_solution">
+<span class="sig-name descname"><span class="pre">update_previous_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../flatiron_tk/physics/transient_scalar_transport.html#TransientScalarTransport.update_previous_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flatiron_tk.physics.TransientScalarTransport.update_previous_solution" title="Link to this definition"></a></dt>
+<dd><p>Update the previous solution with the current solution.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 </section>
 
@@ -431,7 +649,7 @@ where mid(f) = theta*f1 + (1-theta)*f0</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

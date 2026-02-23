@@ -71,21 +71,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for flatiron_tk.physics.multiphysics_problem</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">basix</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
-<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.io</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicsProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_container</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -94,7 +91,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    obj : any</span>
 <span class="sd">        The object to check.</span>
-<span class="sd">    Returns</span>
+<span class="sd">    </span>
+<span class="sd">    eturns</span>
 <span class="sd">    -------</span>
 <span class="sd">    bool</span>
 <span class="sd">        True if the object is a container, False otherwise.</span>
@@ -108,16 +106,16 @@
 <span class="sd">    A class to represent a multiphysics problem by combining multiple physics problems.</span>
 
 <span class="sd">    Initialize a multiphysics problem by combining multiple physics problems.</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        \*physics_problems : `PhysicsProblem`</span>
-<span class="sd">            A variable number of physics problem instances to be combined into a multiphysics problem.</span>
-<span class="sd">        </span>
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the provided physics problems do not share the same mesh or if there are tag conflicts.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    \*physics_problems : `PhysicsProblem`</span>
+<span class="sd">        A variable number of physics problem instances to be combined into a multiphysics problem.</span>
 <span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided physics problems do not share the same mesh or if there are tag conflicts.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">physics_problems</span><span class="p">):</span>
@@ -268,6 +266,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        physics_tag : str, optional</span>
 <span class="sd">            The tag of the physics problem. If None, returns the function space for the multiphysics problem.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dolfinx.fem.FunctionSpace</span>
@@ -287,6 +286,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        physics_tag : str, optional</span>
 <span class="sd">            The tag of the physics problem. If None, returns the test function for the multiphysics problem.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        ufl.core.expr.Expr</span>
@@ -308,6 +308,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        physics_tag : str, optional</span>
 <span class="sd">            The tag of the physics problem. If None, returns the trial function for the multiphysics problem.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        ufl.core.expr.Expr</span>
@@ -328,6 +329,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        physics_tag : str, optional</span>
 <span class="sd">            The tag of the physics problem. If None, returns the solution function for the multiphysics problem.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        ufl.core.expr.Expr</span>
@@ -358,6 +360,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        physics_tag : str</span>
 <span class="sd">            The tag of the physics problem.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        PhysicsProblem</span>
@@ -377,6 +380,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        physics_tag : str</span>
 <span class="sd">            The tag of the physics problem.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        int</span>
@@ -486,6 +490,7 @@
 <span class="sd">            The test function for the flux calculation.</span>
 <span class="sd">        physics_tag : str</span>
 <span class="sd">            The tag of the physics problem for which to calculate the flux.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        ufl.core.expr.Expr</span>
@@ -718,7 +723,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -16,10 +16,12 @@
       <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"chtml": {"displayAlign": "center"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Navier-Stokes" href="module_navier-stokes.html" />
+    <link rel="next" title="Steady Navier-Stokes" href="module_navier-stokes.html" />
     <link rel="prev" title="Scalar-Transport" href="module_scalar_transport.html" /> 
 </head>
 
@@ -48,6 +50,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../toc_modules.html">FLATiron Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../module_fem.html">FEM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module_info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_io.html">I/O</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module_mesh.html">Mesh</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../toc_physics_modules.html">Physics Modules</a><ul class="current">
@@ -58,7 +61,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#module-flatiron_tk.physics.steady_stokes">Steady Stokes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html">Steady Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_navier-stokes.html#module-flatiron_tk.physics.transient_navier_stokes">Transient Navier-Stokes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_particle_tracking.html">Particle Tracking</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module_porous_media.html">Brinkman Navier-Stokes</a></li>
 </ul>
 </li>
@@ -281,6 +286,44 @@ This includes the momentum and continuity equations.</p>
 </section>
 </dd></dl>
 
+<p>This class solves the Stokes flow problem which is the linearized form of the Navier-Stokes equation</p>
+<section id="strong-formulation">
+<h3>Strong formulation<a class="headerlink" href="#strong-formulation" title="Link to this heading"></a></h3>
+<p>Momentum equation</p>
+<div class="math notranslate nohighlight">
+\[\nabla p = \nu \nabla^2 \textbf{u} + \textbf{b}\]</div>
+<p>Continuity</p>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot \textbf{u} = 0\]</div>
+<p>where <span class="math notranslate nohighlight">\(\textbf{u}\)</span> and <cite>p</cite> are the velocity and pressure field respectively with the
+constants <span class="math notranslate nohighlight">\(\nu\)</span> is the kinematic viscosity. Note that pressure here is the scaled pressure.
+True pressure <span class="math notranslate nohighlight">\(p_{true} = p/\rho\)</span> where <span class="math notranslate nohighlight">\(\rho\)</span> is the density. <span class="math notranslate nohighlight">\(\textbf{b}\)</span> is the external body force</p>
+</section>
+<section id="boundary-conditions">
+<h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading"></a></h3>
+<p>Fixed value boundary condition</p>
+<div class="math notranslate nohighlight">
+\[\textbf{u} = \textbf{u}_D \;\forall \textbf{x} \in \Gamma_D\]</div>
+<p>(pseudo) Traction boundary condition</p>
+<div class="math notranslate nohighlight">
+\[-p\textbf{n} + \nu(\textbf{n} \cdot \nabla)\textbf{u} = \textbf{t} \;\;\forall \textbf{x} \in \Gamma_N\]</div>
+</section>
+<section id="weak-formulation">
+<h3>Weak formulation<a class="headerlink" href="#weak-formulation" title="Link to this heading"></a></h3>
+<p>The weak formulation is stated as follows:</p>
+<p>For the velocity trial function</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{U} := \{\textbf{U} \in H^1(\Omega) | \textbf{u} = \textbf{u}_D \;\text{on}\; \Gamma_D\}\]</div>
+<p>and the corresponding test function</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{W} := \{\textbf{w} \in H^1(\Omega) | \textbf{w} = 0 \;\text{on}\; \Gamma_D\}\]</div>
+<p>And the pressure space</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{Q} := \mathcal{L}_2(\Omega)\]</div>
+<p>for external body force <span class="math notranslate nohighlight">\(\textbf{b}\)</span> and surface traction <span class="math notranslate nohighlight">\(\textbf{t}\)</span>, find <span class="math notranslate nohighlight">\(\textbf{u} \in \mathcal{U}\)</span> and <span class="math notranslate nohighlight">\(p \in \mathcal{Q}\)</span> with the corresponding test functions <span class="math notranslate nohighlight">\(\textbf{w} \in \mathcal{W}\)</span> and <span class="math notranslate nohighlight">\(q \in \mathcal{Q}\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[0 = \left(\nabla\textbf{w}, \nu\nabla\textbf{u}\right)_\Omega - \left( \nabla \cdot \textbf{w}, p \right)_\Omega - \left(\textbf{w}, \textbf{b}\right)_\Omega - \left(q, \nabla \cdot \textbf{u}\right)_\Omega + (\textbf{w}, \textbf{t})_{\Gamma_N} + \sum_{\Omega_e} \int_{\Omega_e}  \tau \nabla q \cdot \nabla p d\Omega\]</div>
+</section>
 </section>
 </section>
 
@@ -289,13 +332,13 @@ This includes the momentum and continuity equations.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="module_scalar_transport.html" class="btn btn-neutral float-left" title="Scalar-Transport" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="module_navier-stokes.html" class="btn btn-neutral float-right" title="Navier-Stokes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="module_navier-stokes.html" class="btn btn-neutral float-right" title="Steady Navier-Stokes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

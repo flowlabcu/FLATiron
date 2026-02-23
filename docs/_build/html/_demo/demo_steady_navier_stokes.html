@@ -52,7 +52,12 @@
 <li class="toctree-l2"><a class="reference internal" href="demo_adios4dolfinx.html">Demo: Using ADIOS4DOLFINx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo_block_solver_nse.html">Demo: Using the Block Solver for the Navier-Stokes Equations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo_block_solver_gp.html">Demo: Using the Block Solver with Nested Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_free_convection.html">Full script:</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo_functions.html">Demo: Using the Functions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_massless_tracers.html">Tracers on a steady velocity field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_massless_tracers.html#tracers-on-an-unsteady-velocity-field">Tracers on an unsteady velocity field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_massless_tracers.html#full-steady-script">Full Steady Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo_massless_tracers.html#full-unsteady-script">Full Unsteady Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo_scalar_transport_edge_stab.html">Demo: Advection-Diffusion-Reaction with Jump (Edge) Stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo_steady_adr.html">Demo: Steady Advection-Diffusion-Reaction Equation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo_steady_multiphysics.html">Demo: Steady Multiphysics Simulation (Coupled Diffusion Reaction)</a></li>
@@ -110,14 +115,7 @@ The full source code can be found in <strong>demo/demo_steady_navier_stokes/demo
 <section id="implementation">
 <h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
 <p>First we import the relevant modules and define functions representing the boundary conditions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
-<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
-
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>
@@ -223,14 +221,7 @@ the solver parameter using a function that sets the PETSc KSP options.</p>
 </section>
 <section id="full-script">
 <h2>Full Script<a class="headerlink" href="#full-script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.info</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="n">adios4dolfinx</span> <span class="o">=</span> <span class="n">import_adios4dolfinx</span><span class="p">()</span>
-<span class="n">basix</span> <span class="o">=</span> <span class="n">import_basix</span><span class="p">()</span>
-<span class="n">dolfinx</span> <span class="o">=</span> <span class="n">import_dolfinx</span><span class="p">()</span>
-<span class="n">PETSc</span> <span class="o">=</span> <span class="n">import_PETSc</span><span class="p">()</span>
-<span class="n">ufl</span> <span class="o">=</span> <span class="n">import_ufl</span><span class="p">()</span>
-<span class="n">MPI</span> <span class="o">=</span> <span class="n">import_mpi4py</span><span class="p">()</span>
-
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">flatiron_tk.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectMesh</span>
@@ -332,7 +323,7 @@ the solver parameter using a function that sets the PETSc KSP options.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Nick Rovito.</p>
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
