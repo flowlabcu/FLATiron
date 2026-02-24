@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flatiron_tk"
-version = "0.1.0"
+version = "0.2.0"
 description = "FLOWLab internal research and development version of dolfinx FLow and Transport using Finite Elements (FLATFe) package."
 readme = "README.rst"
 authors = [
