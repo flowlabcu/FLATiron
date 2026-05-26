@@ -42,7 +42,9 @@ While `FLATiron` is released as an open source toolkit, there is currently not a
 
 Below, we have provided a list of research papers that have described the underlying techniques and modules which have informed the design and implementation of the `FLATiron` toolkit:
 
-- Venkatesh, S., Teeraratkul, C., Rovito, N., Mukherjee, D., and Lynch, M. E., 2025, “High-Fidelity Computational Fluid Dynamics Modeling to Simulate Perfusion through a Bone-Mimicking Scaffold,” **Computers in Biology and Medicine**, 186, p. 109637.
+- Teeraratkul, C., Tomaiuolo, M.,  Stalker,T.J., and Mukherjee, D., "A Stabilized Finite Element Technique For Transport Phenomena Within And Around Immersed Porous Bodies In Flow."" **Physics of Fluids. 37(10):101916. 2025.**
+
+- Venkatesh, S., Teeraratkul, C., Rovito, N., Mukherjee, D., and Lynch, M. E., “High-Fidelity Computational Fluid Dynamics Modeling to Simulate Perfusion through a Bone-Mimicking Scaffold,” **Computers in Biology and Medicine. 186, p. 109637. 2025.**
 ‌
 - Teeraratkul, C., Tomaiuolo, M., Stalker, T.J., and Mukherjee, D. “Investigating Clot-flow Interactions By Integrating Intravital ImagingWith In Silico Modeling For Analysis Of Flow, Transport, And Hemodynamic Forces.” **Scientific Reports. 14(1):696. 2024.**
 
