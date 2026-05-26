@@ -144,8 +144,10 @@ dmypy.json
 *.xdmf
 fenicstools/
 *.swp
+
 immersed_boundary/
 output_*
+output*
 gmsh/
 *.pkl
 
@@ -165,3 +167,23 @@ demo/Carotid-Artery/mesh/*
 
 !apps/inputs/c0.h5
 docs/build/
+
+# AI generated files
+# Anthropic Claude Code
+.claude/
+
+# Cursor IDE
+.cursor/
+# .cursorrules # Uncomment if you want to keep AI rules private to your machine
+
+# Windsurf / Codeium
+.windsurf/
+.codeiumignore
+
+# OpenWork / OpenCode
+.opencode/
+
+# Aider AI
+.aider.chat.history.md
+.aider.conf
+.aider*

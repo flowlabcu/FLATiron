@@ -1,6 +1,6 @@
 ==============================================
 Demo: Free Convection (Thermofluid Coupling)
-=============================================
+==============================================
 
 In this demo, we demonstrate how to solve a coupled thermofluid problem using the Boussinesq approximation. The source code can be found in ``demo/demo_free_convection/demo_free_convection.py``.
 This problem solves the 2D free convection problem in a square cavity. The strong form of the problem is given by the incompressible Navier-Stokes equation coupled with the heat equation:

@@ -50,7 +50,7 @@ class NonLinearSolver(nls_petsc.NewtonSolver):
 
         # Set NewtonSolver's own properties from kwargs or defaults
         # These attributes are set directly on the NonLinearSolver instance
-        self._Atol = kwargs.get('atol', 1e-10) 
+        self.atol = kwargs.get('atol', 1e-10)
         self.rtol = kwargs.get('rtol', 1e-7)  
         self.report = kwargs.get('report', True) 
         self.relaxation_parameter = kwargs.get('relaxation_parameter', 1.0) 

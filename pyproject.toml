@@ -4,19 +4,24 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flatiron_tk"
-version = "0.2.0"
+version = "1.0.0"
 description = "FLOWLab internal research and development version of dolfinx FLow and Transport using Finite Elements (FLATFe) package."
 readme = "README.rst"
 authors = [
-  {name = "Nick Rovito", email = "niro3177@colorado.edu"}
+  {name = "Chayut Teeraratkul", email = "chayut.teeraratkul@colorado.edu"},
+  {name = "Nick Rovito", email = "niro3177@colorado.edu"},
+  {name = "Jessica Homes", email = "jessica-holmes-1@colorado.edu"}
 ]
+
 maintainers = [
-  {name = "Nick Rovito", email = "niro3177@colorado.edu"}
+  {name = "Chayut Teeraratkul", email = "chayut.teeraratkul@colorado.edu"},
+  {name = "Nick Rovito", email = "niro3177@colorado.edu"},
+  {name = "Jessica Homes", email = "jessica-holmes-1@colorado.edu"}
 ]
 classifiers = [
 
 ]
-license = { file = "LICENSE.txt" }
+license = { file = "LICENSE" }
 dependencies = [
   "typer"
 ]
@@ -44,12 +49,16 @@ packages = [
     "flatiron_tk.functions",
     "flatiron_tk.mesh",
     "flatiron_tk.solver",
-    "flatiron_tk.io"
+    "flatiron_tk.io",
+    "flatiron_tk.info"
     ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 # [tool.setuptools.package-data]
 # "*" = ["*.*"]
-#
+#s
 #
 #
 #

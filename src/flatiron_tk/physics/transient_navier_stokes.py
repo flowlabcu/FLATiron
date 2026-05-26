@@ -200,15 +200,16 @@ class TransientNavierStokes(SteadyNavierStokes):
         # Helper function to assign or interpolate
         def assign_or_interpolate(subfunc, init):
             if isinstance(init, dolfinx.fem.Function):
-                subfunc.vector.set(init.vector.array)
+                subfunc.x.array[:] = init.x.array[:]
             else:
                 subfunc.interpolate(init)
-            subfunc.vector.scatter_forward()
 
-        # Set velocity and pressure for both current and previous solutions
         for subfunc, init in [(u_curr, u_init), (p_curr, p_init),
                             (u_prev, u_init), (p_prev, p_init)]:
             assign_or_interpolate(subfunc, init)
+
+        self.solution.x.scatter_forward()
+        self.previous_solution.x.scatter_forward()
 
     def update_previous_solution(self):
         """

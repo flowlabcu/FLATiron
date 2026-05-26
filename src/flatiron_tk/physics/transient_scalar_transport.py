@@ -221,7 +221,6 @@ class TransientScalarTransport(SteadyScalarTransport):
         u0 : dolfinx.fem.Function
             The initial condition function.
         """
-        self.previous_solution.interpolate(u0)
         self.previous_solution.x.array[:] = u0.x.array[:]
 
 

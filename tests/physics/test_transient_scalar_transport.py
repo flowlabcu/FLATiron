@@ -139,4 +139,4 @@ def test_scalar_transport():
 
         t += dt
 
-    assert all(err < 1e-10 for err in error_over_time) < 1e-10
+    assert all(err < 1e-10 for err in error_over_time)

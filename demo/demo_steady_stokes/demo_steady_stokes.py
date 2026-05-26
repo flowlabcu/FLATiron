@@ -22,16 +22,8 @@ def body_force(x):
          (-12 + 72 * x[1] - 72 * x[1]**2) * x[0]**2 + \
          (8 - 48 * x[1] + 48 * x[1]**2) * x[0]**3
 
-    # ufl vector prevents us from having to interpolate and solve the mass matrix
     return ufl.as_vector([bx, by]) 
    
-# Boundary condition function
-def no_slip(x):
-    return np.stack((np.zeros(x.shape[1]), np.zeros(x.shape[1])))
-
-def zero_pressure(x):
-    return np.zeros(x.shape[1], dtype=dolfinx.default_scalar_type)
-
 # Define the mesh 
 ne = 64
 h = 1/ne
@@ -58,40 +50,28 @@ stk.add_stab()
 V_u = stk.get_function_space('u').collapse()[0]
 V_p = stk.get_function_space('p').collapse()[0]
 
+# Zero functions (scalar and vector)
 zero_v = dolfinx.fem.Function(V_u)
-zero_v.interpolate(no_slip)
-
+zero_v.x.array[:] = 0; zero_v.x.scatter_forward()
 zero_p = dolfinx.fem.Function(V_p)
-zero_p.interpolate(zero_pressure)
+zero_p.x.array[:] = 0; zero_p.x.scatter_forward()
 
+# Boundary conditions
 u_bcs = {
     1: {'type': 'dirichlet', 'value': zero_v},
     2: {'type': 'dirichlet', 'value': zero_v},
     3: {'type': 'dirichlet', 'value': zero_v},
-    4: {'type': 'dirichlet', 'value': zero_v},
-}
-
-p_bcs = {
-    1: {'type': 'dirichlet', 'value': zero_p},
+    4: {'type': 'dirichlet', 'value': zero_v}
     }
-
-bc_dict = {
-        'u': u_bcs, 
-        'p': p_bcs
-        }
+p_bcs = {1: {'type': 'dirichlet', 'value': zero_p}}
+bc_dict = {'u': u_bcs, 'p': p_bcs}
 
 stk.set_bcs(bc_dict)
 
 # Set solver and solve
 stk.set_writer('output', 'pvd')
 problem = NonLinearProblem(stk)
-def my_custom_ksp_setup(ksp):
-    ksp.setType(ksp.Type.FGMRES)        
-    ksp.pc.setType(ksp.pc.Type.LU)  
-    ksp.setTolerances(rtol=1e-8, atol=1e-10, max_it=500)
-    ksp.setMonitor(ConvergenceMonitor('ksp'))
-
-solver = NonLinearSolver(mesh.msh.comm, problem, outer_ksp_set_function=my_custom_ksp_setup)
+solver = NonLinearSolver(mesh.msh.comm, problem)
 solver.solve()
 stk.write()
 
@@ -106,7 +86,7 @@ expr = dolfinx.fem.Expression(u_exact_solution(x), V_u.element.interpolation_poi
 u_exact.interpolate(expr)
 
 # Get numerical solution
-u = stk.get_solution_function('u')
+u = stk.get_solution_function().sub(0).collapse()
 
 # Compute error
 error_L2 = np.sqrt(dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.inner(u - u_exact, u - u_exact) * ufl.dx)))

@@ -25,16 +25,13 @@ class SteadyNavierStokes(SteadyStokes):
         -----------
             None
         """
-        initial_guess_u = initial_guess_u.collapse()
-        initial_guess_p = initial_guess_p.collapse()
-
         if initial_guess_u is not None:
-            self.solution.sub(0).interpolate(initial_guess_u)
+            self.solution.sub(0).interpolate(initial_guess_u.collapse())
         else:
             self.solution.sub(0).interpolate(lambda x: np.zeros((self.mesh.geometry.dim, x.shape[1]), dtype=dolfinx.default_scalar_type))
 
         if initial_guess_p is not None:
-            self.solution.sub(1).interpolate(initial_guess_p)
+            self.solution.sub(1).interpolate(initial_guess_p.collapse())
         else:
             self.solution.sub(1).interpolate(lambda x: np.zeros(x.shape[1], dtype=dolfinx.default_scalar_type))
 

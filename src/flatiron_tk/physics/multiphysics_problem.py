@@ -33,7 +33,7 @@ class MultiphysicsProblem(PhysicsProblem):
     Initialize a multiphysics problem by combining multiple physics problems.
     Parameters
     ----------
-    \*physics_problems : `PhysicsProblem`
+    \\*physics_problems : `PhysicsProblem`
         A variable number of physics problem instances to be combined into a multiphysics problem.
     
     Raises

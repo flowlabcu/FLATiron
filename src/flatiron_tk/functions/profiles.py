@@ -1,7 +1,7 @@
 import numpy as np
 
 class ParaboloidInletProfile:
-    def __init__(self, flow_rate, radius, center, normal, mesh=None):
+    def __init__(self, flow_rate, radius, center, normal):
         """
         Parameters
         ----------
@@ -58,10 +58,8 @@ class ParaboloidInletProfile:
 
         return self.normal[:, np.newaxis] * velocity_magnitude
 
-import numpy as np
-
 class ParabolicInletProfile:
-    def __init__(self, flow_rate, radius, center, normal, mesh):
+    def __init__(self, flow_rate, radius, center, normal):
         """
         Parameters
         ----------
@@ -78,12 +76,11 @@ class ParabolicInletProfile:
         """
         self.flow_rate = flow_rate
         self.radius = radius
-        self.mesh = mesh
         
         center = np.array(center, dtype=float)
         normal = np.array(normal, dtype=float)
         if center.shape[0] == 2: center = np.pad(center, (0, 1))
-        if normal.shape[0] == 2: normal = np.array(normal, dtype=float)
+        if normal.shape[0] == 2: normal = np.pad(normal, (0, 1))
         
         self.center = center
         self.normal = normal / np.linalg.norm(normal)  # unit normal vector
@@ -140,11 +137,6 @@ class ParabolicInletProfile:
         # Velocity is along normal direction
         velocity = self.normal[:, np.newaxis] * velocity_magnitude[np.newaxis, :]
 
-        dim = self.mesh.get_gdim()
-        if dim == 2:
-            # In 2D, return only x and y components
-            return velocity[:2, :]
-        
         return velocity
 
 

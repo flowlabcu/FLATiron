@@ -168,12 +168,12 @@ class Mesh():
         local_normal_array = np.array(local_normal_array)
 
     
-        glabal_normal_array = self.msh.comm.allreduce(local_normal_array, op=MPI.SUM)
+        global_normal_array = self.msh.comm.allreduce(local_normal_array, op=MPI.SUM)
 
 
-        norm = np.linalg.norm(glabal_normal_array, 2)
+        norm = np.linalg.norm(global_normal_array, 2)
         
-        normal_array = glabal_normal_array / norm
+        normal_array = global_normal_array / norm
 
         return normal_array
     
@@ -206,20 +206,20 @@ class Mesh():
         else:
             midpoints_local = np.empty((0, 3))
 
-        all_midpoints = MPI.COMM_WORLD.allgather(midpoints_local)
+        all_midpoints = self.msh.comm.allgather(midpoints_local)
         centroid = None
 
         # If root process, compute the centroid
-        if  MPI.COMM_WORLD.rank == 0:
+        if self.msh.comm.rank == 0:
             # Concatenate all midpoints from all processes
             all_midpoints_flat = np.concatenate(all_midpoints)
-            
+
             # Compute the mean to get the centroid
             if len(all_midpoints_flat) > 0:
                 centroid = np.mean(all_midpoints_flat, axis=0)
 
         # Broadcast the result to all processes
-        centroid =  np.array(MPI.COMM_WORLD.bcast(centroid, root=0))
+        centroid = np.array(self.msh.comm.bcast(centroid, root=0))
         
         return centroid
     
@@ -287,7 +287,11 @@ class Boundary:
         self.id = boundary_id
         
         self.area = mesh.get_boundary_area(boundary_id)
-        self.radius = np.sqrt(self.area / np.pi)
+
+        self.radius = None
+        if mesh.msh.geometry.dim == 3: self.radius = np.sqrt(self.area / np.pi)
+        elif mesh.msh.geometry.dim == 2: self.radius = self.area / 2
+
         self.centroid = mesh.get_boundary_centroid(boundary_id)
         self.normal = mesh.get_mean_boundary_normal(boundary_id)
         

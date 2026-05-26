@@ -1,6 +1,6 @@
 ============================================
 Demo: Massless Tracers 
-===========================================
+============================================
 
 This demo illustrates the usage of massless tracers in a fluid flow simulation using our library.
 We will simulate the advection of massless tracer particles in a 2D fluid domain. 

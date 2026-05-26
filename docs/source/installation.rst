@@ -68,7 +68,7 @@ We set the solver to libmamba.
 
      .. code-block:: bash
 
-             conda install -c conda-forge adios4dolfinx-0.9.4 
+             conda install -c conda-forge adios4dolfinx=0.9.4 
 
 6. Install `GMSH <https://gmsh.info/#Download>`_ using pip:
 

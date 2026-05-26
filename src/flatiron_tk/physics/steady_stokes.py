@@ -184,9 +184,9 @@ class SteadyStokes(MultiphysicsProblem):
         -------------
             The flux form.
         """
-        w = self.get_test_function('w')
+        w = self.get_test_function('u')
         n = self.mesh.get_facet_normal()
-        I = ufl.Identity(self.dim)
+        I = ufl.Identity(self.mesh.get_gdim())
         flux_form = ufl.dot(w, -ufl.dot(h, n))
         return flux_form
 
@@ -278,7 +278,7 @@ class SteadyStokes(MultiphysicsProblem):
                         owner_rank = None
 
                     if comm.rank == owner_rank:
-                        bc = dolfinx.fem.dirichletbc(bc_value, [global_min_idx], pV)
+                        bc = dolfinx.fem.dirichletbc(bc_value, [global_min_idx], pV_base)
                         self.dirichlet_bcs.append(bc)
 
             elif bc_type == 'neumann':

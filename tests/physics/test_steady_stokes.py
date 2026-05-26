@@ -125,5 +125,5 @@ def test_steady_stokes_velocity_driven():
     error_L2_u = np.sqrt(dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.inner(u - u_exact, u - u_exact) * ufl.dx)))
     error_L2_p = np.sqrt(dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.inner(p - p_exact, p - p_exact) * ufl.dx)))
 
-    assert error_L2_u < 1e-4, "Numerical approximation of velocity feild does not meet arruacy requirments."
-    assert error_L2_p < 5e-3, "Numerical approximation of pressure feild does not meet arruacy requirments."
+    assert error_L2_u < 1e-4, "Numerical approximation of velocity field does not meet accuracy requirements."
+    assert error_L2_p < 5e-3, "Numerical approximation of pressure field does not meet accuracy requirements."
