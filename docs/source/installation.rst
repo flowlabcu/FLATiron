@@ -38,6 +38,7 @@ install FLATiron into the home directory. You may install
 FLATiron into any directory on your UNIX-like system.
 
 Starting from the home directory:
+
 1. Create a new conda environment to install FLATiron into:
 
      .. code-block:: bash
@@ -56,9 +57,7 @@ Starting from the home directory:
 
              conda install conda-libmamba-solver
 
-4. Install `FEniCSx-dolfinx <https://fenicsproject.org/download/>`_, `mpich <https://anaconda.org/channels/anaconda/packages/mpich/overview>`_, and 
-`pyvista <https://docs.pyvista.org/getting-started/installation>`_. Notice we are installing **dolfinx v0.9.0** — you must specify the DOLFINx version number during installation. 
-We set the solver to libmamba.
+4. Install `FEniCSx-dolfinx <https://fenicsproject.org/download/>`_, `mpich <https://anaconda.org/channels/anaconda/packages/mpich/overview>`_, and  `pyvista <https://docs.pyvista.org/getting-started/installation>`_. Notice we are installing **dolfinx v0.9.0** — you must specify the DOLFINx version number during installation.  We set the solver to libmamba.
 
      .. code-block:: bash
 
