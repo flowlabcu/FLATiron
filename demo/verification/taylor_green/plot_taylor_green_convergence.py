@@ -8,15 +8,27 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LogLocator
+from matplotlib.ticker import LogLocator, FuncFormatter, NullFormatter
 
 plt.rcParams['mathtext.fontset'] = 'stix'
 
 
+def _log_tick_format(value, pos):
+    exponent = int(np.round(np.log10(value)))
+    return r'$\mathbf{1 \times 10^{%d}}$' % exponent
+
+
 def _style_ax(ax):
-    ax.set_xlabel(ax.get_xlabel(), fontsize=14, fontweight='bold')
-    ax.set_ylabel(ax.get_ylabel(), fontsize=14, fontweight='bold')
-    ax.tick_params(axis='both', labelsize=12, width=1.5)
+    ax.set_xlabel(ax.get_xlabel(), fontsize=16, fontweight='bold')
+    ax.set_ylabel(ax.get_ylabel(), fontsize=16, fontweight='bold')
+    ax.tick_params(axis='both', which='both', labelsize=14, width=1.5)
     ax.xaxis.set_major_locator(LogLocator(base=10, numticks=4))
+    ax.xaxis.set_major_formatter(FuncFormatter(_log_tick_format))
+    ax.yaxis.set_major_formatter(FuncFormatter(_log_tick_format))
+    ax.xaxis.set_minor_formatter(NullFormatter())
+    ax.yaxis.set_minor_formatter(NullFormatter())
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set_fontweight('bold')
     ax.figure.canvas.draw()
     ax.grid(True, alpha=0.2)
 
@@ -44,8 +56,8 @@ def plot_convergence(csv_file):
     ax.loglog(dts, ref_u, 'k--', alpha=0.7, label=r'$O(\boldsymbol{\Delta t}^2)$')
     ax.loglog(dts, ref_p, 'k:',  alpha=0.7, label=r'$O(\boldsymbol{\Delta t})$')
 
-    ax.set_xlabel(r'Time step $\boldsymbol{\Delta t}$')
-    ax.set_ylabel(r'$L_2$ Error')
+    ax.set_xlabel(r'Time Step Size')
+    ax.set_ylabel(r'L2 Error')
     ax.legend(fontsize=11)
     _style_ax(ax)
     fig.tight_layout()

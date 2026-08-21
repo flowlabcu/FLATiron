@@ -1,3 +1,40 @@
+"""
+Flow Over a Cylinder – Benchmark Verification
+==============================================
+2D transient flow past a circular cylinder at Re=100.
+No exact solution exists; drag and lift coefficient time histories are
+compared against digitized reference data.
+
+    Cd(t) = 2 * Fd / (rho * u_bar^2 * D)
+    Cl(t) = 2 * Fl / (rho * u_bar^2 * D)
+
+  Fd, Fl computed by integrating the viscous stress traction over the cylinder surface.
+
+Domain:   Channel with a circular cylinder; mesh read from mesh/foc.msh.
+BCs:      Dirichlet parabolic velocity profile at inlet (tags 1).
+          No-slip on upper wall (4), lower wall (2), and cylinder (5).
+          Dirichlet p=0 at outlet (3).
+IC:       Zero velocity and pressure; gradual viscosity continuation from
+          10*mu down to mu over 10 steps to reach a steady-state seed.
+
+Elements: P2/P1 Taylor-Hood (inf-sup stable, no stabilization).
+
+Time integration: Crank-Nicolson (theta=0.5), 2nd-order accurate.
+                  Force evaluated at the midpoint solution (u^{n+1/2}, p^{n+1/2}).
+
+Strategy:
+          1. Viscosity continuation: ramp mu from 10x to 1x over 10 nonlinear solves
+             to reach a good initial condition without divergence.
+          2. Warm-up phase: advance ~5.25 convective time units (dt=0.01) to develop
+             the wake before recording.
+          3. Measurement phase: advance t in [0, 0.35] with dt=0.005, recording
+             Cd(t) and Cl(t) at each step.
+
+Reference:
+          Ferziger, J.H. & Perić, M. (2002). Computational Methods for Fluid Dynamics
+          (3rd ed., Section 8.11). Springer.
+"""
+
 import dolfinx
 import ufl
 import flatiron_tk
@@ -98,7 +135,7 @@ def run_flow_over_cylinder(reynolds_number=20):
     nse.set_midpoint_theta(0.5)
     nse.set_density(rho)
     nse.set_dynamic_viscosity(mu)
-    nse.set_weak_form(stab=True)
+    nse.set_weak_form(stab=False)
 
     # Get function spaces for boundary conditions functions
     V_u = nse.get_function_space('u').collapse()[0]
@@ -120,7 +157,7 @@ def run_flow_over_cylinder(reynolds_number=20):
     nse.set_bcs(bc_dict)
 
     # Set the output writer
-    nse.set_writer('output', 'pvd')
+    nse.set_writer('output', 'bp')
 
     solver = make_solver(nse)
 
@@ -148,7 +185,7 @@ def run_flow_over_cylinder(reynolds_number=20):
 
     t = 0
     # Initialize 
-    while t < 5.0:
+    while t < 0.35*15:
         if mesh.comm.rank == 0:
             print(f'Solving warm-up at time t = {t:.2f}')
         # Solve the problem
@@ -168,13 +205,24 @@ def run_flow_over_cylinder(reynolds_number=20):
 
         
         solver.solve()
-        nse.update_previous_solution()
         nse.write(time_stamp=t)
 
-        uf = nse.solution.split()[0].collapse()
-        pf = nse.solution.split()[1].collapse()
+        uf_n1 = nse.solution.split()[0].collapse()
+        uf_n  = nse.previous_solution.split()[0].collapse()
+        pf_n1 = nse.solution.split()[1].collapse()
+        pf_n  = nse.previous_solution.split()[1].collapse()
 
-        drag, lift = _compute_drag_lift(uf, pf, Cylinder.id)
+        uf_mid = dolfinx.fem.Function(uf_n1.function_space)
+        uf_mid.x.array[:] = 0.5 * (uf_n1.x.array + uf_n.x.array)
+        uf_mid.x.scatter_forward()
+
+        pf_mid = dolfinx.fem.Function(pf_n1.function_space)
+        pf_mid.x.array[:] = 0.5 * (pf_n1.x.array + pf_n.x.array)
+        pf_mid.x.scatter_forward()
+
+        nse.update_previous_solution()
+
+        drag, lift = _compute_drag_lift(uf_mid, pf_mid, Cylinder.id)
         cd = 2*drag/(rho*u_bar**2*D)
         cl = 2*lift/(rho*u_bar**2*D)
         

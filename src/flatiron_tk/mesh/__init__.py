@@ -3,3 +3,4 @@ from .basic_mesh import LineMesh
 from .basic_mesh import RectMesh
 from .basic_mesh import CuboidMesh
 from .mesh import Boundary
+from .mark_xdmf_boundary import mark_xdmf_boundary

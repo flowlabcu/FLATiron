@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FLATiron Modules" href="toc_modules.html" />
+    <link rel="prev" title="Welcome to FLATiron’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-installation-guide">Quick Installation Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detailed-installation-walkthrough">Detailed Installation Walkthrough</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p>To install FLATiron, you must have Python 3.8 or higher installed on your system. It is recommended to use a virtual environment to manage dependencies.</p>
+<section id="quick-installation-guide">
+<h2>Quick Installation Guide<a class="headerlink" href="#quick-installation-guide" title="Link to this heading"></a></h2>
+<p>Install the following required libraries before installing FLATiron:</p>
+<ol class="arabic">
+<li><p><strong>dolfinx version 0.9.0:</strong> <em>(recommended intallation method: conda)</em></p>
+<blockquote>
+<div><p>You can find instructions for installing <cite>dolfinx</cite> on the <a class="reference external" href="https://fenicsproject.org/download/">FEniCS project website</a>.</p>
+</div></blockquote>
+</li>
+<li><p><strong>ADIOS4DOLFINx version 0.9.4:</strong> <em>(recommended intallation method: conda)</em></p>
+<blockquote>
+<div><p>You can find instructions for installing <cite>adios4dolfinx</cite> on their <a class="reference external" href="https://github.com/jorgensd/adios4dolfinx/tree/main">GitHub repository</a>.</p>
+</div></blockquote>
+</li>
+<li><p><strong>GMSH:</strong> <em>(recommended intallation method: pip</em>)*</p>
+<blockquote>
+<div><p>You can find instructions for installing <cite>GMSH</cite> on the <a class="reference external" href="https://gmsh.info/#Download">GMSH website</a>.</p>
+</div></blockquote>
+</li>
+</ol>
+<p>Once you have installed the required libraries, you can install FLATiron using pip.
+Download the source code for FLATiron, navigate into the FLATiron directory and run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="detailed-installation-walkthrough">
+<h2>Detailed Installation Walkthrough<a class="headerlink" href="#detailed-installation-walkthrough" title="Link to this heading"></a></h2>
+<p>FLATiron is intended to be installed within an environment manager like Anaconda on
+UNIX-like systems (macOS, Linux, Ubuntu, etc.). Windows users should install a Linux
+subsystem. These instructions assume you are using Anaconda on a UNIX-like system. Here, we
+install FLATiron into the home directory. You may install
+FLATiron into any directory on your UNIX-like system.</p>
+<p>Starting from the home directory:</p>
+<ol class="arabic">
+<li><p>Create a new conda environment to install FLATiron into:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>FLATiron-env
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Activate the new Anaconda environment and confirm that the environment name appears next to your prompt:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>FLATiron-env
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Install the libmamba solver for faster installation:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>conda-libmamba-solver
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Install <a class="reference external" href="https://fenicsproject.org/download/">FEniCSx-dolfinx</a>, <a class="reference external" href="https://anaconda.org/channels/anaconda/packages/mpich/overview">mpich</a>, and  <a class="reference external" href="https://docs.pyvista.org/getting-started/installation">pyvista</a>. Notice we are installing <strong>dolfinx v0.9.0</strong> — you must specify the DOLFINx version number during installation.  We set the solver to libmamba.</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>fenics-dolfinx<span class="o">=</span><span class="m">0</span>.9.0<span class="w"> </span>mpich<span class="w"> </span>pyvista<span class="w"> </span>--solver<span class="o">=</span>libmamba
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Install <a class="reference external" href="https://github.com/jorgensd/adios4dolfinx">ADIOS4DOLFINx</a> using conda. ADIOS4DOLFINx is available on its GitHub page.</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">adios4dolfinx</span><span class="o">=</span><span class="m">0</span>.9.4
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Install <a class="reference external" href="https://gmsh.info/#Download">GMSH</a> using pip:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>gmsh
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Navigate to the <a class="reference external" href="https://github.com/flowlabcu/FLATiron#">FLATiron GitHub</a> page. Clone the repository using git (recommended), or download and extract the source archive. Clone the source code from GitHub:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:flowlabcu/FLATiron.git
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Navigate to the top level of the FLATiron source directory:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>FLATiron
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Install FLATiron using pip:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<p>Congratulations! You have successfully installed FLATiron.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to FLATiron’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="toc_modules.html" class="btn btn-neutral float-right" title="FLATiron Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

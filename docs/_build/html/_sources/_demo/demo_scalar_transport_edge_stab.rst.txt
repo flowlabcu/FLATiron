@@ -1,0 +1,182 @@
+=============================================================================
+Demo: Advection-Diffusion-Reaction with Jump (Edge) Stabilization
+=============================================================================
+
+This demo code demonstrates how to solve a pure hyperbolic problem with edge stabilization. 
+Here, we solve the transient transport problem with diffusivity set to 0, resulting in a pure advection problem.
+
+Problem definition
+--------------------
+
+Strong form
+
+.. math::
+
+	\frac{\partial c}{\partial t} + (1, 0) \cdot \nabla c = 0
+
+The boundary condition is
+
+.. math::
+
+    c(x=0)=1
+
+This result in a simple moving front problem moving in the x direction. The exact solution is simply the Heaviside function
+
+.. math::
+
+   c = H(x-t)
+
+Next we set up the domain and the transport problem as usual. Note that this is a pseudo 1D problem 
+where we have a 1D advection occurring in a 2D mesh, therefore we are using the ``RectMesh`` class here.
+
+.. code-block:: python 
+
+    # Create mesh 
+    num_elements = 100
+    L = 1 
+    h = L/num_elements
+    mesh = RectMesh(0,0, L, L/10, h)
+
+    # Advection speed beta and diffusivity epsilon
+    dt = 1e-3 
+    theta = 0.5
+    beta = flatiron_tk.constant(mesh, (1.0, 0.0))
+
+    stp = TransientScalarTransport(mesh, dt, theta)
+    stp.set_tag('c')
+    stp.set_element('CG', 1)
+    stp.build_function_space()
+
+    # Diffusivity (here set as a constant)
+    D = 0.0
+    stp.set_diffusivity(D, D)
+
+    # Velocity 
+    stp.set_advection_velocity(beta, beta)
+
+    # Reaction 
+    R = 0.0
+    stp.set_reaction(R, R)
+
+    # Set the weak form
+    stp.set_weak_form()
+
+Now we add the usual SUPG stabilization, but here we add the edge stabilization term using ``add_edge_stab`` with a prescribe stabilization strength
+
+.. code-block:: python
+
+    # Standard SUPG stabilization
+    stp.add_stab()
+
+    gamma = 0.1
+    stp.add_edge_stab(gamma)
+
+We continue with the normal setup of the transport problem and solve the problem.
+
+.. code-block:: python 
+
+    bc_dict = {1: {'type':'dirichlet', 'value': flatiron_tk.constant(mesh, 1.0)}}
+    stp.set_bcs(bc_dict)
+
+    # Set problem and solver
+    problem = NonLinearProblem(stp)
+    solver = NonLinearSolver(mesh.msh.comm, problem)
+
+    # Set output directory based on parameters
+    output_dir = f'output'
+    
+    # Set output writer
+    stp.set_writer(output_dir, 'bp')
+
+    # Solve 
+    num_time_steps = int(0.5/dt) + 1
+    for i in range(num_time_steps):
+        solver.solve()
+
+        stp.update_previous_solution()
+
+        if mesh.msh.comm.rank == 0:
+            print(f'h={h:.4f}, time step {i}/{num_time_steps} complete.')
+    sys.stdout.flush()
+    
+    stp.write(time_stamp=0.5)
+
+Full Script 
+----------------
+
+.. code-block:: python 
+
+    import dolfinx
+    import flatiron_tk
+    import matplotlib.pyplot as plt
+    import matplotlib
+    import numpy as np
+    import sys
+    from flatiron_tk.physics import TransientScalarTransport
+    from flatiron_tk.mesh import RectMesh
+    from flatiron_tk.solver import NonLinearProblem
+    from flatiron_tk.solver import NonLinearSolver
+    from flatiron_tk.io import bp_mod
+
+    # Create mesh 
+    num_elements = 100
+    L = 1 
+    h = L/num_elements
+    mesh = RectMesh(0,0, L, L/10, h)
+
+    # Advection speed beta and diffusivity epsilon
+    dt = 1e-3 
+    theta = 0.5
+    beta = flatiron_tk.constant(mesh, (1.0, 0.0))
+
+    stp = TransientScalarTransport(mesh, dt, theta)
+    stp.set_tag('c')
+    stp.set_element('CG', 1)
+    stp.build_function_space()
+
+    # Diffusivity (here set as a constant)
+    D = 0.0
+    stp.set_diffusivity(D, D)
+
+    # Velocity 
+    stp.set_advection_velocity(beta, beta)
+
+    # Reaction 
+    R = 0.0
+    stp.set_reaction(R, R)
+
+    # Set the weak form
+    stp.set_weak_form()
+
+    # Standard SUPG stabilization
+    stp.add_stab()
+
+    # Add edge stab if gamma in > 1e-12
+    gamma = 0.1
+    stp.add_edge_stab(gamma)
+
+    bc_dict = {1: {'type':'dirichlet', 'value': flatiron_tk.constant(mesh, 1.0)}}
+    stp.set_bcs(bc_dict)
+
+    # Set problem and solver
+    problem = NonLinearProblem(stp)
+    solver = NonLinearSolver(mesh.msh.comm, problem)
+
+    # Set output directory based on parameters
+    output_dir = 'output
+
+    # Set output writer
+    stp.set_writer(output_dir, 'bp')
+
+    # Solve
+    num_time_steps = int(0.5/dt) + 1
+    for i in range(num_time_steps):
+        solver.solve()
+
+        stp.update_previous_solution()
+
+        if mesh.msh.comm.rank == 0:
+            print(f'h={h:.4f}, time step {i}/{num_time_steps} complete.')
+    sys.stdout.flush()
+
+    stp.write(time_stamp=0.5)

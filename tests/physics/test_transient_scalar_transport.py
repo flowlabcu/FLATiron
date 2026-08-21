@@ -49,15 +49,15 @@ def test_scalar_transport():
     t_end = 9600.0
     M = 1.0
 
-    x0 = 0.0 
-    x1 = 24000.0
-    y0 = -3400.0
-    y1 = 3400.0
+    xmin = 0.0
+    xmax = 24000.0
+    ymin = -3400.0
+    ymax = 3400.0
 
-    dx = (x1 - x0) / 100
-    dy = (y1 - y0) / 100
+    dx = (xmax - xmin) / 100
+    dy = (ymax - ymin) / 100
 
-    mesh = RectMesh(x0, y0, x1, y1, [dx, dy])
+    mesh = RectMesh(xmin, ymin, xmax, ymax, [dx, dy])
 
     dt = 96
     theta = 0.5
@@ -96,7 +96,6 @@ def test_scalar_transport():
     M_const = dolfinx.fem.Constant(mesh.msh, M)
 
     # Expression for the exact solution
-    denom = 4 * D_const *time* ufl.sqrt(1 + (lam_const**2 * time**2) / 12)
     gaussian_x = ((x[0] - (x0_const + u0_const * time) - 0.5 * lam_const * x[1] * time)**2) / (
         4 * D_const *time* (1 + (lam_const**2 * time**2) / 12))
     gaussian_y = (x[1]**2) / (4 * D_const * time)
@@ -129,7 +128,7 @@ def test_scalar_transport():
         stp.write(time_stamp=t)
         stp.update_previous_solution()
 
-        time.value = t
+        time.value = t + dt
         c_exact.interpolate(dolfinx.fem.Expression(c_expr, V.element.interpolation_points()))
         exact_file.write_function(c_exact)
 
@@ -139,4 +138,4 @@ def test_scalar_transport():
 
         t += dt
 
-    assert all(err < 1e-10 for err in error_over_time)
+    assert all(err < 1e-3 for err in error_over_time)

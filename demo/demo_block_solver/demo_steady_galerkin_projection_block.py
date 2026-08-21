@@ -1,6 +1,6 @@
-import dolfinx
 import ufl
 
+import flatiron_tk
 from flatiron_tk.mesh import LineMesh
 from flatiron_tk.physics import MultiphysicsProblem
 from flatiron_tk.physics import PhysicsProblem
@@ -33,7 +33,7 @@ class GalerkinProjection(PhysicsProblem):
 def build_GP(tag, mesh, val):
     GP = GalerkinProjection(mesh, tag=tag)
     GP.set_element('CG', 1)
-    GP.set_projection_value(dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type(val)))
+    GP.set_projection_value(flatiron_tk.constant(mesh, val))
     return GP 
 
 # Create a mesh

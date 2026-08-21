@@ -43,15 +43,15 @@ def _cartesian_mesh(x0, x1, dx, comm, **kwargs):
     cell_type = kwargs.pop('cell_type', None) 
 
     if dim == 1:
-        msh = dolfinx.mesh.create_interval(comm, num_elements[0], np.array([x0[0], x1[0]]))
+        msh = dolfinx.mesh.create_interval(comm, num_elements[0], np.array([x0[0], x1[0]]), **kwargs)
     elif dim == 2:
         if cell_type is None:
             cell_type = dolfinx.mesh.CellType.triangle
-        msh = dolfinx.mesh.create_rectangle(comm, [x0, x1], num_elements, cell_type)
+        msh = dolfinx.mesh.create_rectangle(comm, [x0, x1], num_elements, cell_type, **kwargs)
     elif dim == 3:
         if cell_type is None:
             cell_type = dolfinx.mesh.CellType.tetrahedron
-        msh = dolfinx.mesh.create_box(comm, [x0, x1], n=num_elements, cell_type=cell_type)
+        msh = dolfinx.mesh.create_box(comm, [x0, x1], n=num_elements, cell_type=cell_type, **kwargs)
     
     return msh
 

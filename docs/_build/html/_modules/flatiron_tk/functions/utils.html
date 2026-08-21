@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flatiron_tk.functions.utils &mdash; flatiron_tk 0.9.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            flatiron_tk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_modules.html">FLATiron Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toc_demos.html">FLATiron Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">flatiron_tk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">flatiron_tk.functions.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for flatiron_tk.functions.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span> 
+<span class="kn">import</span><span class="w"> </span><span class="nn">flatiron_tk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+
+<div class="viewcode-block" id="constant">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.constant">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">constant</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="s1">&#39;flatiron_tk.Mesh&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="s1">&#39;float | tuple&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a dolfinx.fem.Constant with a specified value on a given mesh.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mesh (flatiron_tk.Mesh): The mesh to associate the constant with. </span>
+<span class="sd">        value (float or tuple): The value to assign to the constant. Can be a single float or a tuple of floats.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dolfinx.fem.Constant: The constant object defined on the mesh with the specified value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">default_scalar_type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="compute_flowrate">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.compute_flowrate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_flowrate</span><span class="p">(</span><span class="n">flow_physics</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">previous</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the flow rate across a specified boundary in the Navier-Stokes simulation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flow_physics : TransientNavierStokes, SteadyNavierStokes, or SteadyStokes</span>
+<span class="sd">        The flow physics object containing the solution and mesh information.</span>
+<span class="sd">    id : int</span>
+<span class="sd">        The boundary ID across which to compute the flow rate.  </span>
+<span class="sd">    previous : bool, optional</span>
+<span class="sd">        If True, use the previous time step&#39;s solution for transient simulations. Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    flowrate : dolfinx.fem.Function</span>
+<span class="sd">        A function representing the flow rate across the specified boundary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get constants from physics object</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">get_solution_function</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">previous</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">previous_solution</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">get_facet_normal</span><span class="p">()</span> 
+
+    <span class="n">form</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">flow_physics</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="n">flowrate</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">form</span><span class="p">))</span>
+    <span class="n">flowrate</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">flowrate</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">flowrate</span></div>
+
+<div class="viewcode-block" id="PointEvaluator">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.PointEvaluator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PointEvaluator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Efficiently evaluate finite element functions at user-specified points</span>
+<span class="sd">    without rebuilding the bounding box tree each time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh : flatiron_tk.Mesh</span>
+<span class="sd">        The mesh on which the function is defined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span>
+        <span class="c1"># Build bounding box tree once</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">bb_tree</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get_tdim</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_3D_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a 1D, 2D, or 3D point into a 3D NumPy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">point</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m[WARNING]</span><span class="se">\033</span><span class="s1">[0m Point </span><span class="si">{</span><span class="n">point</span><span class="si">}</span><span class="s1"> is not 3D. Padding with zeros.&#39;</span><span class="p">)</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">point</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">point</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Point must be 1D, 2D, or 3D.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">point</span>
+
+<div class="viewcode-block" id="PointEvaluator.evaluate_point">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.PointEvaluator.evaluate_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">show_warning</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate a Dolfinx Function at a single point in parallel.</span>
+<span class="sd">        Returns the value or None if the point is outside the mesh.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function : dolfinx.fem.Function</span>
+<span class="sd">            The function to evaluate.</span>
+<span class="sd">        point : array-like</span>
+<span class="sd">            Point at which to evaluate. </span>
+<span class="sd">        show_warning : bool, optional</span>
+<span class="sd">            Whether to show a warning if the point is outside the mesh. Default is True.    </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : list or None</span>
+<span class="sd">            Function value at the point (as a list) or None if outside the mesh.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_3D_point</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+        <span class="c1"># Local search</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_collisions_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+        <span class="n">colliding_cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_colliding_cells</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="p">)</span>
+        <span class="n">cell_candidates</span> <span class="o">=</span> <span class="n">colliding_cells</span><span class="o">.</span><span class="n">links</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">local_val</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">cell_index</span> <span class="o">=</span> <span class="n">cell_candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">local_val</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">cell_index</span><span class="p">)</span>
+
+        <span class="c1"># MPI: gather all candidate values</span>
+        <span class="n">all_vals</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="n">local_val</span><span class="p">)</span>
+        <span class="c1"># Pick the first non-None value</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">all_vals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">val</span>
+
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">show_warning</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[91m[WARNING]</span><span class="se">\033</span><span class="s2">[0m Point </span><span class="si">{</span><span class="n">point</span><span class="si">}</span><span class="s2"> is outside the global mesh.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="PointEvaluator.evaluate_set">
+<a class="viewcode-back" href="../../module_functions.html#flatiron_tk.functions.utils.PointEvaluator.evaluate_set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate a Dolfinx Function at multiple points in parallel.</span>
+<span class="sd">        Returns the points (as Nx3 array) and a list of values (or None if outside mesh).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function : dolfinx.fem.Function</span>
+<span class="sd">            The function to evaluate.</span>
+<span class="sd">        points : sequence of array-like</span>
+<span class="sd">            Points at which to evaluate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        points_3d : np.ndarray</span>
+<span class="sd">            Nx3 array of points.</span>
+<span class="sd">        merged : list</span>
+<span class="sd">            List of function values at each point (None if outside mesh).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_ensure_3D_point</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">n_points</span> <span class="o">=</span> <span class="n">points_3d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Local search</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_collisions_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">points_3d</span><span class="p">)</span>
+        <span class="n">colliding_cells</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">compute_colliding_cells</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">msh</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">points_3d</span><span class="p">)</span>
+
+        <span class="n">local_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points_3d</span><span class="p">):</span>
+            <span class="n">cell_candidates</span> <span class="o">=</span> <span class="n">colliding_cells</span><span class="o">.</span><span class="n">links</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cell_index</span> <span class="o">=</span> <span class="n">cell_candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">cell_index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">local_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="c1"># MPI: gather results from all ranks</span>
+        <span class="n">all_results</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="n">local_results</span><span class="p">)</span>
+
+        <span class="c1"># Merge: pick first non-None value for each point</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+            <span class="c1"># all_results is a list of lists, one per rank</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="n">rank_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">rank_vals</span> <span class="ow">in</span> <span class="n">all_results</span><span class="p">]</span>
+            <span class="n">non_none</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">col</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">non_none</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">non_none</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">points_3d</span><span class="p">,</span> <span class="n">merged</span></div>
+</div>
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Chayut Teeraratkul.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
