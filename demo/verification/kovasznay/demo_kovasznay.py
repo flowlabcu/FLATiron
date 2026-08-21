@@ -248,7 +248,7 @@ def main():
             # lam_1 is ~41. Narrow domain around x=0 
             x_min, x_max = -0.05, 0.05
             # Domain width is 0.10. We need `h` to be smaller than the width.
-            mesh_sizes = [0.1/4, 0.1/8, 0.1/16, 0.1/32, 0.1/64]
+            mesh_sizes = [0.1/8, 0.1/16, 0.1/32, 0.1/64, 0.1/128]
         else:
             # lam_2 is ~-0.96. Standard domain.
             x_min, x_max = -0.5, 1.5

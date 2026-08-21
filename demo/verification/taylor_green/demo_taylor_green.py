@@ -49,6 +49,7 @@ import pyvista
 import matplotlib.pyplot as plt
 from mpi4py import MPI
 
+import flatiron_tk
 from flatiron_tk.mesh import RectMesh
 from flatiron_tk.physics import TransientNavierStokes
 from flatiron_tk.solver import NonLinearProblem, NonLinearSolver
@@ -268,7 +269,7 @@ def temporal_convergence():
 
         vol   = comm.allreduce(
             dolfinx.fem.assemble_scalar(dolfinx.fem.form(
-                dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type(1.0)) * ufl.dx
+                flatiron_tk.constant(mesh, 1.0) * ufl.dx
             )),
             op=MPI.SUM,
         )

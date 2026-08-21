@@ -24,6 +24,7 @@ import matplotlib.animation as animation
 import numpy as np
 import ufl
 
+import flatiron_tk
 from flatiron_tk.mesh import LineMesh
 from flatiron_tk.physics import TransientScalarTransport
 from flatiron_tk.solver import NonLinearProblem
@@ -53,7 +54,7 @@ mesh = LineMesh(0, 12800, h)
 dt = 96
 a = 1.5
 b = 2 * np.pi / 9600
-time = dolfinx.fem.Constant(mesh.msh, 0.0)
+time = flatiron_tk.constant(mesh, 0.0)
 
 stp = TransientScalarTransport(mesh, dt, tag='c')
 stp.set_element('CG', 1)
@@ -96,8 +97,8 @@ c0.interpolate(dolfinx.fem.Expression(c0_expr, interpolation_points))
 stp.set_initial_condition(c0)
 
 # Set boundary conditions
-bc_dict = {1: {'type': 'dirichlet', 'value': dolfinx.fem.Constant(mesh.msh, 0.0)},
-           2: {'type': 'dirichlet', 'value': dolfinx.fem.Constant(mesh.msh, 0.0)}}
+bc_dict = {1: {'type': 'dirichlet', 'value': flatiron_tk.constant(mesh, 0.0)},
+           2: {'type': 'dirichlet', 'value': flatiron_tk.constant(mesh, 0.0)}}
 stp.set_bcs(bc_dict)
 
 # Set up the solver

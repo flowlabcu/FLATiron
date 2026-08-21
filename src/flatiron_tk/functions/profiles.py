@@ -17,13 +17,14 @@ class ParaboloidInletProfile:
         self.flow_rate = flow_rate
         self.radius = radius
         center = np.array(center, dtype=float)
+        normal = np.array(normal, dtype=float)
+        self.gdim = normal.shape[0]
         if center.shape[0] == 2:
             center = np.pad(center, (0, 1))
 
         self.center = center
         self.center = np.array(center, dtype=float)
-        self.normal = np.array(normal, dtype=float)
-        self.normal /= np.linalg.norm(self.normal)  # ensure unit normal
+        self.normal = normal / np.linalg.norm(normal)  # ensure unit normal
 
     def update_flow_rate(self, new_flow_rate):
         """Update the flow rate Q for the current timestep."""
@@ -56,7 +57,7 @@ class ParaboloidInletProfile:
         factor = np.where(r <= self.radius, 1 - (r / self.radius) ** 2, 0.0)
         velocity_magnitude = self.v_max * factor
 
-        return self.normal[:, np.newaxis] * velocity_magnitude
+        return (self.normal[:, np.newaxis] * velocity_magnitude)[:self.gdim, :]
 
 class ParabolicInletProfile:
     def __init__(self, flow_rate, radius, center, normal):
@@ -79,9 +80,10 @@ class ParabolicInletProfile:
         
         center = np.array(center, dtype=float)
         normal = np.array(normal, dtype=float)
+        self.gdim = normal.shape[0]
         if center.shape[0] == 2: center = np.pad(center, (0, 1))
         if normal.shape[0] == 2: normal = np.pad(normal, (0, 1))
-        
+
         self.center = center
         self.normal = normal / np.linalg.norm(normal)  # unit normal vector
         
@@ -134,10 +136,10 @@ class ParabolicInletProfile:
         
         velocity_magnitude = self.v_max * factor  # shape (N,)
         
-        # Velocity is along normal direction
+        # Velocity is along normal direction; return only gdim components
         velocity = self.normal[:, np.newaxis] * velocity_magnitude[np.newaxis, :]
 
-        return velocity
+        return velocity[:self.gdim, :]
 
 
 class PlugInletProfile:

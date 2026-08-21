@@ -5,8 +5,7 @@ from flatiron_tk.solver import NonLinearProblem
 from flatiron_tk.solver import NonLinearSolver
 
 import flatiron_tk
-import dolfinx
-import ufl 
+import ufl
 import numpy as np
 
 from mpi4py import MPI
@@ -26,8 +25,8 @@ stp.set_reaction(0.0)
 stp.set_weak_form()
 stp.add_stab()  
 
-bottom_flux = dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type([0.0, -0.5]))
-top_flux = dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type([0.0, 0.0]))
+bottom_flux = flatiron_tk.constant(mesh, [0.0, -0.5])
+top_flux = flatiron_tk.constant(mesh, [0.0, 0.0])
 zero_scalar = flatiron_tk.constant(mesh, 0.0)
 
 bc_dict = {

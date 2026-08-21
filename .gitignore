@@ -139,6 +139,7 @@ dmypy.json
 *.pvd
 *.xml
 *.msh
+!demo/demo_mark_mesh/tree_10.msh
 *.h5
 *.pos
 *.xdmf
@@ -161,6 +162,9 @@ scaling_outputs*/
 demo/Carotid-Artery/mesh/*
 !porous.h5
 *.npy
+
+# Cluster job scripts (contain private partition/account info)
+*.sbatch
 
 # Mac OS
 .DS_Store

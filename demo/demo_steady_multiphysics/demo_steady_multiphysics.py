@@ -1,6 +1,6 @@
-import dolfinx
 import ufl
 
+import flatiron_tk
 from flatiron_tk.mesh import RectMesh
 from flatiron_tk.physics import MultiphysicsProblem
 from flatiron_tk.physics import SteadyScalarTransport
@@ -29,7 +29,7 @@ mesh = RectMesh(0.0, 0.0, 4.0, 1.0, 1/64)
 
 # Define Constants
 D_A = 0.1; D_B = 0.1; D_C = 0.1
-k_v = dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type(0.01))
+k_v = flatiron_tk.constant(mesh, 0.01)
 k_s = 1
 c0 = 1
 u_mag = 10.0
@@ -76,15 +76,15 @@ coupled_physics.set_weak_form(stp_options,stp_options,stp_options)
 # 8 = bottom 
 n = mesh.get_facet_normal()
 A_bcs = {
-    1: {'type': 'dirichlet', 'value': dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type(c0))},
+    1: {'type': 'dirichlet', 'value': flatiron_tk.constant(mesh, c0)},
     2: {'type': 'neumann', 'value': -k_s*A*B/D_A * n}
 }
 B_bcs = {
-    1: {'type': 'dirichlet', 'value': dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type(c0))},
+    1: {'type': 'dirichlet', 'value': flatiron_tk.constant(mesh, c0)},
     2: {'type': 'neumann', 'value': -2*k_s*A*B/D_B * n}
 }
 C_bcs = {
-    1: {'type': 'dirichlet', 'value': dolfinx.fem.Constant(mesh.msh, dolfinx.default_scalar_type(0.0))},
+    1: {'type': 'dirichlet', 'value': flatiron_tk.constant(mesh, 0.0)},
     2: {'type': 'neumann', 'value': k_s*A*B/D_C * n}
 }
 

@@ -34,9 +34,10 @@ import sys
 
 # ------------------------------------------------------- #
 
-import dolfinx 
+import dolfinx
 import basix
-import ufl 
+import ufl
+import flatiron_tk
 from flatiron_tk.physics import TransientScalarTransport
 from flatiron_tk.mesh import Mesh, RectMesh
 from flatiron_tk.solver import NonLinearProblem, NonLinearSolver
@@ -88,14 +89,14 @@ stp.add_stab()
 V = stp.get_function_space()
 c_exact = dolfinx.fem.Function(V)
 c_exact.name = 'c_exact'
-time = dolfinx.fem.Constant(mesh.msh, t0)
+time = flatiron_tk.constant(mesh, t0)
 
 # Constants in expression
-x0_const = dolfinx.fem.Constant(mesh.msh, x0)
-u0_const = dolfinx.fem.Constant(mesh.msh, u0)
-lam_const = dolfinx.fem.Constant(mesh.msh, lam)
-D_const = dolfinx.fem.Constant(mesh.msh, D)
-M_const = dolfinx.fem.Constant(mesh.msh, M)
+x0_const = flatiron_tk.constant(mesh, x0)
+u0_const = flatiron_tk.constant(mesh, u0)
+lam_const = flatiron_tk.constant(mesh, lam)
+D_const = flatiron_tk.constant(mesh, D)
+M_const = flatiron_tk.constant(mesh, M)
 
 # Expression for the exact solution
 denom = 4 * D_const *time* ufl.sqrt(1 + (lam_const**2 * time**2) / 12)

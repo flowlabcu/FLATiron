@@ -1,4 +1,5 @@
 from .physics_problem import PhysicsProblem
+from .poisson import Poisson
 from .steady_scalar_transport import SteadyScalarTransport
 from .transient_scalar_transport import TransientScalarTransport
 from .multiphysics_problem import MultiphysicsProblem
