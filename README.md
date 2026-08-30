@@ -38,11 +38,18 @@ Module documentation is available at the `FLATiron` documentation page at the fo
 
 ## 6. How to cite our code
 
-While `FLATiron` is released as an open source toolkit, there is currently not a single linking article that you can cite to acknowledge use of `FLATiron` in your work. Hence, the best way to cite our tool is to link directly to our Github repository.
+The best, and recommended, way to cite the `FLATiron` toolkit is by referencing the official `FLATiron` toolkit article published in the journal `SoftwareX` as linked below:
 
-Below, we have provided a list of research papers that have described the underlying techniques and modules which have informed the design and implementation of the `FLATiron` toolkit:
+- Rovito, N., Holmes, J., Teeraratkul, C., and Mukherjee, D. "The FLATiron Toolkit: A Versatile Multiphysics
+Platform For Flow And Transport Phenomena Using The Finite Element Method." **SoftwareX. 35.102968. 2026.**
 
-- Teeraratkul, C., Tomaiuolo, M.,  Stalker,T.J., and Mukherjee, D., "A Stabilized Finite Element Technique For Transport Phenomena Within And Around Immersed Porous Bodies In Flow."" **Physics of Fluids. 37(10):101916. 2025.**
+Additionally, below, we have provided a list of research papers that have described the underlying techniques and modules which have informed the design and implementation of the `FLATiron` toolkit:
+
+- Laroche, A., Rovito, N., Liu, A., Allaeys, I., Adeoye, O., Heitsch, L., Pizella, S., Bark, D., Di Paola, J.,
+Lee, J.M., Campbell, R., Mukherjee, D., Boilard, E., Denorme, F. "Mechanisms Of Von Willebrand Factor
+Activation Driving No-Reflow In Ischemic Stroke." **Proceedings of the National Academy of Sciences. U.S.A. 123(30) e2610397123. 2026.**
+
+- Teeraratkul, C., Tomaiuolo, M.,  Stalker,T.J., and Mukherjee, D., "A Stabilized Finite Element Technique For Transport Phenomena Within And Around Immersed Porous Bodies In Flow." **Physics of Fluids. 37(10):101916. 2025.**
 
 - Venkatesh, S., Teeraratkul, C., Rovito, N., Mukherjee, D., and Lynch, M. E., “High-Fidelity Computational Fluid Dynamics Modeling to Simulate Perfusion through a Bone-Mimicking Scaffold,” **Computers in Biology and Medicine. 186, p. 109637. 2025.**
 ‌
@@ -50,6 +57,8 @@ Below, we have provided a list of research papers that have described the underl
 
 - Rovito, N., and Mukherjee, D. In Silico Analysis Of Flow-mediated Drug Transport For Thrombolytic
 Therapy In Acute Ischemic Stroke. **In: ASME International Mechanical Engineering Congress and Exposition, Vol. 88667, pp. V008T10A026. 2025**.
+
+*Did you use `FLATiron` toolkit in one of your research publications too? Send us an email so we can include your publications in the list above? This is a big way for us to understand how our toolkit is enabling impactful research*
 ‌
 ## 7. Questions and issues
 
